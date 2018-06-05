@@ -6,7 +6,7 @@ CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 mkdir -p ./prod/public
 
 cd $CURRENT_PATH/backend
-cp -r bin/ dist/ shared/ node_modules/ package.json ../prod
+cp -r bin/ dist/ shared/ node_modules/ package.json server.js ../prod
 
 cd $CURRENT_PATH/frontend
 cp -r dist/* ../prod/public/
