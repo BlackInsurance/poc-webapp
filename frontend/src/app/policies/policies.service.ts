@@ -15,6 +15,8 @@ import { Policy } from './policy';
 @Injectable()
 export class PolicyService {
     
+    private backendBaseURL : string = window.location.protocol + '//' + window.location.host + '/';
+
     constructor(private http: HttpClient) { 
     }
 
@@ -26,7 +28,7 @@ export class PolicyService {
         var hashedPassword = shajs('sha256').update({_password}).digest('hex');
         var loginRequest = { email: _emailAddress, password: _password };
 
-        return this.http.post<Policy[]>("http://localhost:3002/login/", loginRequest, { observe: 'response' }).pipe(
+        return this.http.post<Policy[]>(this.backendBaseURL+"login/", loginRequest, { observe: 'response' }).pipe(
             map((res:HttpResponse<any>) => { 
                 if (res.body.message == 'logged in'){
                     var token = res.headers.get('Authorization');
@@ -47,7 +49,7 @@ export class PolicyService {
             headers: new HttpHeaders({ 'Authorization': 'Bearer '+localStorage.getItem('token') }),
         };
 
-        return this.http.post<Policy[]>("http://localhost:3002/policySecureRead/", policyRequest, requestOptions).pipe(
+        return this.http.post<Policy[]>(this.backendBaseURL+"policySecureRead/", policyRequest, requestOptions).pipe(
             map((res:Policy[]) => { return res[0]; }),
             catchError((error:any) => {
                 console.log(error);
@@ -56,7 +58,7 @@ export class PolicyService {
     }
 
     createPolicy(policy:Policy): Observable<Policy>{
-        return this.http.post<Policy>("http://localhost:3002/policy", policy, { observe: 'response' }).pipe(
+        return this.http.post<Policy>(this.backendBaseURL+"policy", policy, { observe: 'response' }).pipe(
             map((res:HttpResponse<Policy>) => {
                 var token = res.headers.get('Authorization');
                 localStorage.setItem('token', token);
@@ -77,7 +79,7 @@ export class PolicyService {
             headers: new HttpHeaders({ 'Authorization': 'Bearer '+localStorage.getItem('token') }),
         };
             
-        return this.http.patch("http://localhost:3002/policy", policyRequest, requestOptions).pipe(
+        return this.http.patch(this.backendBaseURL+"policy", policyRequest, requestOptions).pipe(
             map((res:any) => {
                 return res.json();
             }),

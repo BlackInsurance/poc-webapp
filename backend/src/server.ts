@@ -44,7 +44,7 @@ export class Server {
   private policyHolderModel?: mongoose.Model<IPolicyHolderModel>;
 
   private dataModel: CORE_DATA_MODEL;
-  private PUBLIC_WEBROOT: string = 'public/';
+  private PUBLIC_WEBROOT: string = process.env.PUBLIC_WEBROOT || './';
   //private passport: any;
 
 
@@ -105,7 +105,7 @@ export class Server {
    */
   public config() {
     //add static paths
-    this.app.use(express.static(path.join(__dirname, '../public')));
+    this.app.use(express.static(path.join(__dirname, (process.env.PUBLIC_WEBROOT_RELATIVE_PATH || '../../frontend/dist'))));
   
     //configure jade
     this.app.set("views", path.join(__dirname, "../dist/views"));
@@ -141,36 +141,40 @@ export class Server {
 
     // Setup Mongoose and the connection with MongoDB
     const MONGODB_CONNECTION: string = process.env.MONGODB_URI || 'mongodb://127.0.0.1/poc';
-    let connection: mongoose.Connection = mongoose.createConnection(MONGODB_CONNECTION);
-
-    //create models
-    this.policyModel = connection.model<IPolicyModel>("Policy", policySchema);
-    this.policyHolderModel = connection.model<IPolicyHolderModel>("PolicyHolder", policyHolderSchema);
-    let PolicyHolder = this.policyHolderModel;
+    mongoose.connect(MONGODB_CONNECTION, {})
+    .then((mongooseConnector) => {
+        //create models
+        this.policyModel = mongooseConnector.connection.model<IPolicyModel>("Policy", policySchema);
+        this.policyHolderModel = mongooseConnector.connection.model<IPolicyHolderModel>("PolicyHolder", policyHolderSchema);
+        let PolicyHolder = this.policyHolderModel;
+        
+        // Load the 'local' authentication option in Passport, allowing username/password login
+        passport.use(new LocalStrategy({
+            usernameField: 'email',
+            passwordField: 'password'
+          }, 
+          (email, password, cb) => {
+            return PolicyHolder.findOne({"email":email})
+              .then((existingPolicyHolder) => {
+                if (!existingPolicyHolder) {
+                  return cb(null, false, {message: 'Incorrect email'});
+                }
+                return PolicyHolder.findOne({"email":email, "password":password});            
+              }).then((policyHolder) => {
+                console.log(policyHolder);
+                if (!policyHolder) {
+                  return cb(null, false, {message: 'Incorrect password'});
+                }
+                return cb(null, policyHolder, {message: 'Logged In Successfully'});
+              })
+              .catch(err => cb(err));
+          }
+        ));
+    }).catch((err) => {
+        console.log('Error while connecting to the DB');
+        console.error(err);
+    });
     
-    // Load the 'local' authentication option in Passport, allowing username/password login
-    passport.use(new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password'
-      }, 
-      (email, password, cb) => {
-        return PolicyHolder.findOne({"email":email})
-          .then((existingPolicyHolder) => {
-            if (!existingPolicyHolder) {
-              return cb(null, false, {message: 'Incorrect email'});
-            }
-            return PolicyHolder.findOne({"email":email, "password":password});            
-          }).then((policyHolder) => {
-            console.log(policyHolder);
-            if (!policyHolder) {
-              return cb(null, false, {message: 'Incorrect password'});
-            }
-            return cb(null, policyHolder, {message: 'Logged In Successfully'});
-          })
-          .catch(err => cb(err));
-      }
-    ));
-
     // Load the ability to understand / communicate JWT in Passport for request authorisation 
     passport.use(new JWTStrategy({
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
