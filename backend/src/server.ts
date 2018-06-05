@@ -140,7 +140,7 @@ export class Server {
     mongoose.Promise = global.Promise;
 
     // Setup Mongoose and the connection with MongoDB
-    const MONGODB_CONNECTION: string = 'mongodb://127.0.0.1/poc';
+    const MONGODB_CONNECTION: string = process.env.MONGODB_URI || 'mongodb://127.0.0.1/poc';
     let connection: mongoose.Connection = mongoose.createConnection(MONGODB_CONNECTION);
 
     //create models
