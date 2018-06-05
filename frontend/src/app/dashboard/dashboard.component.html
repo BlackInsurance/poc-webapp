@@ -1,0 +1,101 @@
+    <div fxLayout="row" fxLayoutWrap="wrap">
+        <div fxFlex.sm="33.33" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100" class="m-gap p-gap">
+            <mat-card>
+                <div class="card-policy grad-black">
+                    <div class="card-title">Total Claims</div>
+                    <div class="card-subtitle">BLCK Token Balance</div>
+                    <div class="weather">
+                    <div class="card-icon-and-value d-flex justify-content-between">
+                        <i class="fa fa-money fa-3x align-self-center"></i>
+                        <div class="card-value align-self-center">{{blckBalance}}</div>
+                    </div>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+        <div fxFlex.sm="33.33" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100" class="m-gap p-gap">
+            <mat-card>
+                <div class="card-policy grad-black">
+                    <div class="card-title">Last Claim</div>
+                    <div class="card-subtitle">Days since</div>
+                    <div class="weather">
+                    <div class="card-icon-and-value d-flex justify-content-between">
+                        <i class="fa fa fa-calendar fa-3x align-self-center"></i>
+                        <div class="card-value align-self-center">{{daysSinceLastClaim}}</div>
+                    </div>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+        <div fxFlex.sm="33.33" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100" class="m-gap p-gap">
+            <mat-card>
+                <div class="card-policy grad-black">
+                    <div class="card-title">Policy Expiration</div>
+                    <div class="card-subtitle">Days remaining</div>
+                    <div class="weather">
+                    <div class="card-icon-and-value d-flex justify-content-between">
+                        <i class="fa fa-calendar-times-o fa-3x align-self-center"></i>
+                        <div class="card-value align-self-center">{{daysRemainingForPolicy}}</div>
+                    </div>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+    <div fxLayout="row" fxLayoutWrap="wrap">
+        <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
+            <mat-card>
+                <mat-card-title fxLayout="row" fxLayoutAlign="start center">
+                    Policy Details &nbsp; 
+                    <div class="policyStatus">{{policy.status}}</div>
+                </mat-card-title>
+                <hr>
+                <mat-card-content>
+                    <div fxLayout="row" fxLayoutWrap="wrap" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap policyConfiguration">
+                        <div fxFlex="33%" class="configItem">    
+                            <label class="label" for="Start Date">Start Date</label>
+                            <div class="value">{{policy.startDate | date: 'mediumDate'}}</div>
+                        </div>
+                        <div fxFlex="33%" class="configItem">
+                            <label class="label" for="Email Address">Email Address</label>
+                            <div class="value">{{policy.emailAddress}}</div>
+                        </div>
+                        <div fxFlex="33%" class="configItem">    
+                            <label class="label" for="Covered City">Covered City</label>
+                            <div class="value">{{policy.coveredCity.name}}</div>
+                        </div>
+                        <div fxFlex="33%" class="configItem">    
+                            <label class="label" for="End Date">End Date</label>
+                            <div class="value">{{policy.endDate | date: 'mediumDate'}}</div>
+                        </div>
+                        <div fxFlex="66%" class="configItem">    
+                            <mat-form-field class="formField">
+                                <input matInput placeholder="Ethereum Address" value="{{policy.ethereumAddress}}">
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+    <div fxLayout="row.row-eq-height" fxLayoutWrap="wrap">
+       <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="100" fxFlex.lg="100" fxFlex.xl="100" class="m-gap p-gap">
+            <ngx-datatable class="material" [rows]="policy.claims" [columnMode]="'force'" [headerHeight]="50" [footerHeight]="0" [rowHeight]="'auto'">
+                <ngx-datatable-column name="Claim Transaction ID">
+                    <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                        {{row['claimID']}}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Claim Payment Date">
+                    <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                        {{row['claimDate'] | date: 'MMMM dd'}}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Amount of Rain (mm)">
+                    <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                        {{row['rainLast24Hours']}}
+                    </ng-template>
+                </ngx-datatable-column>
+            </ngx-datatable>
+       </div>
+    </div>

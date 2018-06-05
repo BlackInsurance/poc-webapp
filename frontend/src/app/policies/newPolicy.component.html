@@ -1,0 +1,127 @@
+<div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="center center">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="75" fxFlex="33" fxFlex.xs="100" class="m-gap p-gap">
+        <mat-card>
+            <mat-card-title fxLayout="row" fxLayoutAlign="start center">
+                Welcome to the Black Insurance - BLCK Token Airdrop! &nbsp; 
+            </mat-card-title>
+            <hr>
+            <mat-card-content>
+                <form class="newPolicyForm">   
+
+
+                    <mat-horizontal-stepper [linear]="true" #stepper>
+                        <mat-step>
+                            <ng-template matStepLabel>Introduction</ng-template>
+                            <div class="introduction">
+                                <span class="title">Receive free BLCK Tokens by playing our "Rainy Day Insurance Game"</span>  
+                                <div class="listContainer">
+                                    <ul>
+                                        <li>This is our public demo of an Insurance Platform using Blockchain</li>
+                                        <li>Get a free insurance policy by completing this Wizard</li>
+                                        <li>If the city you pick gets rain, we give you BLCK Tokens</li>
+                                        <li>BLCK Tokens are awarded once every 24-hours</li>
+                                        <li><strong>You only get to create a policy once (choose wisely!)</strong></li>
+                                        <li><a href="https://www.black.insure/" target="_blank">Contact us</a> for more information</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="buttons">
+                                <button mat-raised-button matStepperNext type="button">Lets get started!</button>
+                            </div>
+                        </mat-step>
+                        <mat-step>
+                            <ng-template matStepLabel>Provide Login Info</ng-template>
+
+                            <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
+                                <div fxFlex="50%">
+                                    <mat-form-field appearance="outline" class="inputControl">
+                                        <mat-label>Email Address</mat-label>
+                                        <input matInput [formControl]="emailFormControl" [errorStateMatcher]="matcher" (input)="resetLoginValidation($event)">
+                                        <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
+                                        Please enter a valid email address
+                                        </mat-error>
+                                        <mat-error *ngIf="emailFormControl.hasError('required')">
+                                        Email is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <div fxFlex="50%">
+                                    <mat-form-field appearance="outline" class="inputControl">
+                                        <mat-label>Password</mat-label>
+                                        <input matInput [type]="hide ? 'password' : 'text'" [formControl]="passwordFormControl" (input)="resetLoginValidation($event)">
+                                        <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility' : 'visibility_off'}}</mat-icon>
+                                        <mat-error *ngIf="passwordFormControl.hasError('minlength') && !passwordFormControl.hasError('required')">
+                                        Password must contain at least 8 characters
+                                        </mat-error>
+                                        <mat-error *ngIf="passwordFormControl.hasError('required')">
+                                        Password is <strong>required</strong>
+                                        </mat-error>
+                                        <mat-error *ngIf="passwordFormControl.errors?.password_incorrect">
+                                        Found email, password does not match
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <div fxFlex="grow">
+                                    <mat-divider inset="true"></mat-divider>
+                                </div>
+
+                                <div fxFlex="85" fxFlexOffset="15" style="padding-top:15px;">
+                                    <span><strong style="margin-right:20px">OR</strong> Sign-in with </span><a href="#" class="shared-icon mr-1 mat-blue"><i class="fa fa-facebook fa-lg mr-1"></i>Facebook</a>
+                                    <a href="#" class="shared-icon mat-red"><i class="fa fa-google fa-lg mr-1"></i>Google</a>
+                                </div>
+                            </div>
+
+                            <div class="buttons">
+                                <button mat-raised-button matStepperPrevious type="button">Back</button>
+                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="(emailFormControl.status == 'INVALID' || passwordFormControl.status ==  'INVALID' || loginInProgress)">Next</button>
+                            </div>  
+                        </mat-step>
+                        <mat-step>
+                            <ng-template matStepLabel>Add Policy Details</ng-template>
+                            
+                            
+                            <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
+                                <div fxFlex="33%">    
+                                    <auto-complete inputPlaceholderText="Choose a City" appearance="outline" className="inputControl" (componentCallback)="this.autoCompleteCallback($event)"></auto-complete>
+                                </div>
+
+                                <div fxFlex="33%">                                         
+                                    <mat-form-field appearance="outline" class="inputControl">
+                                        <mat-label>Start Date</mat-label>
+                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="startDatePicker" placeholder="{{minDate | date: 'shortDate'}}" [formControl]="startDateControl">
+                                        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #startDatePicker></mat-datepicker>
+                                        <mat-error *ngIf="startDateControl.hasError('required')">Start Date for your Policy is <strong>required</strong></mat-error>
+                                        <mat-error *ngIf="!validDateMinimum('start')">Date is not valid.  Must be {{minDate | date: 'shortDate'}} or later</mat-error>
+                                        <mat-error *ngIf="!validDateMaximum('start')">Date is not valid.  Must be {{currentMaxDate | date: 'shortDate'}} or earlier</mat-error>
+                                    </mat-form-field> 
+                                </div>
+
+                                <div fxFlex="33%">                                                                    
+                                    <mat-form-field appearance="outline" class="inputControl">
+                                        <mat-label>End Date</mat-label>
+                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="endDatePicker" placeholder="{{maxDate | date: 'shortDate'}}" [formControl]="endDateControl">
+                                        <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #endDatePicker></mat-datepicker>
+                                        <mat-error *ngIf="endDateControl.hasError('required')">End Date for your Policy is <strong>required</strong></mat-error>
+                                        <mat-error *ngIf="!validDateMinimum('end')">Date is not valid.  Must be {{currentMinDate | date: 'shortDate'}} or later</mat-error>
+                                        <mat-error *ngIf="!validDateMaximum('end')">Date is not valid.  Must be {{maxDate | date: 'shortDate'}} or earlier</mat-error>
+                                    </mat-form-field>  
+                                </div>
+                            </div>
+
+                            <div class="buttons">
+                                <button mat-raised-button matStepperPrevious color="warn" type="button">Back</button>
+                                <button mat-raised-button type="button" color="primary" (click)="createPolicy()" [disabled]="!policyDetailsAreValid()">Create your Rainy Day Policy!</button>
+                            </div>
+                        </mat-step>
+                    </mat-horizontal-stepper>
+
+
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
