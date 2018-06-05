@@ -38,17 +38,9 @@ export class PublicRoute extends BaseRoute {
    * @param res {Response} The express Response object.
    * @next {NextFunction} Execute the next method.
    */
-  public index(req: Request, res: Response, next: NextFunction) {
-    //set custom title
-    //this.title = "Some other title";
-
-    //set options
-    let options: Object = {
-      "message": "Welcome to the Black Insurance - Rainy Day Insurance Game!"
-    };
-
-    //render template
-    this.render(req, res, "index", options);
+  public index(publicweb:string, req: Request, res: Response, next: NextFunction) {
+    console.log(publicweb);
+    res.sendFile(`index.html`, { root: publicweb })
   }
 
 

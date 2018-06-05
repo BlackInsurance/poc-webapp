@@ -21,10 +21,8 @@ const model_1 = require("../shared/models/model");
 const policy_1 = require("../shared/models/policy");
 const policyHolder_1 = require("../shared/models/policyHolder");
 class Server {
-    static bootstrap() {
-        return new Server();
-    }
     constructor() {
+        this.PUBLIC_WEBROOT = 'public/';
         this.dataModel = new model_1.CORE_DATA_MODEL();
         this.app = express();
         this.app.use(passport.initialize());
@@ -32,10 +30,13 @@ class Server {
         this.routes();
         this.api();
     }
+    static bootstrap() {
+        return new Server();
+    }
     api() {
     }
     config() {
-        this.app.use(express.static(path.join(__dirname, "../public")));
+        this.app.use(express.static(path.join(__dirname, '../public')));
         this.app.set("views", path.join(__dirname, "../dist/views"));
         this.app.set("view engine", "jade");
         this.app.use(logger("dev"));
@@ -90,7 +91,13 @@ class Server {
             new public_1.PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).getPolicyList(req, res, next);
         });
         this.app.get("/", (req, res, next) => {
-            new public_1.PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(req, res, next);
+            new public_1.PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
+        });
+        this.app.get("/home", (req, res, next) => {
+            new public_1.PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
+        });
+        this.app.get("/signup", (req, res, next) => {
+            new public_1.PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
         });
         this.app.post("/login", (req, res, next) => {
             new public_1.PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).login(req, res, next);

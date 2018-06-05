@@ -9,11 +9,9 @@ class PublicRoute extends baseRoute_1.BaseRoute {
     constructor(_dm, _policyModel, _policyHolderModel) {
         super(_dm, _policyModel, _policyHolderModel);
     }
-    index(req, res, next) {
-        let options = {
-            "message": "Welcome to the Black Insurance - Rainy Day Insurance Game!"
-        };
-        this.render(req, res, "index", options);
+    index(publicweb, req, res, next) {
+        console.log(publicweb);
+        res.sendFile(`index.html`, { root: publicweb });
     }
     login(req, res, next) {
         passport.authenticate('local', { session: false }, (err, policyHolder, info) => {

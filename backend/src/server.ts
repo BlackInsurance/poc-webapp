@@ -44,6 +44,7 @@ export class Server {
   private policyHolderModel?: mongoose.Model<IPolicyHolderModel>;
 
   private dataModel: CORE_DATA_MODEL;
+  private PUBLIC_WEBROOT: string = 'public/';
   //private passport: any;
 
 
@@ -104,7 +105,7 @@ export class Server {
    */
   public config() {
     //add static paths
-    this.app.use(express.static(path.join(__dirname, "../public")));
+    this.app.use(express.static(path.join(__dirname, '../public')));
   
     //configure jade
     this.app.set("views", path.join(__dirname, "../dist/views"));
@@ -207,7 +208,13 @@ export class Server {
   
     //add home page route
     this.app.get("/", (req: Request, res: Response, next: NextFunction) => {
-      new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(req, res, next);
+      new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
+    });
+    this.app.get("/home", (req: Request, res: Response, next: NextFunction) => {
+      new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
+    });
+    this.app.get("/signup", (req: Request, res: Response, next: NextFunction) => {
+      new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
     });
 
     //add login route
