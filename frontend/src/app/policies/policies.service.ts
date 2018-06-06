@@ -19,7 +19,7 @@ export class PolicyService {
     private backendBaseURL : string = window.location.protocol + '//' + window.location.host + '/';
 
     constructor(private http: HttpClient) { 
-        this.backendBaseURL = 'http://localhost:8088/';
+        //this.backendBaseURL = 'http://localhost:8088/';
     }
 
 
