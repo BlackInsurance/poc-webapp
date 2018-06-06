@@ -19,5 +19,10 @@ exports.policyHolderSchema = new mongoose_1.Schema({
         type: Number,
         required: true,
         default: 0
+    },
+    confirmationID: {
+        type: String,
+        required: false,
+        default: ''
     }
 });

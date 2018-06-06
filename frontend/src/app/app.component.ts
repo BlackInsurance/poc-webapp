@@ -17,6 +17,12 @@ export class AppComponent {
 
     if ( localStorage.getItem('token') != null ){
       router.navigate(['/home']);
+    } else if (window.location.pathname.startsWith('/confirm')) {
+      let p = window.location.pathname;
+      let confirmationID = p.substring(p.lastIndexOf('/')+1, p.length);
+      router.navigate(['/confirm', confirmationID]);
+    }else {
+      router.navigate(['/signup']);
     }
   }
 }

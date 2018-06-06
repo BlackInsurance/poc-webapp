@@ -1,6 +1,7 @@
 import * as uuidBase62 from 'uuid-base62';
 import * as jwt from "jsonwebtoken";
 import * as passport from "passport";
+import * as sendgrid from '@sendgrid/mail';
 
 import { NextFunction, Request, Response, Router } from "express";
 import { BaseRoute } from "./baseRoute";
@@ -54,6 +55,7 @@ export class PublicRoute extends BaseRoute {
    * @next {NextFunction} Execute the next method.
    */
   public login(req, res: Response, next: NextFunction) {
+    let __this = this;
     passport.authenticate('local', {session: false}, (err, policyHolder, info) => {
         if (err || !policyHolder) {
             return res.status(400).json( {
@@ -63,9 +65,7 @@ export class PublicRoute extends BaseRoute {
             });
         }
 
-        const rawToken = { "sub" : policyHolder.policyHolderID };
-        const signedToken = jwt.sign(rawToken, 'secret');
-
+        const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);                 
         res.setHeader('Authorization', signedToken);
         return res.json( {
             existingAccount: true,
@@ -115,7 +115,7 @@ export class PublicRoute extends BaseRoute {
    * @method createNewPolicy
    * @param req {Request} The express Request object.
    * @param res {Response} The express Response object.
-   * @next {NextFunction} Execute the next method.
+   * @param next {NextFunction} Execute the next method.
    */
   public createNewPolicy(req: Request, res: Response, next: NextFunction) {
 
@@ -171,6 +171,7 @@ export class PublicRoute extends BaseRoute {
     }
 
     // Look for the email address to see if this Policy already exists
+    let __this = this;
     let Policy = this.policyModel;
     let PolicyHolder = this.policyHolderModel;
     Policy.find({})
@@ -188,6 +189,7 @@ export class PublicRoute extends BaseRoute {
                 newPolicyHolder.policyHolderID = uuidBase62.v4();
                 newPolicyHolder.email = req.body.emailAddress;
                 newPolicyHolder.password = req.body.password;
+                newPolicyHolder.confirmationID = uuidBase62.v4();
 
                 return new PolicyHolder(newPolicyHolder).save(function(policyHolderError){
                     if (policyHolderError) {
@@ -218,15 +220,9 @@ export class PublicRoute extends BaseRoute {
                         }
 
                         console.log("policy saved!");
-                        let endOfYear = (new Date( (new Date()).getFullYear(), 11, 31));
-                        const rawToken = { 
-                            "sub" : newPolicyHolder.email,
-                            "exp" : endOfYear.getTime(),
-                            "iat" : (new Date()).getTime(),
-                            "jti" : newPolicyHolder.policyHolderID
-                        };
-                        const signedToken = jwt.sign(rawToken, 'secret');
-                
+                        __this.sendConfirmationEmail(newPolicyHolder.confirmationID, newPolicyHolder.email);
+
+                        const signedToken = __this.createJWT(newPolicyHolder.email, newPolicyHolder.policyHolderID);                 
                         res.setHeader('Authorization', signedToken);
                         res.send(newPolicy);
                     });
@@ -237,6 +233,113 @@ export class PublicRoute extends BaseRoute {
                 res.send({error: 'Email address already has a Policy'});
             }
         });
+  }
+
+
+  /**
+   * The PolicyHolder Confirmation route.
+   *
+   * @class PublicRoute
+   * @method confirmPolicyHolder
+   * @param req {Request} The express Request object.
+   * @param res {Response} The express Response object.
+   * @param next {NextFunction} Execute the next method.
+   */
+  public confirmPolicyHolder(req: Request, res: Response, next: NextFunction) {
+
+    let __this = this;
+    let Policy = this.policyModel;
+    let PolicyHolder = this.policyHolderModel;
+    let _confirmationID : string  = req.body.confirmationID.toString();
+    
+    PolicyHolder.findOne({confirmationID:_confirmationID})
+        .exec( (err, policyHolder:any)=>{
+
+            if (err) {
+                console.log('Failed while attempting to retrieve a specific Policy from the DB');
+                console.log(err);
+                res.status(400).send({error:'Failed while attempting to retrieve a specific Policy from the DB. ERROR-MESSAGE: '+err});
+                return;
+            }
+
+            // 'confirmationID':req.body.confirmationID
+            console.log(policyHolder);
+
+            if ( ! policyHolder) { res.status(400).send({error:'Failed to find the requested Policy by Confirmation ID.'}); return; }
+
+            let policyHolderID = policyHolder.policyHolderID;
+
+            Policy.find({})
+                .where('policyHolder.policyHolderID').equals(policyHolderID)
+                .exec((policyErr, policies:any[])=>{
+                    if ( ! policies || policies.length == 0 ) { res.status(400).send({error:'Failed to find the requested Policy by Confirmation ID.'}); return; }
+
+                    if ( policyErr ){
+                        console.log('Failed while attempting to retrieve a specific Policy from the DB');
+                        console.log(policyErr);
+                        res.status(400).send({error:'Failed while attempting to retrieve a specific Policy from the DB. ERROR-MESSAGE: '+policyErr});
+                        return;
+                    }
+
+                    let policy = policies[0];
+
+                    if ( policy.status == 'Unconfirmed' ){
+                        policy.status = 'Confirmed';
+                        
+                        Policy.update({_id : policy.id}, policy, function(err) {
+                            if (err) {
+                                console.log('Failed while attempting to retrieve a specific Policy from the DB, specifically while marking the Policy as Confirmed.');
+                                console.log(err);
+                                res.status(400).send({error:'Failed while attempting to retrieve a specific Policy from the DB, specifically while marking the Policy as Confirmed. ERROR-MESSAGE: '+err});
+                                return;
+                            }
+
+                            console.log('new policy confirmed');
+                            const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);                
+                            res.setHeader('Authorization', signedToken);
+                            res.send(policy);
+                        });
+                    } else {
+                        res.send(policy);
+                    }
+                });
+        });
+  }
+
+
+
+  private createJWT(_email:string, _policyHolderID:string) : string {
+    let endOfYear = (new Date( (new Date()).getFullYear(), 11, 31));
+    const rawToken = { 
+        "sub" : _email,
+        "exp" : endOfYear.getTime(),
+        "iat" : (new Date()).getTime(),
+        "jti" : _policyHolderID
+    };
+
+    const jwtSigningKey = (process.env.JWT_SIGNING_KEY || 'secret');
+    const signedToken = jwt.sign(rawToken, jwtSigningKey);
+
+    return signedToken;
+  }
+
+
+
+  private sendConfirmationEmail(confirmationID:string, email:string){
+    sendgrid.setApiKey(process.env.SEND_GRID_API_KEY);
+    sendgrid.setSubstitutionWrappers('<%', '%>'); // Configure the substitution tag wrappers globally
+    const message = {
+      to: email,
+      from: 'info@black.insure',
+      subject: 'Confirm your "Rainy Day Insurance" policy',
+      templateId: '90d9dd7d-62c3-429d-ae69-911032182fc2',
+      substitutions: {
+        body: '',
+        confirmationLink: 'http://localhost:8000/confirm/' + confirmationID,
+      },
+    };
+    sendgrid.send(message);
+    console.log('sent a confirmation email');
   }
 
 

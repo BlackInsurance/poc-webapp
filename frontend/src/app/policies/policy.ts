@@ -12,7 +12,7 @@ export class Policy {
     };
     public createDate: Date;
     public startDate: Date;
-    public endDate: Date = new Date(2018, 7, 1);
+    public endDate: Date = new Date(2018, 9, 1);
     public lastClaimDate: Date;
     public status: string;
     public ethereumAddress: string;

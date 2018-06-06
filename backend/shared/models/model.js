@@ -22,7 +22,7 @@ var CORE_DATA_MODEL = /** @class */ (function () {
             policyHolder: {
                 policyHolderID: ''
             },
-            status: 'Pending',
+            status: 'Unconfirmed',
             createDate: new Date(),
             startDate: new Date(),
             endDate: new Date('08-01-2018'),
@@ -41,7 +41,8 @@ var CORE_DATA_MODEL = /** @class */ (function () {
             policyHolderID: '',
             email: '',
             password: '',
-            balanceBLCK: 0
+            balanceBLCK: 0,
+            confirmationID: ''
         };
     };
     return CORE_DATA_MODEL;

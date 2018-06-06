@@ -5,6 +5,7 @@ export interface IPolicyHolder {
     email: string;
     password: string;
     balanceBLCK: Number;
+    confirmationID: string;
 }
 export interface IPolicyHolderModel extends IPolicyHolder, Document {
 }

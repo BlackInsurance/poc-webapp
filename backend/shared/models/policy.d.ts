@@ -37,4 +37,5 @@ export interface IPolicyModel extends IPolicy, Document {
 }
 export declare var policySchema: Schema;
 export declare var getPolicyFromDB: (db: mongoose.Connection, policyID: string) => Promise<Document | null>;
-export declare var getPendingPolicies: (db: mongoose.Connection, batchSize: number) => Promise<any[]>;
+export declare var getPolicyByConfirmationFromDB: (db: mongoose.Connection, confirmationID: string) => Promise<Document | null>;
+export declare var getConfirmedPolicies: (db: mongoose.Connection, batchSize: number) => Promise<any[]>;

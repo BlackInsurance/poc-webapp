@@ -8,6 +8,7 @@ import * as cors from 'cors';
 import * as express from "express";
 import { Application, NextFunction, Request, Response, Router } from "express";
 import mongoose = require('mongoose');
+mongoose.set('debug', true);
 
 import * as passport from 'passport';
 import * as passportJWT from 'passport-jwt';
@@ -178,7 +179,7 @@ export class Server {
     // Load the ability to understand / communicate JWT in Passport for request authorisation 
     passport.use(new JWTStrategy({
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-        secretOrKey: 'secret'
+        secretOrKey: (process.env.JWT_SIGNING_KEY || 'secret')
       },
       (jwtPayload, cb) => { return cb(null, jwtPayload); }
     ));
@@ -219,6 +220,9 @@ export class Server {
     });
     this.app.get("/signup", (req: Request, res: Response, next: NextFunction) => {
       new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
+    });
+    this.app.post("/confirm", (req: Request, res: Response, next: NextFunction) => {
+      new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).confirmPolicyHolder(req, res, next);
     });
 
     //add login route

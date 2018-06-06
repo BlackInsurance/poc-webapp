@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = require("mongoose");
 var claim_1 = require("./claim");
+var policyHolder_1 = require("./policyHolder");
 exports.policySchema = new mongoose_1.Schema({
     policyID: String,
     product: {
@@ -121,22 +122,66 @@ exports.getPolicyFromDB = function (db, policyID) {
         return Promise.reject(err);
     });
 };
-exports.getPendingPolicies = function (db, batchSize) {
+exports.getPolicyByConfirmationFromDB = function (db, confirmationID) {
     var ClaimModel = db.model("Claim", claim_1.claimSchema);
     var PolicyModel = db.model("Policy", exports.policySchema);
-    // Get any 'Pending' transactions from the DB
-    return PolicyModel.find({ 'status': 'Pending' }).limit(batchSize)
+    var PolicyHolderModel = db.model("PolicyHolder", policyHolder_1.policyHolderSchema);
+    return PolicyHolderModel.findOne({})
+        .where('confirmationID').equals(confirmationID)
+        .exec(function (err, policyHolder) {
+        if (!policyHolder) {
+            return Promise.reject('Failed to find the requested Policy by Confirmation ID.');
+        }
+        var policyHolderID = policyHolder.policyHolderID;
+        return PolicyModel.findOne({})
+            .where('policyHolder.policyHolderID').equals(policyHolderID)
+            .exec(function (policyErr, policy) {
+            if (!policy) {
+                return Promise.reject('Failed to find the requested Policy by Confirmation ID.');
+            }
+            if (policy.status == 'Unconfirmed') {
+                policy.status = 'Confirmed';
+                return PolicyModel.update({ _id: policy.id }, policy, function (err) {
+                    if (err) {
+                        console.log('Failed while attempting to retrieve a specific Policy from the DB, specifically while marking the Policy as Confirmed.');
+                        console.log(err);
+                        return Promise.reject(err);
+                    }
+                    return Promise.resolve(policy);
+                });
+            }
+            else {
+                return Promise.resolve(policy);
+            }
+        })
+            .catch(function (policyCatchError) {
+            console.log('Failed while attempting to retrieve a specific Policy from the DB');
+            console.log(err);
+            return Promise.reject(err);
+        });
+    })
+        .catch(function (err) {
+        console.log('Failed while attempting to retrieve a specific Policy from the DB');
+        console.log(err);
+        return Promise.reject(err);
+    });
+};
+exports.getConfirmedPolicies = function (db, batchSize) {
+    var ClaimModel = db.model("Claim", claim_1.claimSchema);
+    var PolicyModel = db.model("Policy", exports.policySchema);
+    // Get any 'Confirmed' policies from the DB
+    return PolicyModel.find({ 'status': 'Confirmed' }).limit(batchSize)
         .then(function (policies) {
         if (policies) {
             return Promise.resolve(policies);
         }
         else {
-            // No pending policies
+            // No confirmed policies
             return Promise.resolve(new Array());
         }
     })
         .catch(function (err) {
-        console.log('Failed while attempting to retrieve Pending Policies from the DB');
+        console.log('Failed while attempting to retrieve Confirmed Policies from the DB');
         console.log(err);
         return Promise.reject(err);
     });
