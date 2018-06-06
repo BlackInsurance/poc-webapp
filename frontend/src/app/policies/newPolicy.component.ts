@@ -125,7 +125,7 @@ export class NewPolicyComponent implements OnInit {
     return dateValid;
   }
 
-  selectedLocation : string = '';
+  selectedLocation : any = {};
  
 
   public policyDetailsAreValid(){
@@ -218,24 +218,30 @@ export class NewPolicyComponent implements OnInit {
     }
 
     this.selectedLocation = data.data;
-    this.newPolicy.coveredCity.name = data.data.formatted_address;
-    this.newPolicy.coveredCity.latitude = data.data.geometry.location.lat;
-    this.newPolicy.coveredCity.longitude = data.data.geometry.location.lng;
   }
   
   createPolicy() {
+
+    this.newPolicy.startDate = this.startDateControl.value;
+    this.newPolicy.endDate = this.endDateControl.value;
+    this.newPolicy.emailAddress = this.emailFormControl.value;
+    this.newPolicy.password = this.passwordFormControl.value;
+    this.newPolicy.coveredCity.name = this.selectedLocation.formatted_address;
+    this.newPolicy.coveredCity.latitude = this.selectedLocation.geometry.location.lat;
+    this.newPolicy.coveredCity.longitude = this.selectedLocation.geometry.location.lng;
+
     this.policyService
-    .createPolicy(this.newPolicy)
-    .subscribe(
-      data => {
-         console.log("Added policy.");
-         this.router.navigate(['/home']);
-      },
-      err => {
-        this.displayErrorNotice('Network error, try again later', '');
-        console.log(err);
-      }
-    );
+      .createPolicy(this.newPolicy)
+      .subscribe(
+        data => {
+          console.log("Added policy.");
+          this.router.navigate(['/home']);
+        },
+        err => {
+          this.displayErrorNotice('Network error, try again later', '');
+          console.log(err);
+        }
+      );
   }
 
 

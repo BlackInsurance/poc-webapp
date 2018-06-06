@@ -123,23 +123,23 @@ export class PublicRoute extends BaseRoute {
     var today = new Date();
     var minimumStartDate = new Date();
     minimumStartDate.setHours(today.getHours() - 1);
-    var maximumEndDate = new Date(2018, 7, 1);
+    var maximumEndDate = new Date(2018, 9, 1);
 
     try{
         var providedStartDate = new Date(req.body.startDate);
         var providedEndDate = new Date(req.body.endDate);
 
-        if ( providedStartDate < minimumStartDate || providedStartDate > maximumEndDate) {
+        if ( providedStartDate.getTime() < minimumStartDate.getTime() || providedStartDate.getTime() > maximumEndDate.getTime()) {
             console.log("Error: bad start date");
             res.status(400);
-            res.send({error: 'Start date is not in acceptable range of TODAY ===> AUG-01-2018'});
+            res.send({error: 'Start date is not in acceptable range of TODAY ===> OCT-01-2018'});
             return;
         }
 
-        if ( providedEndDate < minimumStartDate || providedEndDate > maximumEndDate ) {
+        if ( providedEndDate.getTime() < minimumStartDate.getTime() || providedEndDate.getTime() > maximumEndDate.getTime() ) {
             console.log("Error: bad end date");
             res.status(400);
-            res.send({error: 'End date is not in acceptable range of TODAY ===> AUG-01-2018'});
+            res.send({error: 'End date is not in acceptable range of TODAY ===> OCT-01-2018'});
             return;
         }
 
