@@ -43,24 +43,26 @@ export class SecuredRoute extends BaseRoute {
      * @next {NextFunction} Execute the next method.
      */
     public getPolicy(req: Request, res: Response, next: NextFunction) {
-        this.policyModel.find({policyID: req.body.policyID}, function(err, policy){
-            if (err) {
-                console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
-                res.status(400);
-                res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + err.message});
-                return;
-            }
+        this.policyModel.find({})                
+            .where('policyHolder.policyHolderID').equals(req.body.policyHolderID)
+            .exec(function(err, policy){
+                if (err) {
+                    console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
+                    res.status(400);
+                    res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + err.message});
+                    return;
+                }
 
-            if (policy == null){
-                console.log('Error: Failed to locate the requested Policy. PolicyID=' + req.body.policyID);
-                res.status(404);
-                res.send({error: 'Failed to locate the requested Policy'});
-                return;
-            }
+                if (policy == null){
+                    console.log('Error: Failed to locate the requested Policy. PolicyID=' + req.body.policyID);
+                    res.status(404);
+                    res.send({error: 'Failed to locate the requested Policy'});
+                    return;
+                }
 
-            console.log("returning one specific policy.");
-            res.send(policy);
-        });
+                console.log("returning one specific policy.");
+                res.send(policy);
+            });
     }
   
   

@@ -7,6 +7,7 @@ import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http'
 import {throwError as observableThrowError, Observable, Subject, of } from 'rxjs';
 import {map, catchError} from 'rxjs/operators';
 import * as shajs from 'sha.js';
+import * as jwtDecode from 'jwt-decode';
 
 import { Policy } from './policy';
 
@@ -18,10 +19,22 @@ export class PolicyService {
     private backendBaseURL : string = window.location.protocol + '//' + window.location.host + '/';
 
     constructor(private http: HttpClient) { 
+        this.backendBaseURL = 'http://localhost:8088/';
     }
 
 
     ngOnInit() { }
+
+
+    getCurrentUserEmail() : string {
+        if ( localStorage.getItem('token') == null ){
+            return '';
+        } else {
+            let encodedJWT = localStorage.getItem('token');
+            let decodedJWT = jwtDecode(encodedJWT);
+            return decodedJWT.sub;
+        }
+    }
 
 
     checkLoginCredentials(_emailAddress:string,_password:string) : Observable<any>{
@@ -43,8 +56,11 @@ export class PolicyService {
     }
 
   
-    getPolicy(_policyID:string) : Observable<Policy>{
-        var policyRequest = { policyID: _policyID };
+    getPolicyForCurrentUser() : Observable<Policy>{
+        let encodedJWT = localStorage.getItem('token');
+        let decodedJWT = jwtDecode(encodedJWT);
+
+        var policyRequest = { policyHolderID: decodedJWT.jti };
         var requestOptions = {
             headers: new HttpHeaders({ 'Authorization': 'Bearer '+localStorage.getItem('token') }),
         };
@@ -58,6 +74,9 @@ export class PolicyService {
     }
 
     createPolicy(policy:Policy): Observable<Policy>{
+        let insecurePassword = policy.password;
+        policy.password = shajs('sha256').update({insecurePassword}).digest('hex');
+
         return this.http.post<Policy>(this.backendBaseURL+"policy", policy, { observe: 'response' }).pipe(
             map((res:HttpResponse<Policy>) => {
                 var token = res.headers.get('Authorization');

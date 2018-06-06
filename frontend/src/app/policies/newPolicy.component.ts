@@ -134,7 +134,8 @@ export class NewPolicyComponent implements OnInit {
             this.validDateMinimum('end') && 
             this.validDateMaximum('end') &&
             this.startDateControl.errors == null && 
-            this.endDateControl.errors == null);
+            this.endDateControl.errors == null && 
+            this.selectedLocation != '');
   }
   
 
@@ -183,7 +184,9 @@ export class NewPolicyComponent implements OnInit {
               this.passwordFormControl.updateValueAndValidity();
             } else if ( err.error.message == 'Incorrect email' ) {
               // This email does not exist, so we are creating a new account
-              this.stepper.selectedIndex = 2;
+              this.newPolicy.emailAddress = this.emailFormControl.value;
+              this.newPolicy.password = this.passwordFormControl.value;
+              this.stepper.selectedIndex = 2;              
             } else {
               // Systemic Error.  Display a dialog
               this.displayErrorNotice('Network Error, try again later', '');
@@ -213,14 +216,11 @@ export class NewPolicyComponent implements OnInit {
       this.displayErrorNotice('Browser could not find your "Current Location"', '');
       return;
     }
-    console.log(data);
-    console.log('----------------------------------');
-    console.log(JSON.stringify(data));
 
-    console.log(data.data.formatted_address);
-    console.log(data.data.geometry.location.lat);
-    console.log(data.data.geometry.location.lng);
-    this.newPolicy.coveredCity.name = JSON.stringify(data);
+    this.selectedLocation = data.data;
+    this.newPolicy.coveredCity.name = data.data.formatted_address;
+    this.newPolicy.coveredCity.latitude = data.data.geometry.location.lat;
+    this.newPolicy.coveredCity.longitude = data.data.geometry.location.lng;
   }
   
   createPolicy() {
@@ -229,9 +229,13 @@ export class NewPolicyComponent implements OnInit {
     .subscribe(
       data => {
          console.log("Added policy.");
-         this.router.navigate(['/home', data.policyID]);
+         this.router.navigate(['/home']);
+      },
+      err => {
+        this.displayErrorNotice('Network error, try again later', '');
+        console.log(err);
       }
-    )
+    );
   }
 
 

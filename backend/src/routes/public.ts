@@ -218,7 +218,13 @@ export class PublicRoute extends BaseRoute {
                         }
 
                         console.log("policy saved!");
-                        const rawToken = { "sub" : newPolicyHolder.policyHolderID };
+                        let endOfYear = (new Date( (new Date()).getFullYear(), 11, 31));
+                        const rawToken = { 
+                            "sub" : newPolicyHolder.email,
+                            "exp" : endOfYear.getTime(),
+                            "iat" : (new Date()).getTime(),
+                            "jti" : newPolicyHolder.policyHolderID
+                        };
                         const signedToken = jwt.sign(rawToken, 'secret');
                 
                         res.setHeader('Authorization', signedToken);

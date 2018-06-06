@@ -38,6 +38,10 @@
     text-align: right;
 }
 
+.mat-horizontal-content-container {
+    overflow: visible;
+    padding: 0 24px 24px 24px;
+}
 
 .newPolicyForm .mat-expansion-panel-header-title, 
 .newPolicyForm .mat-expansion-panel-header-description {

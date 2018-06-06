@@ -1,4 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation  } from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { MatSnackBar } from '@angular/material';
+
+import { Policy } from '../policies/policy';
+import { PolicyService } from '../policies/policies.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,12 +12,10 @@ import { Component } from '@angular/core';
 })
 export class DashboardComponent {
 
-  public colorScheme = {
-    domain: ['#673ab7', '#f44336', '#009688 ', '#2196f3']
-  }; 
-  public autoScale = true;
+  //public colorScheme = { domain: ['#673ab7', '#f44336', '#009688 ', '#2196f3'] }; 
+  //public autoScale = true;
 
-  policy: any = {
+  oldPolicy: any = {
     emailAddress: 'someone@gmail.com',
     coveredCity: { name: 'Talinn, Estonia'},
     startDate: new Date(2018, 5, 23),
@@ -111,16 +114,23 @@ export class DashboardComponent {
     ]
   };
   
+  public currentUserEmailAddress : string = '';
+  public policy: Policy;
+
   blckBalance : Number = 0;
   computeBLCKBalance(){
-    this.blckBalance = this.policy.claims.reduce((accumulator,currentValue)=>{ 
-        var currentAccumulatorValue = 0;
-        if(typeof accumulator=='object') {
-          currentAccumulatorValue = parseInt(accumulator.settlement.amount);
-        } else {
-          currentAccumulatorValue = parseInt(accumulator);
-        }
-        return currentAccumulatorValue + parseInt(currentValue.settlement.amount);});
+    if (this.policy.claims == null || this.policy.claims.length == 0){
+      this.blckBalance = 0;
+    } else {
+      this.blckBalance = this.policy.claims.reduce((accumulator,currentValue)=>{ 
+          var currentAccumulatorValue = 0;
+          if(typeof accumulator=='object') {
+            currentAccumulatorValue = parseInt(accumulator.settlement.amount);
+          } else {
+            currentAccumulatorValue = parseInt(accumulator);
+          }
+          return currentAccumulatorValue + parseInt(currentValue.settlement.amount);});
+    }
   }
 
   daysSinceLastClaim : String = "N/A";
@@ -131,7 +141,7 @@ export class DashboardComponent {
         return new Date(e.claimDate);
       }));
 
-      if (! isNaN(claimSearchDate) ){
+      if (! isNaN(claimSearchDate) && (claimSearchDate != Number.NEGATIVE_INFINITY) ){
         var timeDiff = Math.abs(now.getTime() - (new Date(claimSearchDate)).getTime());
         daysSince = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
       }
@@ -147,24 +157,57 @@ export class DashboardComponent {
 
 
 
-  constructor() {
+  constructor(
+    private policyService: PolicyService,
+    private router: Router, 
+    private route: ActivatedRoute,
+    private errorBar: MatSnackBar
+  ) {
+
+    this.policy = Policy.CreateDefault();
+    this.currentUserEmailAddress = policyService.getCurrentUserEmail();
 
     this.computeBLCKBalance();
     this.computeDaysSinceLastClaim();
     this.computeDaysRemainingForPolicy();
   }
 
-  onSelect(event) {
-    console.log(event);
+
+  ngOnInit() {
+    this.loadPolicy(); 
+  }
+  
+  loadPolicy(){
+    this.policyService.getPolicyForCurrentUser().subscribe(
+      data => {
+         this.policy = data;
+
+         if ( this.policy.claims == null ){
+           this.policy.claims = new Array();
+         }
+
+         this.computeBLCKBalance();
+         this.computeDaysSinceLastClaim();
+         this.computeDaysRemainingForPolicy();
+
+         if ( this.policy.status != 'Active' ) {
+           setTimeout(()=>{this.loadPolicy();}, 5000);
+         }
+      },
+      err => {
+        this.displayErrorNotice('Network error, try again later', '');
+        console.log(err);
+      });
   }
 
-  // project table
-  fetch(cb) {
-    const req = new XMLHttpRequest();
-    req.open('GET', `assets/data/projects.json`);
-    req.onload = () => {
-      cb(JSON.parse(req.response));
-    };
-    req.send();
+
+
+  displayErrorNotice(message: string, action: string) {
+    this.errorBar.open(message, action, {
+      duration: 2000,
+    });
   }
+
+
+
 }
