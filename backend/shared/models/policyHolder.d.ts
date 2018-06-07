@@ -6,6 +6,11 @@ export interface IPolicyHolder {
     password: string;
     balanceBLCK: Number;
     confirmationID: string;
+    facebook: {
+        id: string;
+        token: string;
+        name: string;
+    };
 }
 export interface IPolicyHolderModel extends IPolicyHolder, Document {
 }

@@ -8,6 +8,7 @@ import { BaseRoute } from "./baseRoute";
 import { IPolicy, IPolicyModel, policySchema } from "../../shared/models/policy";
 import { IPolicyHolder, IPolicyHolderModel, policyHolderSchema } from "../../shared/models/policyHolder";
 import { CORE_DATA_MODEL } from '../../shared/models/model';
+import { Promise } from 'mongoose';
 
 
 /**
@@ -119,71 +120,54 @@ export class PublicRoute extends BaseRoute {
    */
   public createNewPolicy(req: Request, res: Response, next: NextFunction) {
 
-    // Validate the values provided are in the accepted range
-    var today = new Date();
-    var minimumStartDate = new Date();
-    minimumStartDate.setHours(today.getHours() - 1);
-    var maximumEndDate = new Date(2018, 9, 1);
+    this.validateNewPolicy(req, res, next)
+        .then((isValid)=> {
+            if ( ! isValid ) { return; }
 
-    try{
-        var providedStartDate = new Date(req.body.startDate);
-        var providedEndDate = new Date(req.body.endDate);
+            // Look for the email address to see if this Policy already exists
+            let __this = this;
+            let Policy = this.policyModel;
+            let PolicyHolder = this.policyHolderModel;
 
-        if ( providedStartDate.getTime() < minimumStartDate.getTime() || providedStartDate.getTime() > maximumEndDate.getTime()) {
-            console.log("Error: bad start date");
-            res.status(400);
-            res.send({error: 'Start date is not in acceptable range of TODAY ===> OCT-01-2018'});
-            return;
-        }
+            if ( req.body.policyHolder.policyHolderID && req.body.policyHolder.policyHolderID.trim() != '' ) {
+                // Create the new Policy
+                let newPolicy: IPolicy = CORE_DATA_MODEL.getDefaultPolicy();
+                newPolicy.policyID = uuidBase62.v4();
+                newPolicy.coveredCity.name = req.body.coveredCity.name;
+                newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
+                newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
+                newPolicy.startDate = req.body.startDate;
+                newPolicy.endDate = req.body.endDate;
+                newPolicy.status = 'Confirmed';
+                newPolicy.policyHolder.policyHolderID = req.body.policyHolder.policyHolderID;
 
-        if ( providedEndDate.getTime() < minimumStartDate.getTime() || providedEndDate.getTime() > maximumEndDate.getTime() ) {
-            console.log("Error: bad end date");
-            res.status(400);
-            res.send({error: 'End date is not in acceptable range of TODAY ===> OCT-01-2018'});
-            return;
-        }
+                return new Policy(newPolicy).save(function(policyErr) {
+                    if (policyErr) {
+                        console.log("policy not saved!");
+                        res.status(400).send("policy not saved!");
+                        return;
+                    }
 
-        if ( !req.body.emailAddress ||  req.body.emailAddress.trim() == "" ) {
-            console.log("Error: bad email address");
-            res.status(400);
-            res.send({error: 'Email address is blank'});
-            return;
-        }
+                    console.log("policy saved!");
 
-        if ( !req.body.password || req.body.password.trim() == "" ) {
-            console.log("Error: bad password");
-            res.status(400);
-            res.send({error: 'Password is blank'});
-            return;
-        }
+                    // Get the existing policyHolder
+                    PolicyHolder.find({})
+                        .where('policyHolderID').equals(newPolicy.policyHolder.policyHolderID)
+                        .exec(function(err, policyHolders){
+                            if (err) { 
+                                console.log('Error: Could not search for existing PolicyHolders.  PolicyHolderID=' + newPolicy.policyHolder.policyHolderID + ', ErrorMessage=' + err.message);
+                                res.status(400).send({error: 'Could not search for existing PolicyHolders'}); 
+                                return;  
+                            }
 
-        if ( !req.body.coveredCity.name ||  req.body.coveredCity.name.trim() == "" ||  !req.body.coveredCity.latitude || !req.body.coveredCity.longitude ) {
-            console.log("Error: bad covered city");
-            res.status(400);
-            res.send({error: 'Covered city name, latitude, or longitude is blank'});
-            return;
-        }
-    }catch(validationError){
-        console.log('Error: failed while validating inputs. ErrorMessage=' + validationError.message);
-        res.status(400);
-        res.send({error: 'Failed while validating inputs.'});
-        return;
-    }
+                            const currentPolicyHolder = policyHolders[0];
+                            const signedToken = __this.createJWT(currentPolicyHolder.facebook.name, currentPolicyHolder.policyHolderID);                 
+                            res.setHeader('Authorization', signedToken);
+                            res.send(newPolicy);
+                        });
 
-    // Look for the email address to see if this Policy already exists
-    let __this = this;
-    let Policy = this.policyModel;
-    let PolicyHolder = this.policyHolderModel;
-    Policy.find({})
-        .where('policyHolder.email').equals(req.body.emailAddress)
-        .exec(function(err, policies){
-            if (err) { 
-                console.log('Error: Could not search for existing Policies.  Email Address=' + req.body.emailAddress + ', ErrorMessage=' + err.message);
-                res.status(400);
-                res.send({error: 'Could not save or search for Policies'});   
-            }
-            
-            if ( policies.length == 0 ) {  // No Policies found
+                });
+            } else {
                 // Create a new PolicyHolder
                 let newPolicyHolder: IPolicyHolder = CORE_DATA_MODEL.getDefaultPolicyHolder();
                 newPolicyHolder.policyHolderID = uuidBase62.v4();
@@ -194,8 +178,7 @@ export class PublicRoute extends BaseRoute {
                 return new PolicyHolder(newPolicyHolder).save(function(policyHolderError){
                     if (policyHolderError) {
                         console.log("policyHolder not saved!");
-                        res.status(400);
-                        res.send();
+                        res.status(400).send("policyHolder not saved!");
                         return;
                     }
 
@@ -214,8 +197,7 @@ export class PublicRoute extends BaseRoute {
                     return new Policy(newPolicy).save(function(policyErr) {
                         if (policyErr) {
                             console.log("policy not saved!");
-                            res.status(400);
-                            res.send();
+                            res.status(400).send("policy not saved!");
                             return;
                         }
 
@@ -227,12 +209,137 @@ export class PublicRoute extends BaseRoute {
                         res.send(newPolicy);
                     });
                 });
-            } else {
-                console.log('Error: This emaill address already has a Policy. Email Address:' + req.body.emailAddress);
-                res.status(400);
-                res.send({error: 'Email address already has a Policy'});
             }
         });
+  }
+
+
+  public validateNewPolicy(req: Request, res: Response, next: NextFunction) : Promise<boolean> {
+
+    return new Promise((resolve,reject)=>{
+        // Validate the values provided are in the accepted range
+        var today = new Date();
+        var minimumStartDate = new Date();
+        minimumStartDate.setHours(today.getHours() - 1);
+        var maximumEndDate = new Date(2018, 9, 1);
+
+        try{
+            var providedStartDate = new Date(req.body.startDate);
+            var providedEndDate = new Date(req.body.endDate);
+
+            if ( providedStartDate.getTime() < minimumStartDate.getTime() || providedStartDate.getTime() > maximumEndDate.getTime()) {
+                console.log("Error: bad start date");
+                res.status(400).send({error: 'Start date is not in acceptable range of TODAY ===> OCT-01-2018'});
+                resolve(false);
+                return;
+            }
+
+            if ( providedEndDate.getTime() < minimumStartDate.getTime() || providedEndDate.getTime() > maximumEndDate.getTime() ) {
+                console.log("Error: bad end date");
+                res.status(400).send({error: 'End date is not in acceptable range of TODAY ===> OCT-01-2018'});
+                resolve(false);
+                return;
+            }
+
+            if ( !req.body.coveredCity.name ||  req.body.coveredCity.name.trim() == "" ||  !req.body.coveredCity.latitude || !req.body.coveredCity.longitude ) {
+                console.log("Error: bad covered city");
+                res.status(400).send({error: 'Covered city name, latitude, or longitude is blank'});
+                resolve(false);
+                return;
+            }
+
+            if ( req.body.policyHolder.policyHolderID && req.body.policyHolder.policyHolderID.trim() != '' ) {
+                if ( req.body.facebook.id && req.body.facebook.id.trim() != '' ) {
+                    if ( req.body.facebook.name && req.body.facebook.name.trim() == '' ) {
+                        console.log("Error: facebook profile name is blank");
+                        res.status(400).send({error: 'Facebook profile name is blank'});
+                        resolve(false);
+                        return;
+                    }
+                //} else if ( req.body.google.id && req.body.google.id.trim() != '' ) {
+                //    if ( req.body.google.name && req.body.google.name.trim() != '' ) {
+                //        console.log("Error: google profile name is blank");
+                //        res.status(400);
+                //        res.send({error: 'Google profile name is blank'});
+                //        return false;
+                //    }
+                } else {
+                    console.log("Error: facebook / google credentials are blank");
+                    res.status(400).send({error: 'Facebook / Google credentials are blank'});
+                    resolve(false);
+                    return;
+                }
+
+                // Check if the existing policyHolder has an existing policy
+                let Policy = this.policyModel;
+                return Policy.find({})
+                    .where('policyHolder.policyHolderID').equals(req.body.policyHolder.policyHolderID)
+                    .exec(function(err, policies){
+                        if (err) { 
+                            console.log('Error: Could not search for existing Policies.  PolicyHolderID=' + req.body.policyHolder.policyHolderID + ', ErrorMessage=' + err.message);
+                            res.status(400);
+                            res.send({error: 'Could not search for existing Policies'}); 
+                            resolve(false);
+                            return;
+                        }
+                        
+                        if ( policies.length > 0 ) {
+                            console.log("Error: PolicyHolderID already associated with a Policy");
+                            res.status(400).send({error: 'PolicyHolderID already associated with a Policy'});
+                            resolve(false);
+                            return;
+                        } else {
+                            resolve(true);
+                            return;
+                        }
+                    });
+
+            } else {
+                if ( !req.body.emailAddress ||  req.body.emailAddress.trim() == "" ) {
+                    console.log("Error: email address is blank");
+                    res.status(400).send({error: 'Email address is blank'});
+                    resolve(false);
+                    return;
+                }
+        
+                if ( !req.body.password || req.body.password.trim() == "" ) {
+                    console.log("Error: password is blank");
+                    res.status(400).send({error: 'Password is blank'});
+                    resolve(false);
+                    return;
+                }
+
+                // Check for an existing policyHolder
+                let PolicyHolder = this.policyHolderModel;
+                return PolicyHolder.find({})
+                    .where('email').equals(req.body.emailAddress)
+                    .exec(function(err, policyHolders){
+                        if (err) { 
+                            console.log('Error: Could not search for existing PolicyHolders.  Email Address=' + req.body.emailAddress + ', ErrorMessage=' + err.message);
+                            res.status(400);
+                            res.send({error: 'Could not search for existing PolicyHolders'}); 
+                            resolve(false);
+                            return;
+                        }
+                        
+                        if ( policyHolders.length > 0 ) {
+                            console.log("Error: Email address already associated with a Policy");
+                            res.status(400).send({error: 'Email address already associated with a Policy'});
+                            resolve(false);
+                            return;
+                        } else {
+                            resolve(true);
+                            return;
+                        }
+                    });
+            }
+        }catch(validationError){
+            console.log('Error: failed while validating inputs. ErrorMessage=' + validationError.message);
+            res.status(400).send({error: 'Failed while validating inputs.'});
+            resolve(false);
+            return;
+        }
+    });
   }
 
 
@@ -307,21 +414,6 @@ export class PublicRoute extends BaseRoute {
   }
 
 
-
-  private createJWT(_email:string, _policyHolderID:string) : string {
-    let endOfYear = (new Date( (new Date()).getFullYear(), 11, 31));
-    const rawToken = { 
-        "sub" : _email,
-        "exp" : endOfYear.getTime(),
-        "iat" : (new Date()).getTime(),
-        "jti" : _policyHolderID
-    };
-
-    const jwtSigningKey = (process.env.JWT_SIGNING_KEY || 'secret');
-    const signedToken = jwt.sign(rawToken, jwtSigningKey);
-
-    return signedToken;
-  }
 
 
 

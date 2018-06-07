@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  p You are authenticated.  Closing this window now...
+  script.
+    window.opener.postMessage({type:'success',token:'#{token}',facebookID:'#{facebookID}',policyHolderID:'#{policyHolderID}',policyHolderName:'#{policyHolderName}',hasPolicy:#{hasPolicy}}, "http://localhost:8000/");window.close();

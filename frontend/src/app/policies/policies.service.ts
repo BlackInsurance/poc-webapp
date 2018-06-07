@@ -19,7 +19,11 @@ export class PolicyService {
     private backendBaseURL : string = window.location.protocol + '//' + window.location.host + '/';
 
     constructor(private http: HttpClient) { 
-        //this.backendBaseURL = 'http://localhost:8088/';
+
+        // Hack for working in local DEV
+        if ( window.location.hostname == 'localhost' ){
+            this.backendBaseURL = 'http://localhost:8088/';
+        }
     }
 
 
@@ -39,7 +43,24 @@ export class PolicyService {
 
     checkLoginCredentials(_emailAddress:string,_password:string) : Observable<any>{
         var hashedPassword = shajs('sha256').update({_password}).digest('hex');
-        var loginRequest = { email: _emailAddress, password: _password };
+        var loginRequest = { type: 'credentials', email: _emailAddress, password: _password };
+
+        return this.http.post<Policy[]>(this.backendBaseURL+"login/", loginRequest, { observe: 'response' }).pipe(
+            map((res:HttpResponse<any>) => { 
+                if (res.body.message == 'logged in'){
+                    var token = res.headers.get('Authorization');
+                    localStorage.setItem('token', token);
+                }
+
+                return res.body; 
+            }),
+            catchError((error:any) => {
+                return observableThrowError(error.json ? error.json().error : error || 'Server error')
+            }),);        
+    }
+
+    checkLoginFacebook(_userID:string, _accessToken:string) : Observable<any>{
+        var loginRequest = { type: 'facebook', userID: _userID, accessToken: _accessToken };
 
         return this.http.post<Policy[]>(this.backendBaseURL+"login/", loginRequest, { observe: 'response' }).pipe(
             map((res:HttpResponse<any>) => { 
@@ -74,8 +95,10 @@ export class PolicyService {
     }
 
     createPolicy(policy:Policy): Observable<Policy>{
-        let insecurePassword = policy.password;
-        policy.password = shajs('sha256').update({insecurePassword}).digest('hex');
+        if ( policy.password != '' ) {
+            let insecurePassword = policy.password;
+            policy.password = shajs('sha256').update({insecurePassword}).digest('hex');
+        }
 
         return this.http.post<Policy>(this.backendBaseURL+"policy", policy, { observe: 'response' }).pipe(
             map((res:HttpResponse<Policy>) => {

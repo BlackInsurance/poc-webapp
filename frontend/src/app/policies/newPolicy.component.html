@@ -68,14 +68,15 @@
                                 </div>
 
                                 <div fxFlex="85" fxFlexOffset="15" style="padding-top:15px;">
-                                    <span><strong style="margin-right:20px">OR</strong> Sign-in with </span><a href="#" class="shared-icon mr-1 mat-blue"><i class="fa fa-facebook fa-lg mr-1"></i>Facebook</a>
+                                    <span><strong style="margin-right:20px">OR</strong> Sign-in with </span>
+                                    <a href="#" (click)="loginWithFacebook($event)" class="shared-icon mr-1 mat-blue"><i class="fa fa-facebook fa-lg mr-1"></i>Facebook</a>
                                     <a href="#" class="shared-icon mat-red"><i class="fa fa-google fa-lg mr-1"></i>Google</a>
                                 </div>
                             </div>
 
                             <div class="buttons">
                                 <button mat-raised-button matStepperPrevious type="button">Back</button>
-                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="(emailFormControl.status == 'INVALID' || passwordFormControl.status ==  'INVALID' || loginInProgress)">Next</button>
+                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="(((emailFormControl.status == 'INVALID' || passwordFormControl.status == 'INVALID') || policyHolderID == '') || loginInProgress)">Next</button>
                             </div>  
                         </mat-step>
                         <mat-step >
@@ -90,7 +91,7 @@
                                 <div fxFlex="33%">                                         
                                     <mat-form-field appearance="outline" class="inputControl">
                                         <mat-label>Start Date</mat-label>
-                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="startDatePicker" placeholder="{{minDate | date: 'shortDate'}}" [formControl]="startDateControl">
+                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="startDatePicker" [formControl]="startDateControl">
                                         <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
                                         <mat-datepicker #startDatePicker></mat-datepicker>
                                         <mat-error *ngIf="startDateControl.hasError('required')">Start Date for your Policy is <strong>required</strong></mat-error>
@@ -102,7 +103,7 @@
                                 <div fxFlex="33%">                                                                    
                                     <mat-form-field appearance="outline" class="inputControl">
                                         <mat-label>End Date</mat-label>
-                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="endDatePicker" placeholder="{{maxDate | date: 'shortDate'}}" [formControl]="endDateControl">
+                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="endDatePicker" [formControl]="endDateControl">
                                         <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
                                         <mat-datepicker #endDatePicker></mat-datepicker>
                                         <mat-error *ngIf="endDateControl.hasError('required')">End Date for your Policy is <strong>required</strong></mat-error>
@@ -113,7 +114,7 @@
                             </div>
 
                             <div class="buttons">
-                                <button mat-raised-button matStepperPrevious color="warn" type="button">Back</button>
+                                <button mat-raised-button matStepperPrevious type="button" (click)="resetSecurityInfo()">Back</button>
                                 <button mat-raised-button type="button" color="primary" (click)="createPolicy()" [disabled]="!policyDetailsAreValid()">Create your Rainy Day Policy!</button>
                             </div>
                         </mat-step>

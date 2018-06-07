@@ -1,3 +1,5 @@
+
+import * as jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from 'express';
 import { CORE_DATA_MODEL } from '../../shared/models/model';
 import { IPolicy, IPolicyModel, policySchema } from "../../shared/models/policy";
@@ -68,5 +70,22 @@ export class BaseRoute {
 
     //render view
     res.render(view, options);
+  }
+
+
+
+  public createJWT(_policyHolderDisplayName:string, _policyHolderID:string) : string {
+    let endOfYear = (new Date( (new Date()).getFullYear(), 11, 31));
+    const rawToken = { 
+        "sub" : _policyHolderDisplayName,
+        "exp" : endOfYear.getTime(),
+        "iat" : (new Date()).getTime(),
+        "jti" : _policyHolderID
+    };
+
+    const jwtSigningKey = (process.env.JWT_SIGNING_KEY || 'secret');
+    const signedToken = jwt.sign(rawToken, jwtSigningKey);
+
+    return signedToken;
   }
 }

@@ -5,6 +5,14 @@ export class Policy {
     public policyID: string;
     public emailAddress: string;
     public password: string;
+    public facebook: any = {
+        id: '',
+        token: '',
+        name: ''
+    }
+    public ethereumAddress: string;
+
+
     public coveredCity: any = {
         name: 'Talinn, Estonia',
         latitude: 59.4369608,
@@ -15,7 +23,6 @@ export class Policy {
     public endDate: Date = new Date(2018, 9, 1);
     public lastClaimDate: Date;
     public status: string;
-    public ethereumAddress: string;
     public policyHolder: any = {
         policyHolderID: ''
     };

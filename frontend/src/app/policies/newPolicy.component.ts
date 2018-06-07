@@ -9,6 +9,13 @@ import { Router } from '@angular/router';
 import { Policy } from './policy';
 import { PolicyService } from './policies.service';
 
+
+//declare var window: any;
+//declare var FB: any;
+
+let global_this : any;
+
+
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     const isSubmitted = form && form.submitted;
@@ -52,6 +59,8 @@ export class NewPolicyComponent implements OnInit {
 
   matcher = new MyErrorStateMatcher();
 
+  federatedLoginBaseURL : string = window.location.protocol + '://' + window.location.host;
+  federatedLoginJWT : string = '';
   emailFormControl = new FormControl('', [
     Validators.required,
     Validators.email,
@@ -70,10 +79,10 @@ export class NewPolicyComponent implements OnInit {
   currentMaxDate : Date = this.maxDate;
   startDatePicker = new FormControl(this.minDate);
   endDatePicker = new FormControl(this.maxDate);
-  startDateControl = new FormControl('', [
+  startDateControl = new FormControl(this.minDate, [
     Validators.required
   ]);
-  endDateControl = new FormControl('', [
+  endDateControl = new FormControl(this.maxDate, [
     Validators.required
   ]);
 
@@ -128,22 +137,20 @@ export class NewPolicyComponent implements OnInit {
   selectedLocation : any = {};
  
 
-  public policyDetailsAreValid(){
-    return (this.validDateMinimum('start') && 
-            this.validDateMaximum('start') && 
-            this.validDateMinimum('end') && 
-            this.validDateMaximum('end') &&
-            this.startDateControl.errors == null && 
-            this.endDateControl.errors == null && 
-            this.selectedLocation != '');
-  }
-  
-
   constructor(
     private policyService: PolicyService,
     private router: Router, 
     private errorBar: MatSnackBar
-  ) { }
+  ) { 
+
+    // Hack to be able to debug backend and frontend in separate processes in the DEV environment
+    if (window.location.hostname == 'localhost' ) { this.federatedLoginBaseURL = 'http://localhost:8088'; }
+
+    // Another hack to allow event handlers to gain access to proper 'this' context
+    global_this = this; 
+  }
+
+
 
   ngOnInit() {
     this.newPolicy = Policy.CreateDefault();
@@ -160,7 +167,6 @@ export class NewPolicyComponent implements OnInit {
       this.passwordFormControl.updateValueAndValidity();
     }
   }
-
 
   public verifyLoginInformation() {
     this.loginInProgress = true;
@@ -198,20 +204,58 @@ export class NewPolicyComponent implements OnInit {
       );
   }
 
-
-
-
-
-  displayErrorNotice(message: string, action: string) {
-    this.errorBar.open(message, action, {
-      duration: 2000,
-    });
+  public resetSecurityInfo(){
+    this.newPolicy.policyHolder.policyHolderID = '';
+    this.newPolicy.facebook.id = '';
+    this.newPolicy.facebook.name = '';
+    this.newPolicy.emailAddress = '';
+    this.newPolicy.password = '';
+    this.emailFormControl.setValue('');
+    this.passwordFormControl.setValue('');
+    this.emailFormControl.enable();
+    this.passwordFormControl.enable();
   }
 
 
 
-  autoCompleteCallback(data: any): any {
 
+  loginWithFacebook(eventData : any) : any {
+    eventData.preventDefault();
+    this.newPolicy.policyHolder.policyHolderID = '';
+    this.newPolicy.facebook.id = '';
+    this.newPolicy.facebook.name = '';
+    this.newPolicy.emailAddress = '';
+    this.newPolicy.password = '';
+
+    window.addEventListener("message", this.handleFacebookLogin, false);
+    window.open(this.federatedLoginBaseURL+'/auth/facebook', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=200px,height=150px');
+  }
+
+  handleFacebookLogin(event:any) {
+    let origin = event.origin || event.originalEvent.origin;
+    if (origin !== global_this.federatedLoginBaseURL) { return }
+    
+    if (event.data.type == 'success'){
+      if (event.data.hasPolicy){
+        localStorage.setItem('token', event.data.token);
+        this.router.navigate(['/home']);
+      } else {
+        global_this.newPolicy.emailAddress = '';
+        global_this.newPolicy.password = '';
+        global_this.newPolicy.policyHolder.policyHolderID = event.data.policyHolderID;
+        global_this.newPolicy.facebook.id = event.data.facebookID;
+        global_this.newPolicy.facebook.name = event.data.policyHolderName;
+        global_this.emailFormControl.disable();
+        global_this.passwordFormControl.disable();
+        global_this.stepper.selectedIndex = 2;  
+      }
+    } 
+  }
+
+  
+
+
+  autoCompleteCallback(data: any): any {
     if ( data && data.reason && data.reason == 'Failed to get geo location' ) {
       this.displayErrorNotice('Browser could not find your "Current Location"', '');
       return;
@@ -219,13 +263,28 @@ export class NewPolicyComponent implements OnInit {
 
     this.selectedLocation = data.data;
   }
+
+
+  public policyDetailsAreValid(){
+    return (this.validDateMinimum('start') && 
+            this.validDateMaximum('start') && 
+            this.validDateMinimum('end') && 
+            this.validDateMaximum('end') &&
+            this.startDateControl.errors == null && 
+            this.endDateControl.errors == null && 
+            !(Object.keys(this.selectedLocation).length === 0 && this.selectedLocation.constructor === Object));
+  }
+  
   
   createPolicy() {
-
     this.newPolicy.startDate = this.startDateControl.value;
     this.newPolicy.endDate = this.endDateControl.value;
-    this.newPolicy.emailAddress = this.emailFormControl.value;
-    this.newPolicy.password = this.passwordFormControl.value;
+
+    if (this.newPolicy.policyHolder.policyHolderID == ''){
+      this.newPolicy.emailAddress = this.emailFormControl.value;
+      this.newPolicy.password = this.passwordFormControl.value;
+    } 
+
     this.newPolicy.coveredCity.name = this.selectedLocation.formatted_address;
     this.newPolicy.coveredCity.latitude = this.selectedLocation.geometry.location.lat;
     this.newPolicy.coveredCity.longitude = this.selectedLocation.geometry.location.lng;
@@ -242,6 +301,16 @@ export class NewPolicyComponent implements OnInit {
           console.log(err);
         }
       );
+  }
+
+
+
+
+
+  displayErrorNotice(message: string, action: string) {
+    this.errorBar.open(message, action, {
+      duration: 2000,
+    });
   }
 
 

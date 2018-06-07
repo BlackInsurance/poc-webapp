@@ -9,11 +9,13 @@ exports.policyHolderSchema = new mongoose_1.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     password: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     balanceBLCK: {
         type: Number,
@@ -24,5 +26,22 @@ exports.policyHolderSchema = new mongoose_1.Schema({
         type: String,
         required: false,
         default: ''
+    },
+    facebook: {
+        id: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        token: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        name: {
+            type: String,
+            required: false,
+            default: ''
+        }
     }
 });

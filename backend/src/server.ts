@@ -8,15 +8,9 @@ import * as cors from 'cors';
 import * as express from "express";
 import { Application, NextFunction, Request, Response, Router } from "express";
 import mongoose = require('mongoose');
-mongoose.set('debug', true);
 
 import * as passport from 'passport';
-import * as passportJWT from 'passport-jwt';
-import * as passportLocal from 'passport-local';
-
-import LocalStrategy = passportLocal.Strategy;
-const JWTStrategy = passportJWT.Strategy;
-const ExtractJWT = passportJWT.ExtractJwt;
+import { PassportLoader } from './passport';
 
 
 
@@ -29,6 +23,7 @@ import { SecuredRoute } from './routes/secure';
 import { CORE_DATA_MODEL } from '../shared/models/model';
 import { IPolicy, IPolicyModel, policySchema } from '../shared/models/policy';
 import { IPolicyHolder, IPolicyHolderModel, policyHolderSchema } from '../shared/models/policyHolder';
+
 
 
 /**
@@ -125,7 +120,7 @@ export class Server {
     this.app.use(bodyParser.urlencoded({extended: true}));
   
     //use cookie parser middleware
-    this.app.use(cookieParser("SECRET_GOES_HERE"));
+    this.app.use(cookieParser(process.env.COOKIE_SECRET_KEY || 'secret'));
   
     //use override middlware
     this.app.use(methodOverride());
@@ -149,41 +144,13 @@ export class Server {
         this.policyHolderModel = mongooseConnector.connection.model<IPolicyHolderModel>("PolicyHolder", policyHolderSchema);
         let PolicyHolder = this.policyHolderModel;
         
-        // Load the 'local' authentication option in Passport, allowing username/password login
-        passport.use(new LocalStrategy({
-            usernameField: 'email',
-            passwordField: 'password'
-          }, 
-          (email, password, cb) => {
-            return PolicyHolder.findOne({"email":email})
-              .then((existingPolicyHolder) => {
-                if (!existingPolicyHolder) {
-                  return cb(null, false, {message: 'Incorrect email'});
-                }
-                return PolicyHolder.findOne({"email":email, "password":password});            
-              }).then((policyHolder) => {
-                console.log(policyHolder);
-                if (!policyHolder) {
-                  return cb(null, false, {message: 'Incorrect password'});
-                }
-                return cb(null, policyHolder, {message: 'Logged In Successfully'});
-              })
-              .catch(err => cb(err));
-          }
-        ));
+        PassportLoader.configure(passport, PolicyHolder);
+
     }).catch((err) => {
         console.log('Error while connecting to the DB');
         console.error(err);
     });
     
-    // Load the ability to understand / communicate JWT in Passport for request authorisation 
-    passport.use(new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-        secretOrKey: (process.env.JWT_SIGNING_KEY || 'secret')
-      },
-      (jwtPayload, cb) => { return cb(null, jwtPayload); }
-    ));
-
     //catch 404 and forward to error handler
     this.app.use(function(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
       err.status = 404;
@@ -253,8 +220,44 @@ export class Server {
 
     // Update the Ethereum address for a specific Policy
     this.app.patch('/policy', passport.authenticate('jwt', {session:false}), (req: Request, res: Response, next: NextFunction) => {
-        new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel).setEthereumAddressForPolicy(req, res, next);
+      new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel).setEthereumAddressForPolicy(req, res, next);
     });
+
+
+
+
+
+
+
+    this.app.get('/auth/facebook', passport.authenticate('facebook'), (req: Request, res: Response, next: NextFunction) => { 
+      next ();
+    });
+    
+    this.app.get('/auth/facebook/callback', passport.authenticate('facebook', { session: false }), (req: any, res: Response, next: NextFunction) => {
+      const _facebookID = req.user.facebook.id;
+      const _policyHolderID = req.user.policyHolderID;
+      const _policyHolderName = req.user.facebook.name;
+      const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
+      const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
+
+      this.policyModel.find({})                
+        .where('policyHolder.policyHolderID').equals(req.user.policyHolderID)
+        .exec(function(err, policy){
+
+          if (err || policy == null || policy.length == 0) {
+            res.render('authenticated', { hasPolicy: false, facebookID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName });
+          } else {
+            res.render('authenticated', { hasPolicy: true, token: jwt });
+          }
+        });      
+    });
+
+
+
+
+
+
+
   }
 }
 

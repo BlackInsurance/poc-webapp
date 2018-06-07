@@ -25,7 +25,7 @@ var CORE_DATA_MODEL = /** @class */ (function () {
             status: 'Unconfirmed',
             createDate: new Date(),
             startDate: new Date(),
-            endDate: new Date('08-01-2018'),
+            endDate: new Date('10-01-2018'),
             lastClaimDate: null,
             coveredCity: {
                 name: '',
@@ -42,7 +42,12 @@ var CORE_DATA_MODEL = /** @class */ (function () {
             email: '',
             password: '',
             balanceBLCK: 0,
-            confirmationID: ''
+            confirmationID: '',
+            facebook: {
+                id: '',
+                token: '',
+                name: ''
+            }
         };
     };
     return CORE_DATA_MODEL;
