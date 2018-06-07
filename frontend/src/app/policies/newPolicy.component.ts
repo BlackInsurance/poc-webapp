@@ -59,7 +59,7 @@ export class NewPolicyComponent implements OnInit {
 
   matcher = new MyErrorStateMatcher();
 
-  federatedLoginBaseURL : string = window.location.protocol + '://' + window.location.host;
+  federatedLoginBaseURL : string = window.location.protocol + '//' + window.location.host;
   federatedLoginJWT : string = '';
   emailFormControl = new FormControl('', [
     Validators.required,
