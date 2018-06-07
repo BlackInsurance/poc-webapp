@@ -238,7 +238,7 @@ export class NewPolicyComponent implements OnInit {
     if (event.data.type == 'success'){
       if (event.data.hasPolicy){
         localStorage.setItem('token', event.data.token);
-        this.router.navigate(['/home']);
+        global_this.router.navigate(['/home']);
       } else {
         global_this.newPolicy.emailAddress = '';
         global_this.newPolicy.password = '';
