@@ -76,7 +76,7 @@
 
                             <div class="buttons">
                                 <button mat-raised-button matStepperPrevious type="button">Back</button>
-                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="(((emailFormControl.status == 'INVALID' || passwordFormControl.status == 'INVALID') || policyHolderID == '') || loginInProgress)">Next</button>
+                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="(((emailFormControl.status == 'INVALID' || passwordFormControl.status == 'INVALID') || newPolicy.policyHolder.policyHolderID == '') || loginInProgress)">Next</button>
                             </div>  
                         </mat-step>
                         <mat-step >
