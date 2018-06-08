@@ -17,5 +17,5 @@ copy backend\package.json prod\
 
 copy backend\server.js prod\
 
-rmdir /S backend
-rmdir /S frontend
+rmdir /S /Q backend
+rmdir /S /Q frontend
