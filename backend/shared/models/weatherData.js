@@ -4,9 +4,9 @@ var mongoose_1 = require("mongoose");
 // Define a DB Schema.
 exports.weatherDataSchema = new mongoose_1.Schema({
     timeRecorded: {
-        type: Date,
+        type: String,
         required: true,
-        default: Date.now
+        default: (new Date()).toISOString()
     },
     weatherLocation: {
         type: String,

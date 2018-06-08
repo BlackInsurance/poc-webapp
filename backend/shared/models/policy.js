@@ -65,23 +65,23 @@ exports.policySchema = new mongoose_1.Schema({
         required: true,
         default: "Pending"
     },
-    createDate: {
-        type: Date,
+    createDateISOString: {
+        type: String,
         required: true,
-        default: Date.now
+        default: (new Date()).toISOString()
     },
-    startDate: {
-        type: Date,
+    startDateISOString: {
+        type: String,
         required: true,
-        default: Date.now
+        default: (new Date()).toISOString()
     },
-    endDate: {
-        type: Date,
+    endDateISOString: {
+        type: String,
         required: true,
-        default: Date.parse('08-01-2018')
+        default: new Date(Date.parse('10-01-2018')).toISOString()
     },
-    lastClaimDate: {
-        type: Date,
+    lastClaimDateISOString: {
+        type: String,
         required: false
     },
     coveredCity: {

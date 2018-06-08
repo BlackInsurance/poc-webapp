@@ -277,7 +277,9 @@ export class NewPolicyComponent implements OnInit {
   
   createPolicy() {
     this.newPolicy.startDate = this.startDateControl.value;
+    this.newPolicy.startDateISOString = this.newPolicy.startDate.toISOString();
     this.newPolicy.endDate = this.endDateControl.value;
+    this.newPolicy.endDateISOString = this.newPolicy.endDate.toISOString();
 
     if (this.newPolicy.policyHolder.policyHolderID == ''){
       this.newPolicy.emailAddress = this.emailFormControl.value;

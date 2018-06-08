@@ -21,10 +21,10 @@ export interface IPolicy {
         policyHolderID: string;
     };
     status: string;
-    createDate: Date;
-    startDate: any;
-    endDate: any;
-    lastClaimDate: any;
+    createDateISOString: string;
+    startDateISOString: string;
+    endDateISOString: string;
+    lastClaimDateISOString: string;
     coveredCity: {
         name: string;
         latitude: Number;

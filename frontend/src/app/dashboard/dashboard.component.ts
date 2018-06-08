@@ -181,6 +181,8 @@ export class DashboardComponent {
     this.policyService.getPolicyForCurrentUser().subscribe(
       data => {
          this.policy = data;
+         this.policy.startDate = new Date(Date.parse(this.policy.startDateISOString));
+         this.policy.endDate = new Date(Date.parse(this.policy.endDateISOString));
 
          if ( this.policy.claims == null ){
            this.policy.claims = new Array();

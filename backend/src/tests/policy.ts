@@ -53,10 +53,10 @@ class PolicyTests {
                 policyHolderID: testRunID
             },
             status: 'Pending',
-            createDate: new Date(),
-            startDate: new Date(),
-            endDate: new Date('08-01-2018'),
-            lastClaimDate: null,
+            createDateISOString: (new Date()).toISOString(),
+            startDateISOString: (new Date()).toISOString(),
+            endDateISOString: (new Date('10-01-2018')).toISOString(),
+            lastClaimDateISOString: '',
             coveredCity: {
                 name: 'Tampa, FL',
                 latitude: 0.0,
@@ -78,10 +78,10 @@ class PolicyTests {
             result.coveredCity.name.should.equal(policy.coveredCity.name);
 
             //verify start date
-            result.startDate.should.equal(policy.startDate);
+            result.startDateISOString.should.equal(policy.startDateISOString);
 
             //verify end date
-            result.endDate.should.equal(policy.endDate);
+            result.endDateISOString.should.equal(policy.endDateISOString);
         });
     }
 }

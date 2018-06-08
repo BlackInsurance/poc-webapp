@@ -136,8 +136,8 @@ export class PublicRoute extends BaseRoute {
                 newPolicy.coveredCity.name = req.body.coveredCity.name;
                 newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
                 newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
-                newPolicy.startDate = req.body.startDate;
-                newPolicy.endDate = req.body.endDate;
+                newPolicy.startDateISOString = req.body.startDateISOString;
+                newPolicy.endDateISOString = req.body.endDateISOString;
                 newPolicy.status = 'Confirmed';
                 newPolicy.policyHolder.policyHolderID = req.body.policyHolder.policyHolderID;
 
@@ -190,8 +190,8 @@ export class PublicRoute extends BaseRoute {
                     newPolicy.coveredCity.name = req.body.coveredCity.name;
                     newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
                     newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
-                    newPolicy.startDate = req.body.startDate;
-                    newPolicy.endDate = req.body.endDate;
+                    newPolicy.startDateISOString = req.body.startDateISOString;
+                    newPolicy.endDateISOString = req.body.endDateISOString;
                     newPolicy.policyHolder.policyHolderID = newPolicyHolder.policyHolderID;
 
                     return new Policy(newPolicy).save(function(policyErr) {
@@ -224,8 +224,8 @@ export class PublicRoute extends BaseRoute {
         var maximumEndDate = new Date(2018, 9, 1);
 
         try{
-            var providedStartDate = new Date(req.body.startDate);
-            var providedEndDate = new Date(req.body.endDate);
+            var providedStartDate = new Date(Date.parse(req.body.startDateISOString));
+            var providedEndDate = new Date(Date.parse(req.body.endDateISOString));
 
             if ( providedStartDate.getTime() < minimumStartDate.getTime() || providedStartDate.getTime() > maximumEndDate.getTime()) {
                 console.log("Error: bad start date");

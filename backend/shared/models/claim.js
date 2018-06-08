@@ -6,9 +6,10 @@ exports.claimSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
-    claimDate: {
-        type: Date,
-        required: true
+    claimDateISOString: {
+        type: String,
+        required: true,
+        default: (new Date()).toISOString()
     },
     highTempLast24Hours: {
         type: Number,
@@ -43,9 +44,10 @@ exports.claimSchema = new mongoose_1.Schema({
             type: Number,
             required: true
         },
-        date: {
-            type: Date,
-            required: true
+        dateISOString: {
+            type: String,
+            required: true,
+            default: (new Date()).toISOString()
         },
         approved: {
             type: Boolean,

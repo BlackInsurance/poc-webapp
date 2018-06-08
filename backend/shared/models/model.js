@@ -23,10 +23,10 @@ var CORE_DATA_MODEL = /** @class */ (function () {
                 policyHolderID: ''
             },
             status: 'Unconfirmed',
-            createDate: new Date(),
-            startDate: new Date(),
-            endDate: new Date('10-01-2018'),
-            lastClaimDate: null,
+            createDateISOString: (new Date()).toISOString(),
+            startDateISOString: (new Date()).toISOString(),
+            endDateISOString: (new Date('10-01-2018')).toISOString(),
+            lastClaimDateISOString: '',
             coveredCity: {
                 name: '',
                 latitude: 0.0,

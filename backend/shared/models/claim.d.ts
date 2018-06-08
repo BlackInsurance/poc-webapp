@@ -2,7 +2,7 @@
 import { Document, Schema } from 'mongoose';
 export interface IClaim {
     claimID: string;
-    claimDate: Date;
+    claimDateISOString: String;
     highTempLast24Hours: Number;
     rainLast24Hours: Number;
     cloudsLast24Hours: Number;
@@ -12,7 +12,7 @@ export interface IClaim {
         from: string;
         to: string;
         amount: Number;
-        date: Date;
+        dateISOString: String;
         approved: Boolean;
     };
 }

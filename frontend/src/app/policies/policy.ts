@@ -18,9 +18,11 @@ export class Policy {
         latitude: 59.4369608,
         longitude: 24.7535747
     };
-    public createDate: Date;
     public startDate: Date;
     public endDate: Date = new Date(2018, 9, 1);
+    public startDateISOString: string;
+    public endDateISOString: string = this.endDate.toISOString();
+
     public lastClaimDate: Date;
     public status: string;
     public policyHolder: any = {

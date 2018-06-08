@@ -1,7 +1,7 @@
 /// <reference types="mongoose" />
 import { Document, Schema } from 'mongoose';
 export interface IWeatherData {
-    timeRecorded: Date;
+    timeRecordedISOString: String;
     weatherLocation: string;
     latitude: Number;
     longitude: Number;
