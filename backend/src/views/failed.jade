@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  p Login failed
+  script.
+    window.opener.postMessage({type:'failed',message:'#{message}',stack:'#{stack}'}, "http://localhost:8000/");
