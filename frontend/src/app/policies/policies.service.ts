@@ -42,8 +42,8 @@ export class PolicyService {
 
 
     checkLoginCredentials(_emailAddress:string,_password:string) : Observable<any>{
-        var hashedPassword = shajs('sha256').update({_password}).digest('hex');
-        var loginRequest = { type: 'credentials', email: _emailAddress, password: _password };
+        var hashedPassword = shajs('sha256').update(_password).digest('hex');
+        var loginRequest = { type: 'credentials', email: _emailAddress, password: hashedPassword };
 
         return this.http.post<Policy[]>(this.backendBaseURL+"login/", loginRequest, { observe: 'response' }).pipe(
             map((res:HttpResponse<any>) => { 
@@ -97,7 +97,7 @@ export class PolicyService {
     createPolicy(policy:Policy): Observable<Policy>{
         if ( policy.password != '' ) {
             let insecurePassword = policy.password;
-            policy.password = shajs('sha256').update({insecurePassword}).digest('hex');
+            policy.password = shajs('sha256').update(insecurePassword).digest('hex');
         }
 
         return this.http.post<Policy>(this.backendBaseURL+"policy", policy, { observe: 'response' }).pipe(

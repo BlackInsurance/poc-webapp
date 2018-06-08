@@ -60,7 +60,6 @@ export class SecuredRoute extends BaseRoute {
                     return;
                 }
 
-                console.log("returning one specific policy.");
                 res.send(policy);
             });
     }

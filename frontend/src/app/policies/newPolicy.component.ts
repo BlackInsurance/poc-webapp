@@ -176,8 +176,7 @@ export class NewPolicyComponent implements OnInit {
       .subscribe(
         data => {
           this.loginInProgress = false;
-          console.log('successful login');
-          console.log(data);
+          this.router.navigate(['/home']);
           return true;
         },
         err => {
