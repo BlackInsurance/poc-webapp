@@ -356,7 +356,12 @@ export class PublicRoute extends BaseRoute {
     let __this = this;
     let Policy = this.policyModel;
     let PolicyHolder = this.policyHolderModel;
-    let _confirmationID : string  = req.body.confirmationID.toString();
+    let _confirmationID : string  = req.params.confirmationID;
+
+    if ( _confirmationID == null || _confirmationID.toString().trim() == '' ){
+        res.sendFile(`index.html`, { root: publicweb });
+        return;
+    }
     
     PolicyHolder.findOne({confirmationID:_confirmationID})
         .exec( (err, policyHolder:any)=>{
