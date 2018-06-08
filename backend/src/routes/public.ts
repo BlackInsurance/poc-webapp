@@ -229,7 +229,7 @@ export class PublicRoute extends BaseRoute {
 
             if ( providedStartDate.getTime() < minimumStartDate.getTime() || providedStartDate.getTime() > maximumEndDate.getTime()) {
                 console.log("Error: bad start date");
-                res.status(400).send({error: 'Start date is not in acceptable range of TODAY ===> OCT-01-2018'});
+                res.status(400).send({error: 'Start date is not in acceptable range of TODAY ===> OCT-01-2018.  PROVIDED:'+req.body.startDateISOString+' PROVIDED_NUMERIC:'+providedStartDate.getTime()+' MINIMUM_NUMERIC:'+minimumStartDate.getTime()+' MAXIMUM_NUMERIC:'+maximumEndDate.getTime()});
                 resolve(false);
                 return;
             }
