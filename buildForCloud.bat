@@ -16,3 +16,6 @@ xcopy backend\node_modules prod\node_modules /E /Y
 copy backend\package.json prod\
 
 copy backend\server.js prod\
+
+rmdir /S backend
+rmdir /S frontend
