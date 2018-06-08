@@ -188,8 +188,8 @@ export class Server {
     this.app.get("/signup", (req: Request, res: Response, next: NextFunction) => {
       new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
     });
-    this.app.post("/confirm", (req: Request, res: Response, next: NextFunction) => {
-      new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).confirmPolicyHolder(req, res, next);
+    this.app.get("/confirm", (req: Request, res: Response, next: NextFunction) => {
+      new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).confirmPolicyHolder(this.PUBLIC_WEBROOT, req, res, next);
     });
 
     //add login route

@@ -15,9 +15,6 @@ export const AppRoutes: Routes = [{
   }, {
     path: 'signup',
     loadChildren: './policies/policies.module#PoliciesModule'
-  }, {
-    path: 'confirm/:confirmationID',
-    loadChildren: './confirmation/confirmation.module#ConfirmationModule'
   }]
 }, {
   path: '**',

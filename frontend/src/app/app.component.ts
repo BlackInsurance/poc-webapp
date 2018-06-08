@@ -14,11 +14,7 @@ export class AppComponent {
     const browserLang: string = translate.getBrowserLang();
     translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
 
-    if (window.location.pathname.startsWith('/confirm')) {
-      let p = window.location.pathname;
-      let confirmationID = p.substring(p.lastIndexOf('/')+1, p.length);
-      router.navigate(['/confirm', confirmationID]);
-    } else if ( localStorage.getItem('token') != null ){
+    if ( localStorage.getItem('token') != null ){
       router.navigate(['/home']);
     }else {
       router.navigate(['/signup']);

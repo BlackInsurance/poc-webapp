@@ -351,13 +351,12 @@ export class PublicRoute extends BaseRoute {
    * @param res {Response} The express Response object.
    * @param next {NextFunction} Execute the next method.
    */
-  public confirmPolicyHolder(req: Request, res: Response, next: NextFunction) {
+  public confirmPolicyHolder(publicweb:string, req: Request, res: Response, next: NextFunction) {
 
     let __this = this;
     let Policy = this.policyModel;
     let PolicyHolder = this.policyHolderModel;
     let _confirmationID : string  = req.body.confirmationID.toString();
-    let originURL = req.baseUrl;
     
     PolicyHolder.findOne({confirmationID:_confirmationID})
         .exec( (err, policyHolder:any)=>{
@@ -368,9 +367,6 @@ export class PublicRoute extends BaseRoute {
                 res.status(400).send({error:'Failed while attempting to retrieve a specific Policy from the DB. ERROR-MESSAGE: '+err});
                 return;
             }
-
-            // 'confirmationID':req.body.confirmationID
-            console.log(policyHolder);
 
             if ( ! policyHolder) { res.status(400).send({error:'Failed to find the requested Policy by Confirmation ID.'}); return; }
 
@@ -404,10 +400,10 @@ export class PublicRoute extends BaseRoute {
                             console.log('new policy confirmed');
                             const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);                
                             res.setHeader('Authorization', signedToken);
-                            res.send(policy);
+                            res.sendFile(`index.html`, { root: publicweb })
                         });
                     } else {
-                        res.send(policy);
+                        res.sendFile(`index.html`, { root: publicweb })
                     }
                 });
         });
