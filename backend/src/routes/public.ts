@@ -219,7 +219,7 @@ export class PublicRoute extends BaseRoute {
     return new Promise((resolve,reject)=>{
         // Validate the values provided are in the accepted range
         var today = new Date();
-        var minimumStartDate = new Date();
+        var minimumStartDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         minimumStartDate.setHours(today.getHours() - 1);
         var maximumEndDate = new Date(2018, 9, 1);
 
