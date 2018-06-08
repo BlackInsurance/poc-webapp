@@ -202,7 +202,7 @@ export class PublicRoute extends BaseRoute {
                         }
 
                         console.log("policy saved!");
-                        __this.sendConfirmationEmail(newPolicyHolder.confirmationID, newPolicyHolder.email);
+                        __this.sendConfirmationEmail(req, newPolicyHolder.confirmationID, newPolicyHolder.email);
 
                         const signedToken = __this.createJWT(newPolicyHolder.email, newPolicyHolder.policyHolderID);                 
                         res.setHeader('Authorization', signedToken);
@@ -357,6 +357,7 @@ export class PublicRoute extends BaseRoute {
     let Policy = this.policyModel;
     let PolicyHolder = this.policyHolderModel;
     let _confirmationID : string  = req.body.confirmationID.toString();
+    let originURL = req.baseUrl;
     
     PolicyHolder.findOne({confirmationID:_confirmationID})
         .exec( (err, policyHolder:any)=>{
@@ -416,9 +417,10 @@ export class PublicRoute extends BaseRoute {
 
 
 
-  private sendConfirmationEmail(confirmationID:string, email:string){
+  private sendConfirmationEmail(req: Request, confirmationID:string, email:string){
     sendgrid.setApiKey(process.env.SEND_GRID_API_KEY);
     sendgrid.setSubstitutionWrappers('<%', '%>'); // Configure the substitution tag wrappers globally
+        
     const message = {
       to: email,
       from: 'info@black.insure',
@@ -426,7 +428,7 @@ export class PublicRoute extends BaseRoute {
       templateId: '90d9dd7d-62c3-429d-ae69-911032182fc2',
       substitutions: {
         body: '',
-        confirmationLink: 'http://localhost:8000/confirm/' + confirmationID,
+        confirmationLink: req.protocol + '://' + req.get('host') + '/confirm/' + confirmationID,
       },
     };
     sendgrid.send(message);
