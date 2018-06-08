@@ -277,9 +277,9 @@ export class NewPolicyComponent implements OnInit {
   
   createPolicy() {
     this.newPolicy.startDate = this.startDateControl.value;
-    this.newPolicy.startDateISOString = this.newPolicy.startDate.toISOString();
+    this.newPolicy.startDateISOString = this.getUTCDateISOString(this.newPolicy.startDate);
     this.newPolicy.endDate = this.endDateControl.value;
-    this.newPolicy.endDateISOString = this.newPolicy.endDate.toISOString();
+    this.newPolicy.endDateISOString = this.getUTCDateISOString(this.newPolicy.endDate);
 
     if (this.newPolicy.policyHolder.policyHolderID == ''){
       this.newPolicy.emailAddress = this.emailFormControl.value;
@@ -304,6 +304,10 @@ export class NewPolicyComponent implements OnInit {
       );
   }
 
+
+  getUTCDateISOString(date : Date) : string {
+    return (new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0))).toISOString();
+  }
 
 
 

@@ -217,11 +217,10 @@ export class PublicRoute extends BaseRoute {
   public validateNewPolicy(req: Request, res: Response, next: NextFunction) : Promise<boolean> {
 
     return new Promise((resolve,reject)=>{
-        // Validate the values provided are in the accepted range
+        // Validate the values provided are in the accepted range        
         var today = new Date();
-        var minimumStartDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        minimumStartDate.setHours(minimumStartDate.getHours() - 1);
-        var maximumEndDate = new Date(2018, 9, 1);
+        var minimumStartDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0));
+        var maximumEndDate = new Date(Date.UTC(2018, 9, 1, 0, 0, 0));
 
         try{
             var providedStartDate = new Date(Date.parse(req.body.startDateISOString));
