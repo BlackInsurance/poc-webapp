@@ -306,7 +306,7 @@ export class NewPolicyComponent implements OnInit {
 
 
   getUTCDateISOString(date : Date) : string {
-    return (new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0))).toISOString();
+    return (new Date(Date.UTC(date.getFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0))).toISOString();
   }
 
 
