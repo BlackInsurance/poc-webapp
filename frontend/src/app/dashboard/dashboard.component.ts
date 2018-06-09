@@ -183,6 +183,7 @@ export class DashboardComponent {
          this.policy = data;
          this.policy.startDate = new Date(Date.parse(this.policy.startDateISOString));
          this.policy.endDate = new Date(Date.parse(this.policy.endDateISOString));
+         this.policy.endDate.setMinutes(this.policy.endDate.getTimezoneOffset());
 
          if ( this.policy.claims == null ){
            this.policy.claims = new Array();
