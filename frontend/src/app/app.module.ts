@@ -14,7 +14,7 @@ import { TranslateModule, TranslateLoader, TranslateStaticLoader } from 'ng2-tra
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 
-//import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
@@ -55,7 +55,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     HttpModule,
     HttpClientModule,
     PerfectScrollbarModule,
-    //MatSidenavModule,
+    MatSidenavModule,
     MatInputModule,
     MatIconModule,
     MatListModule,

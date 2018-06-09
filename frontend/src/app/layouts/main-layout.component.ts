@@ -42,7 +42,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const elemSidebar = <HTMLElement>document.querySelector('.body-container ');
+    const elemSidebar = <HTMLElement>document.querySelector('.body-container');
 
     if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac() && !this.compactSidebar && this.layoutDir != 'rtl') {
       const ps = new PerfectScrollbar(elemSidebar, {
@@ -81,11 +81,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   isOver(): boolean {
-    if (this.url === '/apps/messages' || this.url === '/apps/calendar' || this.url === '/apps/media' || this.url === '/maps/leaflet') {
-      return true;
-    } else {
-      return window.matchMedia(`(max-width: 960px)`).matches;
-    }
+    return window.matchMedia(`(max-width: 960px)`).matches;
   }
 
   isMac(): boolean {

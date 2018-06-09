@@ -67,7 +67,7 @@ export class AutoCompleteSearchService {
           }, (error) => {
             console.log('could not get the current position from the geolocation object');
             resolve(false);
-          });
+          }, {timeout:10000});
         }else {
           console.log('the geolocation object does not exist');
           resolve(false);

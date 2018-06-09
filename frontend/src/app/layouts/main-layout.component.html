@@ -1,32 +1,47 @@
 <div class="app search-i" [dir]="layoutDir" [ngClass]="[ menuLayout, selectedSidebarImage, selectedSidebarColor, selectedHeaderColor, collapsedClass]" [class.app-dark]="dark" [class.boxed]="boxed" [class.collapsed-sidebar]="collapseSidebar" [class.compact-sidebar]="compactSidebar" [class.bg-img-disable]="!sidebarBg">
-    <mat-toolbar class="main-header">
-        <div class="horizontal-top-bar w-100">
-          <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100">
-            <div class="horizontal-logo">
-              <div class="branding text-center">
-                <h2><i class="fa fa-superpowers" aria-hidden="true"></i> <span> Black Insurance</span>
-                </h2>
-              </div>
+    <mat-sidenav-container class="app-inner">
+        <mat-sidenav #sidemenu class="sidebar-panel" id="sidebar-panel" [mode]="isOver() ? 'over' : 'side'" [opened]="!isOver()" (mouseover)="menuMouseOver()" (mouseout)="menuMouseOut()">
+           <div class="opt-side relative ">
+               <div class="sidebar-container">
+                  <mat-card style="margin-top: 10px; height: calc(100% - 30px);">
+                      <mat-card-title fxLayout="row" fxLayoutAlign="start center">
+                          <span class="blockchainViewerTitle">Our Live Blockchain</span>
+                      </mat-card-title>
+                      <hr>
+                      <mat-card-content style="height: calc(100% - 50px);">
+                          <iframe src="https://www.google.com/" class="blockchainViewer"></iframe>
+                      </mat-card-content>
+                  </mat-card>
+               </div>
+           </div>
+        </mat-sidenav>
+        <mat-toolbar class="main-header">
+            <div class="horizontal-top-bar w-100">
+                <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100">
+                    <div class="horizontal-logo">
+                        <div class="branding text-center">
+                            <h2><i class="fa fa-superpowers" aria-hidden="true"></i> <span> Black Insurance</span></h2>
+                        </div>
+                    </div>
+                </div>
+                <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100">
+                  Rainy Day Insurance Game
+                </div>
             </div>
-          </div>
-          <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100">
-            Rainy Day Insurance Game
-          </div>
-        </div>
-        <div class="vertical-menu w-100">
-          <button (click)="menuToggleFunc()" mat-icon-button class="lines-btn">
-            <mat-icon>menu</mat-icon>
-          </button>
-          <span fxFlex></span>
-          <mat-form-field>
-            <mat-select placeholder="Language" class="mt-1" [(ngModel)]="currentLang" #langSelect="ngModel" (ngModelChange)="translate.use(currentLang)">
-            <mat-option *ngFor="let lang of translate.getLangs()" [value]="lang">{{ lang }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-    </mat-toolbar>
-    <perfect-scrollbar class="body-container">
-        <router-outlet></router-outlet>
-    </perfect-scrollbar>
+            <div class="vertical-menu w-100">
+                <button (click)="menuToggleFunc()" mat-icon-button class="lines-btn">
+                    <mat-icon>menu</mat-icon>
+                </button>
+                <span fxFlex></span>
+                <mat-form-field>
+                    <mat-select placeholder="Language" class="mt-1" [(ngModel)]="currentLang" #langSelect="ngModel" (ngModelChange)="translate.use(currentLang)">
+                        <mat-option *ngFor="let lang of translate.getLangs()" [value]="lang">{{ lang }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </mat-toolbar>
+        <perfect-scrollbar class="body-container">
+            <router-outlet></router-outlet>
+        </perfect-scrollbar>
+    </mat-sidenav-container>
 </div>
-
