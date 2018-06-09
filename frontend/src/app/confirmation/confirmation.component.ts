@@ -22,19 +22,6 @@ export class ConfirmationComponent {
 
 
   ngOnInit() {
-    this.route.params.subscribe((params: Params) => {
-      let confirmationID = params['confirmationID'];
-      this.policyService.confirmPolicyHolder(confirmationID).subscribe(
-        data => {
-          console.log('Confirmation succeeded');
-          this.router.navigate(['/home']);
-        },
-        err => {
-          console.log('Confirmation failed');
-          this.router.navigate(['/signup']);
-        }
-      );
-    });
   }
   
 
