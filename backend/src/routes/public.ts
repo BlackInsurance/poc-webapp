@@ -429,7 +429,7 @@ export class PublicRoute extends BaseRoute {
       templateId: '90d9dd7d-62c3-429d-ae69-911032182fc2',
       substitutions: {
         body: '',
-        confirmationLink: req.protocol + '://' + req.get('host') + '/confirm/' + confirmationID,
+        confirmationLink: 'https://' + req.get('host') + '/confirm/' + confirmationID,
       },
     };
     sendgrid.send(message);
