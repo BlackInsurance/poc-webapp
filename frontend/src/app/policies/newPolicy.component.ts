@@ -256,7 +256,7 @@ export class NewPolicyComponent implements OnInit {
 
   autoCompleteCallback(data: any): any {
     if ( data && data.reason && data.reason == 'Failed to get geo location' ) {
-      this.displayErrorNotice('Browser could not find your "Current Location"', '');
+      this.displayErrorNotice('Your browser cannot determine your Current Location', '');
       return;
     }
 
