@@ -47,7 +47,7 @@
             <mat-card>
                 <mat-card-title fxLayout="row" fxLayoutAlign="start center">
                     Policy Details &nbsp; 
-                    <div class="policyStatus">{{policy.status}}</div>
+                    <div class="{{policy.status=='Active'?'policyStatusActive':'policyStatusInactive'}}">{{policy.status}}</div>
                 </mat-card-title>
                 <hr>
                 <mat-card-content>

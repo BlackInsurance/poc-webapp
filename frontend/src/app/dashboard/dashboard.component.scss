@@ -312,10 +312,26 @@ $p: 12px;
 
 
 
-.policyStatus {
-    display: block;
-    position: relative;
-    float: right;
+.policyStatusActive {
+    position: absolute;
+    right: 0px;
+    margin-right: 15px;
+    padding: 5px 10px 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    background-color: #a6e1a0;
+    box-shadow: inset 2px 2px 2px 2px #AAA;
+}
+
+.policyStatusInactive {
+    position: absolute;
+    right: 0px;
+    margin-right: 15px;
+    padding: 5px 10px 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    background-color: #e6c3c3;
+    box-shadow: inset 2px 2px 2px 2px #AAA;
 }
 
 

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = require("mongoose");
 // Define a DB Schema.
 exports.weatherDataSchema = new mongoose_1.Schema({
-    timeRecorded: {
+    timeRecordedISOString: {
         type: String,
         required: true,
         default: (new Date()).toISOString()
