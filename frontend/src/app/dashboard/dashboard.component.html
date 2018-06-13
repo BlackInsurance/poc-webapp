@@ -69,9 +69,15 @@
                             <div class="value">{{policy.endDate | date: 'mediumDate'}}</div>
                         </div>
                         <div fxFlex="66%" class="configItem">    
-                            <mat-form-field class="formField">
-                                <input matInput placeholder="Ethereum Address" value="{{policy.ethereumAddress}}">
-                            </mat-form-field>
+                            <form>
+                                <mat-form-field appearance="outline" class="formField">
+                                    <mat-label>Ethereum Address</mat-label>
+                                    <input matInput type="text" [formControl]="ethereumAddressControl" value="{{policy.ethereumAddress}}">
+                                    <mat-icon matSuffix (click)="saveEthereumAddress()" style="cursor:hand;">{{savingEthereumAddress ? 'sync' : 'save'}}</mat-icon>
+                                    <mat-error *ngIf="ethereumAddressControl.hasError('required')">Ethereum Address is <strong>required</strong></mat-error>
+                                    <mat-error *ngIf="ethereumAddressControl.hasError('invalid_address')">Ethereum Address is <strong>not valid</strong></mat-error>
+                                </mat-form-field>
+                            </form>
                         </div>
                     </div>
                 </mat-card-content>

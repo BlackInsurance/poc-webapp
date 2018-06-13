@@ -1,3 +1,5 @@
+
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { Component, OnInit, ViewEncapsulation  } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
@@ -49,7 +51,10 @@ export class DashboardComponent {
     var timeDiff = Math.abs((new Date()).getTime() - (new Date(this.policy.endDateISOString)).getTime());
     this.daysRemainingForPolicy = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
   }
-
+  
+  ethereumAddressControl = new FormControl('', [
+    Validators.required
+  ]);
 
 
   constructor(
@@ -99,19 +104,66 @@ export class DashboardComponent {
          }
       },
       err => {
-        this.displayErrorNotice('Network error, try again later', '');
+        this.displayNotice('Network error, try again later', '');
         console.log(err);
       });
   }
 
 
+  savingEthereumAddress : boolean = false;
+  saveEthereumAddress(){
+    let global_this = this;
+    this.policyService.setPolicyEthereumAddress(this.policy.policyID, this.ethereumAddressControl.value).subscribe(
+      data => {
+         let updatedData = data;
+         global_this.savingEthereumAddress = false;
+         global_this.ethereumAddressControl.enable();
+         global_this.ethereumAddressControl.setErrors(null);
+         this.displayNotice('Updated your Ethereum address', '');
+      },
+      err => {
+        console.log(err);
+        global_this.savingEthereumAddress = false;
+        global_this.ethereumAddressControl.enable();
+        if ( err.error.error == 'Ethereum Address does not meet formatting requirements or did not pass checksum validation' ) {
+          global_this.ethereumAddressControl.setErrors({'invalid_address':true});
+        } else {
+          this.displayNotice('Network error, try again later', '');
+        }
+      });
+        
+    this.savingEthereumAddress = true;  
+    this.ethereumAddressControl.disable();  
+  }
 
-  displayErrorNotice(message: string, action: string) {
+
+  displayNotice(message: string, action: string) {
     this.errorBar.open(message, action, {
       duration: 2000,
     });
   }
 
+
+
+    /**
+     * Checks if the given string is an Ethereum address
+     *
+     * @method isValidAddress
+     * @param {String} address the given HEX adress
+     * @return {Boolean}
+    */
+   public isValidAddress(address: string) : boolean {
+        if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
+            // check if it has the basic requirements of an address
+            return false;
+        } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
+            // If it's all small caps or all all caps, return true
+            return true;
+        } else {
+            // Otherwise check each case
+            return true;
+        }
+    }
 
 
 }

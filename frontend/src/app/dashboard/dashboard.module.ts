@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatIconModule, MatCardModule, MatButtonModule, MatListModule, MatProgressBarModule, MatMenuModule, MatGridListModule, MatInputModule, MatDatepickerModule } from '@angular/material';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { MatIconModule, MatCardModule, MatButtonModule, MatListModule, MatMenuModule, MatGridListModule, MatInputModule } from '@angular/material';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
@@ -18,15 +20,15 @@ import { PolicyService } from '../policies/policies.service';
   imports: [
     CommonModule,
     RouterModule.forChild(DashboardRoutes),
+    FormsModule,
+    ReactiveFormsModule,
     MatIconModule,
     MatCardModule,
     MatButtonModule,
     MatListModule,
-    MatProgressBarModule,
     MatMenuModule,
     MatGridListModule,
     MatInputModule,
-    MatDatepickerModule,
     ChartsModule,
     NgxChartsModule,
     NgxDatatableModule,

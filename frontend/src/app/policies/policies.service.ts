@@ -123,9 +123,12 @@ export class PolicyService {
             
         return this.http.patch(this.backendBaseURL+"policy", policyRequest, requestOptions).pipe(
             map((res:any) => {
-                return res.json();
+                return res;
             }),
-            catchError(this.handleError('setPolicyEthereumAddress', []))); 
+            catchError((error:any) => {
+                console.log(error);
+                return observableThrowError(error.json ? error.json().error : error || 'Server error')
+            }),); 
     }
 
     /** Log a message with the MessageService */
