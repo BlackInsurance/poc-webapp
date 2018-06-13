@@ -46,10 +46,28 @@ Author: TrendSetter Themes
 @import "scss/utilities/utilities";
 
 
+
+
+
+.leadAnimation {
+    height: 300px;
+}
+
+
 .blockchainViewerTitle{
 
 }
 .blockchainViewer {
     height: 100%;
     width: 100%;
+}
+
+.githubLogo {
+    height: 50px;
+    margin-left: 15px;
+}
+
+.slackLogo {
+    height: 50px;
+    margin-left: 15px;
 }

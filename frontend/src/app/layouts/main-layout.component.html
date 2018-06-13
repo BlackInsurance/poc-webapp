@@ -3,15 +3,62 @@
         <mat-sidenav #sidemenu class="sidebar-panel" id="sidebar-panel" [mode]="isOver() ? 'over' : 'side'" [opened]="!isOver()" (mouseover)="menuMouseOver()" (mouseout)="menuMouseOut()">
            <div class="opt-side relative ">
                <div class="sidebar-container">
-                  <mat-card style="margin-top: 10px; height: calc(100% - 30px);">
-                      <mat-card-title fxLayout="row" fxLayoutAlign="start center">
-                          <span class="blockchainViewerTitle">Our Live Blockchain</span>
-                      </mat-card-title>
-                      <hr>
-                      <mat-card-content style="height: calc(100% - 50px);">
-                          <iframe src="https://explorer.puremoneysystems.com/" class="blockchainViewer"></iframe>
-                      </mat-card-content>
-                  </mat-card>
+
+                    <mat-accordion displayMode="flat">
+                        <mat-expansion-panel expanded=true>
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>Welcome</mat-panel-title>
+                            </mat-expansion-panel-header>
+                                                        
+                            <mat-card style="height:100%">
+                                <mat-card-content style="text-align: center; height:100%">
+                                    Video / Animation goes here....<hr>
+                                    <img src="assets/images/rainyday.gif" class="leadAnimation">
+                                </mat-card-content>
+                            </mat-card>
+
+                        </mat-expansion-panel>
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>Our Running Blockchain</mat-panel-title>
+                            </mat-expansion-panel-header>     
+
+                            <mat-card>
+                                <mat-card-content style="height: calc(100vh - 250px);">
+                                    <iframe src="https://explorer.puremoneysystems.com/" class="blockchainViewer"></iframe>
+                                </mat-card-content>
+                            </mat-card>
+
+                        </mat-expansion-panel>
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>Invest in Black Insurance</mat-panel-title>
+                            </mat-expansion-panel-header>
+                                                        
+                            <mat-card style="height:100%">
+                                <mat-card-content>
+                                    Investor survey / link here....
+                                </mat-card-content>
+                            </mat-card>
+
+                        </mat-expansion-panel>
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>Join our Dev Community</mat-panel-title>
+                            </mat-expansion-panel-header>
+                                                        
+                            <mat-card style="height:100%">
+                                <mat-card-content style="text-align: center;height:100%">
+                                    <span>Look at the code for our Platform : </span><a href="https://github.com/BlackInsurance/" target="_blank"><img src="assets/images/github-logo.png" class="githubLogo"></a>
+                                    <hr>
+                                    <span>Want to help develop our Platform?  </span><a href="https://slack.com/" target="_blank"><img src="assets/images/slack-logo.png" class="slackLogo"></a>
+                                </mat-card-content>
+                            </mat-card>
+
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                          
+
                </div>
            </div>
         </mat-sidenav>
