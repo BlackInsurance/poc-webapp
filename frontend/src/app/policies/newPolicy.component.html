@@ -30,7 +30,7 @@
                             </div>
                         </mat-step>
                         <mat-step>
-                            <ng-template matStepLabel>Login</ng-template>
+                            <ng-template matStepLabel>Account</ng-template>
 
                             <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
                                 <div fxFlex="50%">
@@ -116,6 +116,19 @@
                             <div class="buttons">
                                 <button mat-raised-button matStepperPrevious type="button" (click)="resetSecurityInfo()">Back</button>
                                 <button mat-raised-button type="button" color="primary" (click)="createPolicy()" [disabled]="!policyDetailsAreValid()">Create your Rainy Day Policy!</button>
+                            </div>
+                        </mat-step>
+                        <mat-step >
+                            <ng-template matStepLabel>Finished</ng-template>
+                                                        
+                            <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
+                                <div fxFlex="100">    
+                                    Success! Your "Rainy Day" Insurance Policy is being created.
+                                </div>
+                                <br>
+                                <div fxFlex="100" [style]="(userPassLogin ? 'display:block' : 'display:none')">    
+                                    Please check your email to Confirm your new Policy.
+                                </div>
                             </div>
                         </mat-step>
                     </mat-horizontal-stepper>

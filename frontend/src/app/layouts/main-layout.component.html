@@ -63,22 +63,19 @@
            </div>
         </mat-sidenav>
         <mat-toolbar class="main-header">
-            <div class="horizontal-top-bar w-100">
-                <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100">
-                    <div class="horizontal-logo">
-                        <div class="branding text-center">
-                            <h2><i class="fa fa-superpowers" aria-hidden="true"></i> <span> Black Insurance</span></h2>
-                        </div>
-                    </div>
-                </div>
-                <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100">
-                  Rainy Day Insurance Game
-                </div>
-            </div>
             <div class="vertical-menu w-100">
                 <button (click)="menuToggleFunc()" mat-icon-button class="lines-btn">
-                    <mat-icon>menu</mat-icon>
+                    <mat-icon>{{collapsedClass == 'side-panel-opened' ? 'arrow_back' : 'arrow_forward'}}</mat-icon>
                 </button>
+                <span fxFlex></span>
+                <div class="shareOn">
+                    <span>Share on</span>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://black-airdrop.azurewebsites.net/" target="_blank" class="link"><img src="assets/images/24x24-facebook.png"></a>
+                    <a href="https://twitter.com/home?status=Get%20free%20cryptocurrency%20and%20test%20the%20Black%20Insurance%20platform%20with%20a%20free%20'Rainy%20Day'%20insurance%20policy." target="_blank" class="link"><img src="assets/images/24x24-twitter.png"></a>
+                    <a href="https://plus.google.com/share?url=https://black-airdrop.azurewebsites.net/" target="_blank" class="link"><img src="assets/images/24x24-google.png"></a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://black-airdrop.azurewebsites.net/&summary=Get%20free%20cryptocurrency%20and%20test%20the%20Black%20Insurance%20platform%20with%20a%20free%20'Rainy%20Day'%20insurance%20policy." target="_blank" class="link"><img src="assets/images/24x24-linkedin.png"></a>
+                    <a href="http://reddit.com/submit?url=Get%20free%20cryptocurrency%20and%20test%20the%20Black%20Insurance%20platform%20with%20a%20free%20'Rainy%20Day'%20insurance%20policy.&title=Black%20Insurance%20launches%20the%20%22Rainy%20Day%22%20insurance%20prototype" class="link"><img src="assets/images/24x24-reddit.png"></a>
+                </div>
                 <span fxFlex></span>
                 <mat-form-field>
                     <mat-select placeholder="Language" class="mt-1" [(ngModel)]="currentLang" #langSelect="ngModel" (ngModelChange)="translate.use(currentLang)">

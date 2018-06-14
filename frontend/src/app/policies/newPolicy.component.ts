@@ -168,6 +168,7 @@ export class NewPolicyComponent implements OnInit {
     }
   }
 
+  public userPassLogin : boolean = false;
   public verifyLoginInformation() {
     this.loginInProgress = true;
 
@@ -191,6 +192,7 @@ export class NewPolicyComponent implements OnInit {
               // This email does not exist, so we are creating a new account
               this.newPolicy.emailAddress = this.emailFormControl.value;
               this.newPolicy.password = this.passwordFormControl.value;
+              this.userPassLogin = true;
               this.stepper.selectedIndex = 2;              
             } else {
               // Systemic Error.  Display a dialog
@@ -204,6 +206,7 @@ export class NewPolicyComponent implements OnInit {
   }
 
   public resetSecurityInfo(){
+    this.userPassLogin = false;
     this.newPolicy.policyHolder.policyHolderID = '';
     this.newPolicy.facebook.id = '';
     this.newPolicy.facebook.name = '';
@@ -295,7 +298,8 @@ export class NewPolicyComponent implements OnInit {
       .subscribe(
         data => {
           console.log("Added policy.");
-          this.router.navigate(['/home']);
+          global_this.stepper.selectedIndex = 3;  
+          setTimeout(()=>{this.router.navigate(['/home']);}, 10000);
         },
         err => {
           this.displayErrorNotice('Network error, try again later', '');
