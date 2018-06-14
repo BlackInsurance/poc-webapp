@@ -47,6 +47,12 @@ var CORE_DATA_MODEL = /** @class */ (function () {
                 id: '',
                 token: '',
                 name: ''
+            },
+            google: {
+                id: '',
+                token: '',
+                name: '',
+                email: ''
             }
         };
     };

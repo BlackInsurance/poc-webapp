@@ -5,9 +5,11 @@ import * as passport from 'passport';
 import * as passportJWT from 'passport-jwt';
 import * as passportLocal from 'passport-local';
 import * as passportFacebook from 'passport-facebook';
+import * as passportGoogle from 'passport-google-oauth';
 
 import LocalStrategy = passportLocal.Strategy;
 import FacebookStrategy = passportFacebook.Strategy;
+import GoogleStrategy = passportGoogle.OAuth2Strategy;
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
@@ -52,7 +54,7 @@ export class PassportLoader {
             }
         ));
 
-        // Load the ability to understand / communicate JWT in Passport for request authorisation 
+        // Load the ability to understand / communicate JWT in Passport for request authorization 
         _passport.use(new JWTStrategy({
             jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
             secretOrKey: (process.env.JWT_SIGNING_KEY || 'secret')
@@ -103,6 +105,52 @@ export class PassportLoader {
                 .catch(err => { return done(err); });
             });        
         }));
+
+        // Load the ability to understand Google OAuth in Passport
+        _passport.use(new GoogleStrategy({
+            clientID        : process.env.GOOGLE_APP_ID,
+            clientSecret    : process.env.GOOGLE_APP_SECRET,
+            callbackURL     : process.env.GOOGLE_CALLBACK_URL
+        },
+        (token, refreshToken, profile, done) => {
+            // asynchronous
+            process.nextTick(function() {    
+
+                _policyHolderModel.findOne({"google.id":profile.id})
+                .then((policyHolder) => {
+                    console.log(policyHolder);
+
+                    if (policyHolder) {
+                        return done(null, policyHolder);
+                    } else {
+                        // No user found with that google id, create them
+                        let newPolicyHolder: IPolicyHolder = CORE_DATA_MODEL.getDefaultPolicyHolder();
+                        newPolicyHolder.policyHolderID = uuidBase62.v4();
+                        newPolicyHolder.email = '';
+                        newPolicyHolder.password = '';
+                        newPolicyHolder.confirmationID = '';
+                        newPolicyHolder.google.id = profile.id;
+                        newPolicyHolder.google.token = token;
+                        newPolicyHolder.google.name = profile.displayName;
+                        newPolicyHolder.google.email = profile.emails[0].name;
+
+                        return new _policyHolderModel(newPolicyHolder).save(function(policyHolderError){
+                            if (policyHolderError) {
+                                console.log("policyHolder not saved!");
+                                throw policyHolderError;
+                            }
+
+                            // Remove some data for security before bubbling this policyHolder up
+                            console.log("New google login, policyHolder saved!");
+                            newPolicyHolder.google.token = '';
+                            return done(null, newPolicyHolder);
+                        });
+                    }
+                })
+                .catch(err => { return done(err); });
+            });        
+        }));
+
 
 
         _passport.serializeUser(function(user, done) {

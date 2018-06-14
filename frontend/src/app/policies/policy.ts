@@ -10,6 +10,12 @@ export class Policy {
         token: '',
         name: ''
     }
+    public google: any = {
+        id: '',
+        token: '',
+        name: '',
+        email: ''
+    }
     public ethereumAddress: string;
 
 

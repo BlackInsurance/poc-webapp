@@ -245,7 +245,7 @@ export class Server {
         .exec(function(err, policy){
 
           if (err || policy == null || policy.length == 0) {
-            res.render('authenticated', { hasPolicy: false, facebookID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName });
+            res.render('authenticated', { hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName });
           } else {
             res.render('authenticated', { hasPolicy: true, token: jwt });
           }
@@ -253,6 +253,30 @@ export class Server {
     });
 
 
+
+    this.app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }), (req: Request, res: Response, next: NextFunction) => { 
+      next ();
+    });
+    
+    this.app.get('/auth/google/callback', passport.authenticate('google', { session: false }), (req: any, res: Response, next: NextFunction) => {
+      const _googleID = req.user.google.id;
+      const _policyHolderID = req.user.policyHolderID;
+      const _policyHolderName = req.user.google.name;
+      const _policyHolderEmail = req.user.google.email;
+      const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
+      const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
+
+      this.policyModel.find({})                
+        .where('policyHolder.policyHolderID').equals(req.user.policyHolderID)
+        .exec(function(err, policy){
+
+          if (err || policy == null || policy.length == 0) {
+            res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail });
+          } else {
+            res.render('authenticated', { hasPolicy: true, token: jwt });
+          }
+        });      
+    });
 
   }
 }

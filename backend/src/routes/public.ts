@@ -161,7 +161,8 @@ export class PublicRoute extends BaseRoute {
                             }
 
                             const currentPolicyHolder = policyHolders[0];
-                            const signedToken = __this.createJWT(currentPolicyHolder.facebook.name, currentPolicyHolder.policyHolderID);                 
+                            const currentPolicyHolderName = ( currentPolicyHolder.facebook.name && currentPolicyHolder.facebook.name.trim() != '' ) ? currentPolicyHolder.facebook.name : currentPolicyHolder.google.name;
+                            let signedToken = __this.createJWT(currentPolicyHolderName, currentPolicyHolder.policyHolderID);                 
                             res.setHeader('Authorization', signedToken);
                             res.send(newPolicy);
                         });
@@ -249,19 +250,19 @@ export class PublicRoute extends BaseRoute {
 
             if ( req.body.policyHolder.policyHolderID && req.body.policyHolder.policyHolderID.trim() != '' ) {
                 if ( req.body.facebook.id && req.body.facebook.id.trim() != '' ) {
-                    if ( req.body.facebook.name && req.body.facebook.name.trim() == '' ) {
+                    if ( !req.body.facebook.name || req.body.facebook.name.trim() == '' ) {
                         console.log("Error: facebook profile name is blank");
                         res.status(400).send({error: 'Facebook profile name is blank'});
                         resolve(false);
                         return;
                     }
-                //} else if ( req.body.google.id && req.body.google.id.trim() != '' ) {
-                //    if ( req.body.google.name && req.body.google.name.trim() != '' ) {
-                //        console.log("Error: google profile name is blank");
-                //        res.status(400);
-                //        res.send({error: 'Google profile name is blank'});
-                //        return false;
-                //    }
+                } else if ( req.body.google.id && req.body.google.id.trim() != '' ) {
+                    if ( !req.body.google.name || req.body.google.name.trim() == '' ) {
+                        console.log("Error: google profile name is blank");
+                        res.status(400);
+                        res.send({error: 'Google profile name is blank'});
+                        return false;
+                    }
                 } else {
                     console.log("Error: facebook / google credentials are blank");
                     res.status(400).send({error: 'Facebook / Google credentials are blank'});

@@ -10,6 +10,7 @@ import { Policy } from './policy';
 import { PolicyService } from './policies.service';
 
 
+
 //declare var window: any;
 //declare var FB: any;
 
@@ -42,7 +43,7 @@ export function startDateAfterTodayValidator(): ValidatorFn {
   };
 }
 
-
+declare var FB: any;
 @Component({
   selector: 'newPolicy',
   templateUrl: './newPolicy.component.html',
@@ -154,6 +155,16 @@ export class NewPolicyComponent implements OnInit {
 
   ngOnInit() {
     this.newPolicy = Policy.CreateDefault();
+
+    // Prepare the Facebook SDK
+    FB.init({
+      appId      : '160878728100422',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v3.0'
+    });
+      
+    FB.AppEvents.logPageView();   
   }
 
 
@@ -207,15 +218,22 @@ export class NewPolicyComponent implements OnInit {
 
   public resetSecurityInfo(){
     this.userPassLogin = false;
-    this.newPolicy.policyHolder.policyHolderID = '';
-    this.newPolicy.facebook.id = '';
-    this.newPolicy.facebook.name = '';
-    this.newPolicy.emailAddress = '';
-    this.newPolicy.password = '';
+    this.clearPolicyHolderCredentials();
     this.emailFormControl.setValue('');
     this.passwordFormControl.setValue('');
     this.emailFormControl.enable();
     this.passwordFormControl.enable();
+  }
+
+  private clearPolicyHolderCredentials(){
+    this.newPolicy.policyHolder.policyHolderID = '';
+    this.newPolicy.facebook.id = '';
+    this.newPolicy.facebook.name = '';
+    this.newPolicy.google.id = '';
+    this.newPolicy.google.name = '';
+    this.newPolicy.google.email = '';
+    this.newPolicy.emailAddress = '';
+    this.newPolicy.password = '';
   }
 
 
@@ -223,14 +241,14 @@ export class NewPolicyComponent implements OnInit {
 
   loginWithFacebook(eventData : any) : any {
     eventData.preventDefault();
-    this.newPolicy.policyHolder.policyHolderID = '';
-    this.newPolicy.facebook.id = '';
-    this.newPolicy.facebook.name = '';
-    this.newPolicy.emailAddress = '';
-    this.newPolicy.password = '';
+    this.clearPolicyHolderCredentials();
 
-    window.addEventListener("message", this.handleFacebookLogin, false);
-    window.open(this.federatedLoginBaseURL+'/auth/facebook', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=200px,height=150px');
+    FB.login((resp) => {
+      if (resp.authResponse == undefined ) { return; }
+      this.handleFacebookLogin(resp);
+    });
+    //window.addEventListener("message", this.handleFacebookLogin, false);
+    //window.open(this.federatedLoginBaseURL+'/auth/facebook', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=640px,height=300px');
   }
 
   handleFacebookLogin(event:any) {
@@ -245,7 +263,7 @@ export class NewPolicyComponent implements OnInit {
         global_this.newPolicy.emailAddress = '';
         global_this.newPolicy.password = '';
         global_this.newPolicy.policyHolder.policyHolderID = event.data.policyHolderID;
-        global_this.newPolicy.facebook.id = event.data.facebookID;
+        global_this.newPolicy.facebook.id = event.data.accountID;
         global_this.newPolicy.facebook.name = event.data.policyHolderName;
         global_this.emailFormControl.disable();
         global_this.passwordFormControl.disable();
@@ -254,6 +272,36 @@ export class NewPolicyComponent implements OnInit {
     } 
   }
 
+
+  loginWithGoogle(eventData : any) : any {
+    eventData.preventDefault();
+    this.clearPolicyHolderCredentials();
+
+    window.addEventListener("message", this.handleGoogleLogin, false);
+    window.open(this.federatedLoginBaseURL+'/auth/google', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=650px,height=650px');
+  }
+
+  handleGoogleLogin(event:any) {
+    let origin = event.origin || event.originalEvent.origin;
+    if (origin !== global_this.federatedLoginBaseURL) { return }
+    
+    if (event.data.type == 'success'){
+      if (event.data.hasPolicy){
+        localStorage.setItem('token', event.data.token);
+        global_this.router.navigate(['/home']);
+      } else {
+        global_this.newPolicy.emailAddress = '';
+        global_this.newPolicy.password = '';
+        global_this.newPolicy.policyHolder.policyHolderID = event.data.policyHolderID;
+        global_this.newPolicy.google.id = event.data.accountID;
+        global_this.newPolicy.google.name = event.data.policyHolderName;
+        global_this.newPolicy.google.email = event.data.email;
+        global_this.emailFormControl.disable();
+        global_this.passwordFormControl.disable();
+        global_this.stepper.selectedIndex = 2;  
+      }
+    } 
+  }
   
 
 
