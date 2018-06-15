@@ -11,9 +11,6 @@ import { PolicyService } from './policies.service';
 
 
 
-//declare var window: any;
-//declare var FB: any;
-
 let global_this : any;
 
 
@@ -43,7 +40,6 @@ export function startDateAfterTodayValidator(): ValidatorFn {
   };
 }
 
-declare var FB: any;
 @Component({
   selector: 'newPolicy',
   templateUrl: './newPolicy.component.html',
@@ -155,16 +151,6 @@ export class NewPolicyComponent implements OnInit {
 
   ngOnInit() {
     this.newPolicy = Policy.CreateDefault();
-
-    // Prepare the Facebook SDK
-    FB.init({
-      appId      : '160878728100422',
-      cookie     : true,
-      xfbml      : true,
-      version    : 'v3.0'
-    });
-      
-    FB.AppEvents.logPageView();   
   }
 
 
@@ -243,9 +229,11 @@ export class NewPolicyComponent implements OnInit {
     eventData.preventDefault();
     this.clearPolicyHolderCredentials();
 
-    FB.login((resp) => {
-      if (resp.authResponse == undefined ) { return; }
-      this.handleFacebookLogin(resp);
+    this.policyService.loginWithFacebook().then((response:any) => {
+      console.log('User has been logged in');
+      global_this.router.navigate(['/home']);
+    }).catch((error:any)=>{
+      console.log(error);
     });
     //window.addEventListener("message", this.handleFacebookLogin, false);
     //window.open(this.federatedLoginBaseURL+'/auth/facebook', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=640px,height=300px');

@@ -12,6 +12,7 @@ import * as jwtDecode from 'jwt-decode';
 import { Policy } from './policy';
 
 
+declare var FB: any;
 
 @Injectable()
 export class PolicyService {
@@ -24,6 +25,17 @@ export class PolicyService {
         if ( window.location.hostname == 'localhost' ){
             this.backendBaseURL = 'http://localhost:8088/';
         }
+
+        // Prepare the Facebook SDK
+        FB.init({
+            appId      : '160878728100422',
+            status     : false,
+            cookie     : false,
+            xfbml      : false,
+            version    : 'v3.0'
+        });
+        
+        FB.AppEvents.logPageView();   
     }
 
 
@@ -59,23 +71,39 @@ export class PolicyService {
             }),);        
     }
 
-    checkLoginFacebook(_userID:string, _accessToken:string) : Observable<any>{
-        var loginRequest = { type: 'facebook', userID: _userID, accessToken: _accessToken };
+    loginWithFacebook() {
+        return new Promise((resolve, reject) => {
+            FB.login(result => {
+                if (result.authResponse) {
+                    var requestOptions = {
+                        headers: new HttpHeaders({ 'Authorization': 'Bearer '+result.authResponse.accessToken }),
+                        observe: 'response' as 'body'
+                    };
+                    return this.http.post(this.backendBaseURL+'auth/facebook', null, requestOptions).pipe(
+                        map((res:HttpResponse<any>) => { 
+                            if (res.body.message == 'logged in'){
+                                var token = res.headers.get('Authorization');
+                                localStorage.setItem('token', token);
+                            }            
+                            resolve(res.body); 
+                        }),
+                        catchError((error:any) => {
+                            console.log('ERROR: Failed to authenticate the Facebook access token.');
+                            console.log(error.json ? error.json().error : error || 'Server error');
+                            reject(error.json ? error.json().error : error || 'Server error');
+                            return observableThrowError(error.json ? error.json().error : error || 'Server error');
+                        }),);        
 
-        return this.http.post<Policy[]>(this.backendBaseURL+"login/", loginRequest, { observe: 'response' }).pipe(
-            map((res:HttpResponse<any>) => { 
-                if (res.body.message == 'logged in'){
-                    var token = res.headers.get('Authorization');
-                    localStorage.setItem('token', token);
+                } else {
+                    reject('WARNING: Login cancelled');
                 }
-
-                return res.body; 
-            }),
-            catchError((error:any) => {
-                return observableThrowError(error.json ? error.json().error : error || 'Server error')
-            }),);        
+            }, {scope: 'email'})
+        }); 
     }
 
+    logout(){
+        localStorage.removeItem('token');
+    }
   
     getPolicyForCurrentUser() : Observable<Policy>{
         let encodedJWT = localStorage.getItem('token');

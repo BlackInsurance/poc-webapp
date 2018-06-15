@@ -230,7 +230,7 @@ export class Server {
 
 
 
-    this.app.get('/auth/facebook', passport.authenticate('facebook'), (req: Request, res: Response, next: NextFunction) => { 
+    this.app.get('/auth/facebook', passport.authenticate('facebook-token'), (req: Request, res: Response, next: NextFunction) => { 
       next ();
     });
     

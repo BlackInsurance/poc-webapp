@@ -4,11 +4,10 @@ import * as uuidBase62 from 'uuid-base62';
 import * as passport from 'passport';
 import * as passportJWT from 'passport-jwt';
 import * as passportLocal from 'passport-local';
-import * as passportFacebook from 'passport-facebook';
+import * as FacebookTokenStrategy from 'passport-facebook-token';
 import * as passportGoogle from 'passport-google-oauth';
 
 import LocalStrategy = passportLocal.Strategy;
-import FacebookStrategy = passportFacebook.Strategy;
 import GoogleStrategy = passportGoogle.OAuth2Strategy;
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
@@ -63,7 +62,7 @@ export class PassportLoader {
         ));
 
         // Load the ability to understand Facebook OAuth in Passport
-        _passport.use(new FacebookStrategy({
+        _passport.use(new FacebookTokenStrategy({
             clientID        : process.env.FACEBOOK_APP_ID,
             clientSecret    : process.env.FACEBOOK_APP_SECRET,
             callbackURL     : process.env.FACEBOOK_CALLBACK_URL
