@@ -41,6 +41,7 @@ export class Server {
 
   private dataModel: CORE_DATA_MODEL;
   private PUBLIC_WEBROOT: string = process.env.PUBLIC_WEBROOT || './';
+  private FEDERATED_LOGIN_RESPONSE_ORIGIN = process.env.FEDERATED_LOGIN_RESPONSE_ORIGIN || 'http://localhost:8000';
   //private passport: any;
 
 
@@ -237,6 +238,7 @@ export class Server {
       const _facebookID = req.user.facebook.id;
       const _policyHolderID = req.user.policyHolderID;
       const _policyHolderName = req.user.facebook.name;
+      const _sourceURL = this.FEDERATED_LOGIN_RESPONSE_ORIGIN;
       const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
       const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
 
@@ -245,9 +247,9 @@ export class Server {
         .exec(function(err, policy){
 
           if (err || policy == null || policy.length == 0) {
-            res.render('authenticated', { hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName });
+            res.render('authenticated', { hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, sourceURL: _sourceURL });
           } else {
-            res.render('authenticated', { hasPolicy: true, token: jwt });
+            res.render('authenticated', { hasPolicy: true, token: jwt, sourceURL: _sourceURL });
           }
         });      
     });
@@ -263,6 +265,7 @@ export class Server {
       const _policyHolderID = req.user.policyHolderID;
       const _policyHolderName = req.user.google.name;
       const _policyHolderEmail = req.user.google.email;
+      const _sourceURL = this.FEDERATED_LOGIN_RESPONSE_ORIGIN;
       const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
       const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
 
@@ -271,9 +274,9 @@ export class Server {
         .exec(function(err, policy){
 
           if (err || policy == null || policy.length == 0) {
-            res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail });
+            res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail, sourceURL: _sourceURL });
           } else {
-            res.render('authenticated', { hasPolicy: true, token: jwt });
+            res.render('authenticated', { hasPolicy: true, token: jwt, sourceURL: _sourceURL });
           }
         });      
     });
