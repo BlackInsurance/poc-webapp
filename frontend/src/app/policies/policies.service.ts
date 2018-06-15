@@ -72,6 +72,7 @@ export class PolicyService {
     }
 
     loginWithFacebook() {
+        let global_this = this;
         return new Promise((resolve, reject) => {
             FB.login(result => {
                 if (result.authResponse) {
@@ -79,7 +80,7 @@ export class PolicyService {
                         headers: new HttpHeaders({ 'Authorization': 'Bearer '+result.authResponse.accessToken }),
                         observe: 'response' as 'body'
                     };
-                    return this.http.post(this.backendBaseURL+'auth/facebook', null, requestOptions).pipe(
+                    return this.http.post(global_this.backendBaseURL+'auth/facebook', null, requestOptions).pipe(
                         map((res:HttpResponse<any>) => { 
                             if (res.body.message == 'logged in'){
                                 var token = res.headers.get('Authorization');
