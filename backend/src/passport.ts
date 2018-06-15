@@ -65,7 +65,7 @@ export class PassportLoader {
         _passport.use(new FacebookTokenStrategy({
             clientID        : process.env.FACEBOOK_APP_ID,
             clientSecret    : process.env.FACEBOOK_APP_SECRET,
-            callbackURL     : process.env.FACEBOOK_CALLBACK_URL
+            fbGraphVersion  : 'v3.0'
         },
         (token, refreshToken, profile, done) => {
             // asynchronous
