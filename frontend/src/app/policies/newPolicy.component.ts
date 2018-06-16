@@ -231,9 +231,24 @@ export class NewPolicyComponent implements OnInit {
 
     this.policyService.loginWithFacebook().then((response:any) => {
       console.log('User has been logged in');
-      global_this.router.navigate(['/home']);
+
+      if (response.hasPolicy){
+        var token = response.headers.get('Authorization');
+        localStorage.setItem('token', token);
+        global_this.router.navigate(['/home']);
+      } else {
+        global_this.newPolicy.emailAddress = '';
+        global_this.newPolicy.password = '';
+        global_this.newPolicy.policyHolder.policyHolderID = response.policyHolderID;
+        global_this.newPolicy.facebook.id = response.accountID;
+        global_this.newPolicy.facebook.name = response.policyHolderName;
+        global_this.emailFormControl.disable();
+        global_this.passwordFormControl.disable();
+        global_this.stepper.selectedIndex = 2;  
+      }
     }).catch((error:any)=>{
       console.log(error);
+      global_this.displayErrorNotice(error.message);
     });
     //window.addEventListener("message", this.handleFacebookLogin, false);
     //window.open(this.federatedLoginBaseURL+'/auth/facebook', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=640px,height=300px');

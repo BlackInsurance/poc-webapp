@@ -230,28 +230,36 @@ export class Server {
 
 
 
-    this.app.get('/auth/facebook', passport.authenticate('facebook-token'), (req: Request, res: Response, next: NextFunction) => { 
-      next ();
-    });
-    
-    this.app.get('/auth/facebook/callback', passport.authenticate('facebook', { session: false }), (req: any, res: Response, next: NextFunction) => {
+    this.app.get('/auth/facebook', passport.authenticate('facebook-token'), (req: any, res: Response, next: NextFunction) => { 
+      console.log('Logging facebook user in');
+      console.log(req.user);
+
       const _facebookID = req.user.facebook.id;
+      console.log(_facebookID);
       const _policyHolderID = req.user.policyHolderID;
+      console.log('policyHolderID: ' + _policyHolderID);
       const _policyHolderName = req.user.facebook.name;
-      const _sourceURL = this.FEDERATED_LOGIN_RESPONSE_ORIGIN;
+      console.log('policyHolderName: ' + _policyHolderName);
       const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
       const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
+      console.log(jwt);
 
       this.policyModel.find({})                
         .where('policyHolder.policyHolderID').equals(req.user.policyHolderID)
         .exec(function(err, policy){
 
           if (err || policy == null || policy.length == 0) {
-            res.render('authenticated', { hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, sourceURL: _sourceURL });
+            console.log('No policy for this facebook user');
+            res.status(200).json({ hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName });
           } else {
-            res.render('authenticated', { hasPolicy: true, token: jwt, sourceURL: _sourceURL });
+            console.log('Facebook user already has a policy');
+            res.setHeader('Authorization', jwt);
+            res.status(200).json({ hasPolicy: true });
           }
         });      
+    });
+    
+    this.app.get('/auth/facebook/callback', passport.authenticate('facebook', { session: false }), (req: any, res: Response, next: NextFunction) => {
     });
 
 
