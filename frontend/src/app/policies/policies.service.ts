@@ -28,7 +28,7 @@ export class PolicyService {
 
         // Prepare the Facebook SDK
         FB.init({
-            appId      : '987695181407829',
+            appId      : '160878728100422',
             status     : false,
             cookie     : false,
             xfbml      : false,
