@@ -147,6 +147,17 @@ export class NewPolicyComponent implements OnInit {
 
     // Another hack to allow event handlers to gain access to proper 'this' context
     global_this = this; 
+
+    // Prepare the Facebook SDK
+    FB.init({
+        appId      : '160878728100422',
+        status     : false,
+        cookie     : false,
+        xfbml      : false,
+        version    : 'v3.0'
+    });
+    
+    FB.AppEvents.logPageView();   
   }
 
 

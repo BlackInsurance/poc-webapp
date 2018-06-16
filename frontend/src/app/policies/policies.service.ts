@@ -12,8 +12,6 @@ import * as jwtDecode from 'jwt-decode';
 import { Policy } from './policy';
 
 
-declare var FB: any;
-
 @Injectable()
 export class PolicyService {
     
@@ -25,17 +23,6 @@ export class PolicyService {
         if ( window.location.hostname == 'localhost' ){
             this.backendBaseURL = 'https://localhost:8088/';
         }
-
-        // Prepare the Facebook SDK
-        FB.init({
-            appId      : '160878728100422',
-            status     : false,
-            cookie     : false,
-            xfbml      : false,
-            version    : 'v3.0'
-        });
-        
-        FB.AppEvents.logPageView();   
     }
 
 
