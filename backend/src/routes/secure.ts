@@ -129,6 +129,30 @@ export class SecuredRoute extends BaseRoute {
     }
 
 
+    public loginFacebookUser(req: any, res: Response, next: NextFunction) {
+        console.log('Logging facebook user in');
+        const _facebookID = req.user.facebook.id;
+        const _policyHolderID = req.user.policyHolderID;
+        const _policyHolderName = req.user.facebook.name;
+        const jwt = this.createJWT(_policyHolderName, _policyHolderID);
+
+        this.policyModel.find({})                
+            .where('policyHolder.policyHolderID').equals(req.user.policyHolderID)
+            .exec(function(err, policy){
+                if (err || policy == null || policy.length == 0) {
+                    console.log('No policy for this facebook user');
+                    res.send({ hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName });
+                    return;
+                } else {
+                    console.log('Facebook user already has a policy');
+                    res.setHeader('Authorization', jwt);
+                    res.send({ hasPolicy: true });
+                    return;
+                }
+            });      
+    }
+
+
     /**
      * Checks if the given string is an Ethereum address
      *

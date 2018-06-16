@@ -23,12 +23,12 @@ export class PolicyService {
 
         // Hack for working in local DEV
         if ( window.location.hostname == 'localhost' ){
-            this.backendBaseURL = 'http://localhost:8088/';
+            this.backendBaseURL = 'https://localhost:8088/';
         }
 
         // Prepare the Facebook SDK
         FB.init({
-            appId      : '160878728100422',
+            appId      : '987695181407829',
             status     : false,
             cookie     : false,
             xfbml      : false,
@@ -71,32 +71,26 @@ export class PolicyService {
             }),);        
     }
 
-    loginWithFacebook() {
+    loginWithFacebook(accessToken:string) : Observable<any> {
         let global_this = this;
-        return FB.login(result => {
-            if (result.authResponse) {
-                var requestOptions = {
-                    headers: new HttpHeaders({ 'Authorization': 'Bearer '+result.authResponse.accessToken }),
-                    observe: 'response' as 'body'
-                };
-                return this.http.get(global_this.backendBaseURL+'auth/facebook', requestOptions).pipe(
-                    map((res:HttpResponse<any>) => { 
-                        if (res.body.message == 'logged in'){
-                            var token = res.headers.get('Authorization');
-                            localStorage.setItem('token', token);
-                        }            
-                        return res.body; 
-                    }),
-                    catchError((error:any) => {
-                        console.log('ERROR: Failed to authenticate the Facebook access token.');
-                        console.log(error.json ? error.json().error : error || 'Server error');
-                        return observableThrowError(error.json ? error.json().error : error || 'Server error');
-                    }),);        
+        var requestOptions = {
+            headers: new HttpHeaders({ 'Authorization': 'Bearer '+accessToken }),
+            observe: 'response' as 'body'
+        };
+        return this.http.get<Object>(global_this.backendBaseURL+'auth/facebook', requestOptions).pipe(
+            map((res:HttpResponse<any>) => { 
+                if (res.body.hasPolicy){
+                    var token = res.headers.get('Authorization');
+                    localStorage.setItem('token', token);
+                }            
+                return res.body; 
+            }),
+            catchError((error:any) => {
+                console.log('ERROR: Failed to authenticate the Facebook access token.');
+                console.log(error.json ? error.json().error : error || 'Server error');
+                return observableThrowError(error.json ? error.json().error : error || 'Server error');
+            }),);        
 
-            } else {
-                throw new Error('WARNING: Login cancelled');
-            }
-        }, {scope: 'email'}); 
     }
 
     logout(){

@@ -141,7 +141,7 @@ export class NewPolicyComponent implements OnInit {
   ) { 
 
     // Hack to be able to debug backend and frontend in separate processes in the DEV environment
-    if (window.location.hostname == 'localhost' ) { this.federatedLoginBaseURL = 'http://localhost:8088'; }
+    if (window.location.hostname == 'localhost' ) { this.federatedLoginBaseURL = 'https://localhost:8088'; }
 
     // Another hack to allow event handlers to gain access to proper 'this' context
     global_this = this; 
@@ -229,51 +229,39 @@ export class NewPolicyComponent implements OnInit {
     eventData.preventDefault();
     this.clearPolicyHolderCredentials();
 
-    this.policyService.loginWithFacebook().then((response:any) => {
-      console.log('User has been logged in');
+    FB.login(result => {
+      if (result.authResponse) {
 
-      if (response.hasPolicy){
-        var token = response.headers.get('Authorization');
-        localStorage.setItem('token', token);
-        global_this.router.navigate(['/home']);
+        this.policyService
+          .loginWithFacebook(result.authResponse.accessToken)
+          .subscribe(
+            (response:any) => {
+              console.log('User has been logged in');
+
+              if (response.hasPolicy){
+                global_this.router.navigate(['/home']);
+              } else {
+                global_this.newPolicy.emailAddress = '';
+                global_this.newPolicy.password = '';
+                global_this.newPolicy.policyHolder.policyHolderID = response.policyHolderID;
+                global_this.newPolicy.facebook.id = response.accountID;
+                global_this.newPolicy.facebook.name = response.policyHolderName;
+                global_this.emailFormControl.disable();
+                global_this.passwordFormControl.disable();
+                global_this.stepper.selectedIndex = 2;  
+              }
+            },
+            err => {
+              console.log(err);
+              global_this.displayErrorNotice( (err.json ? err.json().error : err || 'Server error', ''));
+            });
+
       } else {
-        global_this.newPolicy.emailAddress = '';
-        global_this.newPolicy.password = '';
-        global_this.newPolicy.policyHolder.policyHolderID = response.policyHolderID;
-        global_this.newPolicy.facebook.id = response.accountID;
-        global_this.newPolicy.facebook.name = response.policyHolderName;
-        global_this.emailFormControl.disable();
-        global_this.passwordFormControl.disable();
-        global_this.stepper.selectedIndex = 2;  
+        global_this.displayErrorNotice('WARNING: Login cancelled');
       }
-    }).catch((error:any)=>{
-      console.log(error);
-      global_this.displayErrorNotice(error.message);
-    });
-    //window.addEventListener("message", this.handleFacebookLogin, false);
-    //window.open(this.federatedLoginBaseURL+'/auth/facebook', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=640px,height=300px');
+    }, {scope: 'email'}); 
   }
 
-  handleFacebookLogin(event:any) {
-    let origin = event.origin || event.originalEvent.origin;
-    if (origin !== global_this.federatedLoginBaseURL) { return }
-    
-    if (event.data.type == 'success'){
-      if (event.data.hasPolicy){
-        localStorage.setItem('token', event.data.token);
-        global_this.router.navigate(['/home']);
-      } else {
-        global_this.newPolicy.emailAddress = '';
-        global_this.newPolicy.password = '';
-        global_this.newPolicy.policyHolder.policyHolderID = event.data.policyHolderID;
-        global_this.newPolicy.facebook.id = event.data.accountID;
-        global_this.newPolicy.facebook.name = event.data.policyHolderName;
-        global_this.emailFormControl.disable();
-        global_this.passwordFormControl.disable();
-        global_this.stepper.selectedIndex = 2;  
-      }
-    } 
-  }
 
 
   loginWithGoogle(eventData : any) : any {
