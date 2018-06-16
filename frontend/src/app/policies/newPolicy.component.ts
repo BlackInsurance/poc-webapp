@@ -12,6 +12,8 @@ import { PolicyService } from './policies.service';
 
 
 let global_this : any;
+declare var FB: any;
+
 
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
