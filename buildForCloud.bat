@@ -14,8 +14,9 @@ md prod\node_modules
 xcopy backend\node_modules prod\node_modules /E /Y
 
 copy backend\package.json prod\
-
 copy backend\server.js prod\
+copy backend\process.json prod\
+copy backend\web.config prod\
 
 rmdir /S /Q backend
 rmdir /S /Q frontend
