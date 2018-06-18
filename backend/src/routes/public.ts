@@ -427,7 +427,7 @@ export class PublicRoute extends BaseRoute {
       to: email,
       from: 'info@black.insure',
       subject: 'Confirm your "Rainy Day Insurance" policy',
-      templateId: '90d9dd7d-62c3-429d-ae69-911032182fc2',
+      templateId: process.env.SEND_GRID_TEMPLATE_ID,
       substitutions: {
         body: '',
         confirmationLink: 'https://' + req.get('host') + '/confirm/' + confirmationID,
