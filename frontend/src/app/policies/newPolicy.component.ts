@@ -236,6 +236,17 @@ export class NewPolicyComponent implements OnInit {
   }
 
 
+  recaptchaSuccess(response:any) {
+    let testVar = '';
+    testVar = response;
+    alert(testVar);
+  }
+
+  recaptchaError(error:any) {
+    let testVar = '';
+    testVar = error;
+    alert(testVar);
+  }
 
 
   loginWithFacebook(eventData : any) : any {

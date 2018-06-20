@@ -33,7 +33,7 @@
                             <ng-template matStepLabel>Account</ng-template>
 
                             <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
-                                <div fxFlex="50%">
+                                <div fxFlex="33%">
                                     <mat-form-field appearance="outline" class="inputControl">
                                         <mat-label>Email Address</mat-label>
                                         <input matInput [formControl]="emailFormControl" [errorStateMatcher]="matcher" (input)="resetLoginValidation($event)">
@@ -46,7 +46,7 @@
                                     </mat-form-field>
                                 </div>
 
-                                <div fxFlex="50%">
+                                <div fxFlex="33%">
                                     <mat-form-field appearance="outline" class="inputControl">
                                         <mat-label>Password</mat-label>
                                         <input matInput [type]="hide ? 'password' : 'text'" [formControl]="passwordFormControl" (input)="resetLoginValidation($event)">
@@ -61,6 +61,10 @@
                                         Found email, password does not match
                                         </mat-error>
                                     </mat-form-field>
+                                </div>
+
+                                <div fxFlex="33%">
+                                    <div class="g-recaptcha" data-sitekey="6LeKfF8UAAAAALxGWM6eny1OnWRpKgGnbY6W2DAg" data-callback="recaptchaSuccess" data-error-callback="recaptchaError"></div>
                                 </div>
 
                                 <div fxFlex="grow">
