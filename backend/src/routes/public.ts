@@ -2,6 +2,7 @@ import * as uuidBase62 from 'uuid-base62';
 import * as jwt from "jsonwebtoken";
 import * as passport from "passport";
 import * as sendgrid from '@sendgrid/mail';
+import * as httpRequest from 'request';
 
 import { NextFunction, Request, Response, Router } from "express";
 import { BaseRoute } from "./baseRoute";
@@ -31,82 +32,132 @@ export class PublicRoute extends BaseRoute {
 
 
 
-  /**
-   * The home page route.
-   *
-   * @class PublicRoute
-   * @method index
-   * @param req {Request} The express Request object.
-   * @param res {Response} The express Response object.
-   * @next {NextFunction} Execute the next method.
-   */
-  public index(publicweb:string, req: Request, res: Response, next: NextFunction) {
-    console.log(publicweb);
-    res.sendFile(`index.html`, { root: publicweb })
-  }
+    /**
+     * The home page route.
+     *
+     * @class PublicRoute
+     * @method index
+     * @param req {Request} The express Request object.
+     * @param res {Response} The express Response object.
+     * @next {NextFunction} Execute the next method.
+     */
+    public index(publicweb:string, req: Request, res: Response, next: NextFunction) {
+        console.log(publicweb);
+        res.sendFile(`index.html`, { root: publicweb })
+    }
 
 
-  /**
-   * The login route.
-   *
-   * @class PublicRoute
-   * @method login
-   * @param req {any} The express Request object.
-   * @param res {Response} The express Response object.
-   * @next {NextFunction} Execute the next method.
-   */
-  public login(req, res: Response, next: NextFunction) {
-    let __this = this;
-    passport.authenticate('local', {session: false}, (err, policyHolder, info) => {
-        if (err || !policyHolder) {
+    /**
+     * The login route.
+     *
+     * @class PublicRoute
+     * @method login
+     * @param req {any} The express Request object.
+     * @param res {Response} The express Response object.
+     * @next {NextFunction} Execute the next method.
+     */
+    public login(req, res: Response, next: NextFunction) {
+        let __this = this;
+
+        // Check the reCAPTCHA token
+        if ( !req.body.recaptchaToken || req.body.recaptchaToken.trim() == '' ){
             return res.status(400).json( {
-                existingAccount: (info && info.message=='Incorrect password'),
-                error: err,
-                message: info ? info.message : 'Login failed'
+                existingAccount : false,
+                error: 'Missing the reCAPTCHA token',
+                message: 'Login failed'
             });
         }
 
-        const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);                 
-        res.setHeader('Authorization', signedToken);
-        return res.json( {
-            existingAccount: true,
-            error: null,
-            message: 'logged in'
+        const requestOptions = {
+            form: { response: req.body.recaptchaToken, secret: process.env.RECAPTCHA_SECRET_KEY },
+            json : false,
+            url : 'https://www.google.com/recaptcha/api/siteverify'
+        };
+
+        httpRequest.post(requestOptions, (error, response, body) => {
+            console.log('Received reCAPTCHA check response:', error, response.statusCode, body);
+    
+            if (error) {
+                return res.status(500).json( {
+                    existingAccount : false,
+                    error: error.message,
+                    message: 'Login failed'
+                });
+            }
+    
+            if (response.statusCode !== 200) {
+                return res.status(500).json( {
+                    existingAccount : false,
+                    error: 'reCAPTCHA response failed with status code ' + response.statusCode,
+                    message: 'Login failed'
+                });
+            }
+    
+            let bodyJSON = JSON.parse(body);
+            if (!bodyJSON.success) {
+                const errorCodes = bodyJSON['error-codes'];  
+                const errorCodesList = Array.isArray(errorCodes) ? errorCodes.join(', ') : 'Unknown';
+    
+                return res.status(500).json( {
+                    existingAccount : false,
+                    error: 'reCAPTCHA response failed with error codes: ' + errorCodesList,
+                    message: 'Login failed'
+                });
+            } else {
+
+                // Check the email / password combination
+                passport.authenticate('local', {session: false}, (err, policyHolder, info) => {
+                    if (err || !policyHolder) {
+                        return res.status(400).json( {
+                            existingAccount: (info && info.message=='Incorrect password'),
+                            error: err,
+                            message: info ? info.message : 'Login failed'
+                        });
+                    }
+
+                    const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);                 
+                    res.setHeader('Authorization', signedToken);
+                    return res.json( {
+                        existingAccount: true,
+                        error: null,
+                        message: 'logged in'
+                    });
+                })
+                (req, res);
+            }
         });
-    })
-    (req, res);
-  }
+    }
 
 
-  /**
-   * The Policy List route....DELETE THIS IMMEDIATELY - HUGE SECURITY HOLE
-   *
-   * @class PublicRoute
-   * @method getPolicyList
-   * @param req {Request} The express Request object.
-   * @param res {Response} The express Response object.
-   * @next {NextFunction} Execute the next method.
-   */
-  public getPolicyList(req: Request, res: Response, next: NextFunction) {
-    this.policyModel.find({}, function(err, policies){
-        if (err) {
-            console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
-            res.status(400);
-            res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + err.message});
-            return;
-        }
+    /**
+     * The Policy List route....DELETE THIS IMMEDIATELY - HUGE SECURITY HOLE
+     *
+     * @class PublicRoute
+     * @method getPolicyList
+     * @param req {Request} The express Request object.
+     * @param res {Response} The express Response object.
+     * @next {NextFunction} Execute the next method.
+     */
+    public getPolicyList(req: Request, res: Response, next: NextFunction) {
+        this.policyModel.find({}, function(err, policies){
+            if (err) {
+                console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
+                res.status(400);
+                res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + err.message});
+                return;
+            }
 
-        if (policies.length == null){
-            console.log('Error: Failed to locate the requested Policy.');
-            res.status(404);
-            res.send({error: 'Failed to locate the requested Policy'});
-            return;
-        }
+            if (policies.length == null){
+                console.log('Error: Failed to locate the requested Policy.');
+                res.status(404);
+                res.send({error: 'Failed to locate the requested Policy'});
+                return;
+            }
 
-        console.log("returning all policies.");
-        res.send(policies);
-    });
-  }
+            console.log("returning all policies.");
+            res.send(policies);
+        });
+    }
 
 
   /**
@@ -419,23 +470,23 @@ export class PublicRoute extends BaseRoute {
 
 
 
-  private sendConfirmationEmail(req: Request, confirmationID:string, email:string){
-    sendgrid.setApiKey(process.env.SEND_GRID_API_KEY);
-    sendgrid.setSubstitutionWrappers('<%', '%>'); // Configure the substitution tag wrappers globally
-        
-    const message = {
-      to: email,
-      from: 'info@black.insure',
-      subject: 'Confirm your "Rainy Day Insurance" policy',
-      templateId: process.env.SEND_GRID_TEMPLATE_ID,
-      substitutions: {
-        body: '',
-        confirmationLink: 'https://' + req.get('host') + '/confirm/' + confirmationID,
-      },
-    };
-    sendgrid.send(message);
-    console.log('sent a confirmation email');
-  }
+    private sendConfirmationEmail(req: Request, confirmationID:string, email:string){
+        sendgrid.setApiKey(process.env.SEND_GRID_API_KEY);
+        sendgrid.setSubstitutionWrappers('<%', '%>'); // Configure the substitution tag wrappers globally
+            
+        const message = {
+            to: email,
+            from: 'info@black.insure',
+            subject: 'Confirm your "Rainy Day Insurance" policy',
+            templateId: process.env.SEND_GRID_TEMPLATE_ID,
+            substitutions: {
+                body: '',
+                confirmationLink: 'https://' + req.get('host') + '/confirm/' + confirmationID,
+            },
+        };
+        sendgrid.send(message);
+        console.log('sent a confirmation email');
+    }
 
 
 }

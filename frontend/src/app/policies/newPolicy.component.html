@@ -6,7 +6,7 @@
             </mat-card-title>
             <hr>
             <mat-card-content>
-                <form class="newPolicyForm"> 
+                <form class="newPolicyForm" [formGroup]="recaptchaForm"> 
 
 
                     <mat-horizontal-stepper [linear]="true" #stepper>
@@ -64,7 +64,9 @@
                                 </div>
 
                                 <div fxFlex="33%">
-                                    <div class="g-recaptcha" data-sitekey="6LeKfF8UAAAAALxGWM6eny1OnWRpKgGnbY6W2DAg" data-callback="recaptchaSuccess" data-error-callback="recaptchaError"></div>
+                                    <div id="recaptchaContainer">
+                                        <re-captcha size="compact" (resolved)="recaptchaResolved($event)" #recaptchaControl></re-captcha>
+                                    </div>                                                                 
                                 </div>
 
                                 <div fxFlex="grow">
@@ -80,7 +82,7 @@
 
                             <div class="buttons">
                                 <button mat-raised-button matStepperPrevious type="button">Back</button>
-                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="!(((emailFormControl.status != 'INVALID' && passwordFormControl.status != 'INVALID') || newPolicy.policyHolder.policyHolderID != '') && !loginInProgress)">Next</button>
+                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="!(((emailFormControl.status != 'INVALID' && passwordFormControl.status != 'INVALID' && recaptchaToken != '') || newPolicy.policyHolder.policyHolderID != '') && !loginInProgress)">Next</button>
                             </div>  
                         </mat-step>
                         <mat-step >
@@ -139,6 +141,7 @@
 
 
                 </form>
+                <script src="https://www.google.com/recaptcha/api.js?onload=recaptchaOnload&render=explicit" async defer></script>   
             </mat-card-content>
         </mat-card>
     </div>

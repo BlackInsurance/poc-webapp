@@ -4,6 +4,7 @@ import { FormControl, FormGroupDirective, NgForm, Validators, ValidatorFn, Abstr
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { RecaptchaComponent } from 'ng-recaptcha';
 
 import { Router } from '@angular/router';
 import { Policy } from './policy';
@@ -13,8 +14,15 @@ import { PolicyService } from './policies.service';
 
 let global_this : any;
 declare var FB: any;
+declare var grecaptcha : any;
 
 
+export var recaptchaOnload = function(){
+  grecaptcha.render('recaptchaContainer', {
+    'sitekey' : '6LeKfF8UAAAAALxGWM6eny1OnWRpKgGnbY6W2DAg'
+  });
+
+}
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -70,6 +78,9 @@ export class NewPolicyComponent implements OnInit {
     LoginInformationValidator.validLoginInfo
   ]);
   hide = true;
+
+  @ViewChild('recaptchaControl') recaptchaControl;
+  recaptchaToken: string = '';
 
 
   minDate : Date = new Date();
@@ -183,7 +194,7 @@ export class NewPolicyComponent implements OnInit {
     this.loginInProgress = true;
 
     this.policyService
-      .checkLoginCredentials(this.emailFormControl.value, this.passwordFormControl.value)
+      .checkLoginCredentials(this.emailFormControl.value, this.passwordFormControl.value, this.recaptchaToken)
       .subscribe(
         data => {
           this.loginInProgress = false;
@@ -204,8 +215,14 @@ export class NewPolicyComponent implements OnInit {
               this.newPolicy.password = this.passwordFormControl.value;
               this.userPassLogin = true;
               this.stepper.selectedIndex = 2;              
+            } else if ( err.error.error.toLowerCase().indexOf('recaptcha') > -1 ){
+              this.displayErrorNotice('reCAPTCHA failed. Please verify you are not a robot', '');
+              this.recaptchaControl.reset();
+              this.recaptchaToken = '';
             } else {
               // Systemic Error.  Display a dialog
+              console.log(err);
+              console.log(err.error);
               this.displayErrorNotice('Network Error, try again later', '');
             }
           }
@@ -222,6 +239,9 @@ export class NewPolicyComponent implements OnInit {
     this.passwordFormControl.setValue('');
     this.emailFormControl.enable();
     this.passwordFormControl.enable();
+
+    this.recaptchaToken = '';
+    this.recaptchaControl.reset();
   }
 
   private clearPolicyHolderCredentials(){
@@ -236,17 +256,10 @@ export class NewPolicyComponent implements OnInit {
   }
 
 
-  recaptchaSuccess(response:any) {
-    let testVar = '';
-    testVar = response;
-    alert(testVar);
+  recaptchaResolved(response:any) {
+    this.recaptchaToken = response;
   }
 
-  recaptchaError(error:any) {
-    let testVar = '';
-    testVar = error;
-    alert(testVar);
-  }
 
 
   loginWithFacebook(eventData : any) : any {
