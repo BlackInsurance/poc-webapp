@@ -1,15 +1,19 @@
 
-import { Component, OnInit, ViewEncapsulation, ViewChild  } from '@angular/core';
-import { FormControl, FormGroupDirective, NgForm, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
-import { MatSnackBar } from '@angular/material';
-import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { Component, OnInit, ViewChild  } from '@angular/core';
+import { FormControl, NgForm, Validators } from '@angular/forms';
+
 import { RecaptchaComponent } from 'ng-recaptcha';
 
-import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+
+import { Router, ActivatedRoute } from '@angular/router';
 import { Policy } from './policy';
 import { PolicyService } from './policies.service';
+import { GooglePlaceDirective } from 'ngx-google-places-autocomplete';
+import { Address } from 'ngx-google-places-autocomplete/objects/address';
 
+import { ToastrService } from 'ngx-toastr';
 
 
 let global_this : any;
@@ -24,31 +28,6 @@ export var recaptchaOnload = function(){
 
 }
 
-export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    const isSubmitted = form && form.submitted;
-    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
-  }
-}
-
-export class LoginInformationValidator {
-  public static loginInfoIsValid : boolean = true;
-  static validLoginInfo(fc: FormControl){ return ( LoginInformationValidator.loginInfoIsValid ) ?  undefined : ({password_incorrect: true}); }
-}
-
-
-export function startDateAfterTodayValidator(): ValidatorFn {
-  return (control: AbstractControl): { [key: string]: any } => {
-    const selectedStartDate = control.value;
-    const today = new Date((new Date()).getFullYear(), (new Date()).getMonth(), (new Date()).getDate());
-
-    if (selectedStartDate.getTime() < today.getTime()) {
-      return { invalid_date: { 'earliestDate': today, 'selectedDate': selectedStartDate } };
-    }
-
-    return null;
-  };
-}
 
 @Component({
   selector: 'newPolicy',
@@ -61,97 +40,42 @@ export class NewPolicyComponent implements OnInit {
   newPolicy: Policy;
 
 
-  @ViewChild('stepper') stepper;
-
-
-  matcher = new MyErrorStateMatcher();
-
   federatedLoginBaseURL : string = window.location.protocol + '//' + window.location.host;
   federatedLoginJWT : string = '';
-  emailFormControl = new FormControl('', [
-    Validators.required,
-    Validators.email,
-  ]);
-  passwordFormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(8),
-    LoginInformationValidator.validLoginInfo
-  ]);
-  hide = true;
+
+  @ViewChild('emailControl') emailControl;
+  @ViewChild('passwordControl') passwordControl;
+  @ViewChild('passwordRepeatControl') passwordRepeatControl;
+  emailErrorMessage : string = '';
+  passwordErrorMessage : string = '';
 
   @ViewChild('recaptchaControl') recaptchaControl;
   recaptchaToken: string = '';
+
+  @ViewChild('signupButton') signupButton;
 
 
   minDate : Date = new Date();
   currentMinDate : Date = this.minDate;
   maxDate : Date = new Date(2018, 9, 1);
   currentMaxDate : Date = this.maxDate;
-  startDatePicker = new FormControl(this.minDate);
-  endDatePicker = new FormControl(this.maxDate);
-  startDateControl = new FormControl(this.minDate, [
-    Validators.required
-  ]);
-  endDateControl = new FormControl(this.maxDate, [
-    Validators.required
-  ]);
 
 
-  public validDateMinimum(dateControlName:string) : boolean{
-    let dateValid = false;
-
-    if ( dateControlName == 'start' ) {
-      if (Object.prototype.toString.call(this.startDateControl.value) != '[object Date]') { 
-        this.currentMinDate = this.minDate;
-        return false; 
-      }
-      
-      dateValid = (this.startDateControl.value.getTime() >= this.minDate.getTime());
-      if ( dateValid ) { this.currentMinDate = this.startDateControl.value; }
-    } else {
-      if (Object.prototype.toString.call(this.endDateControl.value) != '[object Date]') { 
-        this.currentMaxDate = this.maxDate;
-        return false; 
-      }
-
-      dateValid = (this.endDateControl.value.getTime() >= this.currentMinDate.getTime());
-      if ( dateValid ) { this.currentMaxDate = this.endDateControl.value; }
-    }
-
-    return dateValid;
-  }
-  public validDateMaximum(dateControlName:string) : boolean{
-    let dateValid = false;
-
-    if ( dateControlName == 'start' ) {
-      if (Object.prototype.toString.call(this.startDateControl.value) != '[object Date]') { 
-        this.currentMinDate = this.minDate;
-        return false; 
-      }
-      
-      dateValid = (this.startDateControl.value.getTime() <= this.currentMaxDate.getTime());
-      if ( dateValid ) { this.currentMinDate = this.startDateControl.value; }
-    } else {
-      if (Object.prototype.toString.call(this.endDateControl.value) != '[object Date]') { 
-        this.currentMaxDate = this.maxDate;
-        return false; 
-      }
-
-      dateValid = (this.endDateControl.value.getTime() <= this.maxDate.getTime());
-      if ( dateValid ) { this.currentMaxDate = this.endDateControl.value; }
-    }
-
-    return dateValid;
-  }
-
+  @ViewChild('placesRef') placesRef;
   selectedLocation : any = {};
+
+  router : Router = null;
+  currentStep = '';
  
 
   constructor(
     private policyService: PolicyService,
-    private router: Router, 
-    private errorBar: MatSnackBar
+    private toastr: ToastrService,
+    private _router: Router
   ) { 
+    
+    this.router = _router;
+    _router.events.subscribe((data:any) => { this.handleRouteChange(data); });
 
     // Hack to be able to debug backend and frontend in separate processes in the DEV environment
     if (window.location.hostname == 'localhost' ) { this.federatedLoginBaseURL = 'https://localhost:8088'; }
@@ -177,24 +101,93 @@ export class NewPolicyComponent implements OnInit {
     this.newPolicy = Policy.CreateDefault();
   }
 
+  public openNavMenu(){
+    document.body.classList.add('nav-open');
+  }
 
 
+  routeChangeTimer : any = null;
+  private handleRouteChange(eventData:any){
+    if(eventData.snapshot == undefined || eventData.snapshot._urlSegment.segments.length < 2){return;}
+    this.currentStep = eventData.snapshot._urlSegment.segments[1].path;
 
-  public loginInProgress : boolean = false;
-
-  public resetLoginValidation(evt) {
-    if ( !LoginInformationValidator.loginInfoIsValid ) {
-      LoginInformationValidator.loginInfoIsValid = true;
-      this.passwordFormControl.updateValueAndValidity();
+    switch(this.currentStep){
+      case 'step2':
+        this.resetSecurityInfo();
+        break;
+      case 'step3':
+        this.selectedLocation = '';
+        break;
+      case 'step5':
+        if (this.routeChangeTimer === null){
+          this.routeChangeTimer = setTimeout(function() { 
+            global_this.changeRoute('/home');
+            global_this.routeChangeTimer = null;
+          }, 5000);
+        }
+        break;
+      default:
+        break;
     }
   }
 
+  public changeRoute(newRoute:string){
+    this.router.navigate([newRoute]);
+  }
+
+
+
+
+
+  public userSignupReady : boolean = false;
+  public loginInProgress : boolean = false;  
   public userPassLogin : boolean = false;
+  
+
+  private checkEmail() {
+    let email = this.emailControl.nativeElement.value;
+
+    if (email === '') { return false; }
+
+    var validEmailChecker = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    if (validEmailChecker.test(email)) {
+      this.emailErrorMessage = '';
+      return true;
+    } else {
+      this.emailErrorMessage = 'Please enter valid email';
+      return false;
+    }
+  }
+
+  private checkPass() {
+      let repeat = this.passwordRepeatControl.nativeElement.value;
+      let pass = this.passwordControl.nativeElement.value;
+
+      if (repeat === '' || pass === '') { return false; }
+
+      if (repeat === pass) {
+        this.passwordErrorMessage = '';
+        return true;
+      } else {
+        this.passwordErrorMessage = 'Passwords do not match';
+        return false;
+      }
+  }
+
+  public recaptchaResolved(response:any) {
+    this.recaptchaToken = response;
+    this.checkSignupReady();
+  }
+
+  public checkSignupReady(){
+    this.userSignupReady = (this.checkEmail() && this.checkPass() && this.recaptchaToken != '');
+  }
+
   public verifyLoginInformation() {
     this.loginInProgress = true;
 
     this.policyService
-      .checkLoginCredentials(this.emailFormControl.value, this.passwordFormControl.value, this.recaptchaToken)
+      .checkLoginCredentials(this.emailControl.nativeElement.value, this.passwordControl.nativeElement.value, this.recaptchaToken)
       .subscribe(
         data => {
           this.loginInProgress = false;
@@ -207,23 +200,23 @@ export class NewPolicyComponent implements OnInit {
           if ( err.error ){
             if ( err.error.message == 'Incorrect password' ) {
               // This email exists, so this is a bad login attempt
-              LoginInformationValidator.loginInfoIsValid = false;
-              this.passwordFormControl.updateValueAndValidity();
+              this.passwordErrorMessage = 'Bad password, try again';
+              this.toastr.error('Bad password, try again', 'Existing account');
             } else if ( err.error.message == 'Incorrect email' ) {
               // This email does not exist, so we are creating a new account
-              this.newPolicy.emailAddress = this.emailFormControl.value;
-              this.newPolicy.password = this.passwordFormControl.value;
+              this.newPolicy.emailAddress = this.emailControl.nativeElement.value;
+              this.newPolicy.password = this.passwordControl.nativeElement.value;
               this.userPassLogin = true;
-              this.stepper.selectedIndex = 2;              
+              this.router.navigate(['/signup/step3']);             
             } else if ( err.error.error.toLowerCase().indexOf('recaptcha') > -1 ){
-              this.displayErrorNotice('reCAPTCHA failed. Please verify you are not a robot', '');
+              this.toastr.error('Please verify again', 'reCAPTCHA failed');
               this.recaptchaControl.reset();
               this.recaptchaToken = '';
             } else {
               // Systemic Error.  Display a dialog
               console.log(err);
               console.log(err.error);
-              this.displayErrorNotice('Network Error, try again later', '');
+              this.toastr.error('Please try again later', 'Network Error');
             }
           }
 
@@ -232,37 +225,10 @@ export class NewPolicyComponent implements OnInit {
       );
   }
 
-  public resetSecurityInfo(){
-    this.userPassLogin = false;
-    this.clearPolicyHolderCredentials();
-    this.emailFormControl.setValue('');
-    this.passwordFormControl.setValue('');
-    this.emailFormControl.enable();
-    this.passwordFormControl.enable();
-
-    this.recaptchaToken = '';
-    this.recaptchaControl.reset();
-  }
-
-  private clearPolicyHolderCredentials(){
-    this.newPolicy.policyHolder.policyHolderID = '';
-    this.newPolicy.facebook.id = '';
-    this.newPolicy.facebook.name = '';
-    this.newPolicy.google.id = '';
-    this.newPolicy.google.name = '';
-    this.newPolicy.google.email = '';
-    this.newPolicy.emailAddress = '';
-    this.newPolicy.password = '';
-  }
-
-
-  recaptchaResolved(response:any) {
-    this.recaptchaToken = response;
-  }
 
 
 
-  loginWithFacebook(eventData : any) : any {
+  public loginWithFacebook(eventData : any) : any {
     eventData.preventDefault();
     this.clearPolicyHolderCredentials();
 
@@ -283,25 +249,22 @@ export class NewPolicyComponent implements OnInit {
                 global_this.newPolicy.policyHolder.policyHolderID = response.policyHolderID;
                 global_this.newPolicy.facebook.id = response.accountID;
                 global_this.newPolicy.facebook.name = response.policyHolderName;
-                global_this.emailFormControl.disable();
-                global_this.passwordFormControl.disable();
-                global_this.stepper.selectedIndex = 2;  
+                
+                global_this.router.navigate(['/signup/step3']);
               }
             },
             err => {
               console.log(err);
-              global_this.displayErrorNotice( (err.json ? err.json().error : err || 'Server error', ''));
+              global_this.toastr.warning('Please try another login method', 'Facebook error');
             });
 
       } else {
-        global_this.displayErrorNotice('WARNING: Login cancelled');
+        global_this.toastr.warning('Still need to login', 'Login cancelled');
       }
     }, {scope: 'email'}); 
   }
 
-
-
-  loginWithGoogle(eventData : any) : any {
+  public loginWithGoogle(eventData : any) : any {
     eventData.preventDefault();
     this.clearPolicyHolderCredentials();
 
@@ -309,7 +272,7 @@ export class NewPolicyComponent implements OnInit {
     window.open(this.federatedLoginBaseURL+'/auth/google', 'authenticator', 'menubar=no,location=no,status=no,toolbar=no,width=650px,height=650px');
   }
 
-  handleGoogleLogin(event:any) {
+  public handleGoogleLogin(event:any) {
     let origin = event.origin || event.originalEvent.origin;
     if (origin !== global_this.federatedLoginBaseURL) { return }
     
@@ -324,64 +287,95 @@ export class NewPolicyComponent implements OnInit {
         global_this.newPolicy.google.id = event.data.accountID;
         global_this.newPolicy.google.name = event.data.policyHolderName;
         global_this.newPolicy.google.email = event.data.email;
-        global_this.emailFormControl.disable();
-        global_this.passwordFormControl.disable();
-        global_this.stepper.selectedIndex = 2;  
+                     
+        global_this.router.navigate(['/signup/step3']);
       }
     } 
   }
   
 
 
-  autoCompleteCallback(data: any): any {
-    if ( data && data.reason && data.reason == 'Failed to get geo location' ) {
-      this.displayErrorNotice('Your browser cannot determine your Current Location', '');
-      return;
-    }
+  public resetSecurityInfo(){
+    this.userSignupReady = false;
+    this.loginInProgress = false;
+    this.userPassLogin = false;
+    this.recaptchaToken = '';
 
-    this.selectedLocation = data.data;
+    this.clearPolicyHolderCredentials();
+
+    if (this.emailControl != undefined){
+      this.emailControl.nativeElement.setValue('');
+      this.passwordControl.nativeElement.setValue('');
+      this.passwordRepeatControl.nativeElement.setValue('');
+      this.recaptchaControl.reset();
+    }
+  }
+
+  private clearPolicyHolderCredentials(){
+    this.newPolicy.policyHolder.policyHolderID = '';
+    this.newPolicy.facebook.id = '';
+    this.newPolicy.facebook.name = '';
+    this.newPolicy.google.id = '';
+    this.newPolicy.google.name = '';
+    this.newPolicy.google.email = '';
+    this.newPolicy.emailAddress = '';
+    this.newPolicy.password = '';
   }
 
 
+
+  public handleAddressChange(address : Address) {
+    if (address instanceof FocusEvent){
+      // Do not do anything if the user did not select a location properly already
+      if (this.selectedLocation == '') { return; }
+
+      // Did the user manually change the location?
+      let currentAddress = this.placesRef.el.nativeElement.value;
+      if (this.selectedLocation.formatted_address != currentAddress){
+        //They did manually change the location.  Blank the selectedLocation
+        this.selectedLocation = '';
+      }
+    } else {
+      this.selectedLocation = address;
+    }
+  }
+
+
+  
   public policyDetailsAreValid(){
-    return (this.validDateMinimum('start') && 
-            this.validDateMaximum('start') && 
-            this.validDateMinimum('end') && 
-            this.validDateMaximum('end') &&
-            this.startDateControl.errors == null && 
-            this.endDateControl.errors == null && 
-            !(Object.keys(this.selectedLocation).length === 0 && this.selectedLocation.constructor === Object));
+    return (!(Object.keys(this.selectedLocation).length === 0 && this.selectedLocation.constructor === Object));
   }
   
   
   createPolicy() {
-    this.newPolicy.startDate = this.startDateControl.value;
+    this.newPolicy.startDate = this.currentMinDate;
     this.newPolicy.startDateISOString = this.getUTCDateISOString(this.newPolicy.startDate);
-    this.newPolicy.endDate = this.endDateControl.value;
+    this.newPolicy.endDate = this.currentMaxDate;
     this.newPolicy.endDateISOString = this.getUTCDateISOString(this.newPolicy.endDate);
 
-    if (this.newPolicy.policyHolder.policyHolderID == ''){
-      this.newPolicy.emailAddress = this.emailFormControl.value;
-      this.newPolicy.password = this.passwordFormControl.value;
-    } 
+    //if (this.newPolicy.policyHolder.policyHolderID == ''){
+    //  this.newPolicy.emailAddress = this.emailControl.nativeElement.value;
+    //  this.newPolicy.password = this.passwordControl.nativeElement.value;
+    //} 
 
     this.newPolicy.coveredCity.name = this.selectedLocation.formatted_address;
-    this.newPolicy.coveredCity.latitude = this.selectedLocation.geometry.location.lat;
-    this.newPolicy.coveredCity.longitude = this.selectedLocation.geometry.location.lng;
+    this.newPolicy.coveredCity.latitude = this.selectedLocation.geometry.location.lat();
+    this.newPolicy.coveredCity.longitude = this.selectedLocation.geometry.location.lng();
 
     this.policyService
       .createPolicy(this.newPolicy)
       .subscribe(
         data => {
           console.log("Added policy.");
-          global_this.stepper.selectedIndex = 3;  
-          setTimeout(()=>{this.router.navigate(['/home']);}, 10000);
+          global_this.router.navigate(['/signup/step5']);  
         },
         err => {
-          this.displayErrorNotice('Network error, try again later', '');
           console.log(err);
+          global_this.router.navigate(['/signup/error']); 
         }
       );
+
+    this.router.navigate(['/signup/step4']);
   }
 
 
@@ -393,9 +387,10 @@ export class NewPolicyComponent implements OnInit {
 
 
   displayErrorNotice(message: string, action: string) {
-    this.errorBar.open(message, action, {
-      duration: 2000,
-    });
+    //this.errorBar.open(message, action, {
+    //  duration: 2000,
+    //});
+    console.log(message + ' : ' + action);
   }
 
 

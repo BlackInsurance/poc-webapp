@@ -1,12 +1,9 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-
-import { TranslateService } from 'ng2-translate/ng2-translate';
-import PerfectScrollbar from 'perfect-scrollbar';
-import { PerfectScrollbarConfigInterface, PerfectScrollbarComponent, PerfectScrollbarDirective } from 'ngx-perfect-scrollbar';
+//import { TranslateService } from 'ng2-translate/ng2-translate';
 
 @Component({
   selector: 'app-layout',
@@ -18,66 +15,30 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   today: number = Date.now();
   url: string;
-  showSettings = false;
-  dark: boolean;
-  boxed: boolean;
-  collapseSidebar: boolean;
-  compactSidebar: boolean;
-  sidebarBg: boolean = true;
   currentLang = 'en';
-  layoutDir = 'ltr';
   
-  menuLayout           : any = 'vertical-menu';
-  selectedSidebarImage : any = 'bg-1';
-  selectedSidebarColor : any = 'sidebar-default';
-  selectedHeaderColor  : any = 'header-default';
-  collapsedClass       : any = 'side-panel-opened';
 
-  @ViewChild('sidemenu') sidemenu;
-  public config: PerfectScrollbarConfigInterface = {};
-
-  constructor(private router: Router, public translate: TranslateService ) {
-    const browserLang: string = translate.getBrowserLang();
-    translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+  constructor(private router: Router ) { //, public translate: TranslateService
+    //const browserLang: string = translate.getBrowserLang();
+    //translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
   }
 
   ngOnInit(): void {
-    const elemSidebar = <HTMLElement>document.querySelector('.body-container');
-
-    if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac() && !this.compactSidebar && this.layoutDir != 'rtl') {
-      const ps = new PerfectScrollbar(elemSidebar, {
-                              wheelSpeed: 2,
-                              suppressScrollX: true
-                            });
-    }
-
     this._router = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.url = event.url;
-      if (this.isOver()) {
-        this.sidemenu.close();
-      }
-
-      if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac() && !this.compactSidebar && this.layoutDir != 'rtl') {
-        // Ps.update(elemContent);
-      }
     });
-  }
-
-  @HostListener('click', ['$event'])
-  onClick(e: any) {
-    const elemSidebar = <HTMLElement>document.querySelector('.body-container ');
-    setTimeout(() => {
-      if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac() && !this.compactSidebar && this.layoutDir != 'rtl') {
-        const ps = new PerfectScrollbar(elemSidebar, {
-                              wheelSpeed: 2,
-                              suppressScrollX: true
-                            });
-      }
-    }, 350);
   }
 
   ngOnDestroy() {
     this._router.unsubscribe();
+  }
+
+  @HostListener('click', ['$event'])
+  onClick(e: any) {
+  }
+
+  public closeNavMenu(){
+    document.body.classList.remove('nav-open');
   }
 
   isOver(): boolean {
@@ -92,95 +53,5 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     return bool;
   }
 
-  menuMouseOver(): void {
-    if (window.matchMedia(`(min-width: 960px)`).matches && this.collapseSidebar) {
-      this.sidemenu.mode = 'over';
-    }
-  }
-
-  menuMouseOut(): void {
-    if (window.matchMedia(`(min-width: 960px)`).matches && this.collapseSidebar) {
-      this.sidemenu.mode = 'side';
-    }
-  }
   
-  menuToggleFunc()
-  {
-    this.sidemenu.toggle();
-    
-    if(this.collapsedClass == 'side-panel-opened')
-    {
-        this.collapsedClass = 'side-panel-closed';
-    }
-    else
-    {
-        this.collapsedClass= 'side-panel-opened';
-    }
-  }
-
-  changeMenuLayout(value)
-  {
-    console.log(value)
-    if(value)
-    {
-      this.menuLayout = 'top-menu';
-    }
-    else
-    {
-      this.menuLayout = 'vertical-menu';
-    }
-  }
-  
-  onSelectSidebarImage(selectedClass, event)
-  {
-    this.selectedSidebarImage = selectedClass;
-  }
-  
-  onSelectedSidebarColor(selectedClass)
-  {
-    this.selectedSidebarColor = selectedClass;
-  }
-  
-  onSelectedHeaderColor(selectedClass)
-  {
-    this.selectedHeaderColor = selectedClass;
-  }
-
-  isBgActive(value)
-  {
-    if(value == this.selectedSidebarImage)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-  isSidebarActive(value)
-  {
-    if(value == this.selectedSidebarColor)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-  isHeaderActive(value)
-  {
-    if(value == this.selectedHeaderColor)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-  addMenuItem(): void { }
 }

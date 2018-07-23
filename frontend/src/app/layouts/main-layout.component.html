@@ -1,91 +1,34 @@
-<div class="app search-i" [dir]="layoutDir" [ngClass]="[ menuLayout, selectedSidebarImage, selectedSidebarColor, selectedHeaderColor, collapsedClass]" [class.app-dark]="dark" [class.boxed]="boxed" [class.collapsed-sidebar]="collapseSidebar" [class.compact-sidebar]="compactSidebar" [class.bg-img-disable]="!sidebarBg">
-    <mat-sidenav-container class="app-inner">
-        <mat-sidenav #sidemenu class="sidebar-panel" id="sidebar-panel" [mode]="isOver() ? 'over' : 'side'" [opened]="!isOver()" (mouseover)="menuMouseOver()" (mouseout)="menuMouseOut()">
-           <div class="opt-side relative ">
-               <div class="sidebar-container">
 
-                    <mat-accordion displayMode="flat">
-                        <mat-expansion-panel expanded=true>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>Welcome</mat-panel-title>
-                            </mat-expansion-panel-header>
-                                                        
-                            <mat-card style="height:100%">
-                                <mat-card-content style="text-align: center; height:100%">
-                                    Video / Animation goes here....<hr>
-                                    <img src="assets/images/rainyday.gif" class="leadAnimation">
-                                </mat-card-content>
-                            </mat-card>
-
-                        </mat-expansion-panel>
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>Our Running Blockchain</mat-panel-title>
-                            </mat-expansion-panel-header>     
-
-                            <mat-card>
-                                <mat-card-content style="height: calc(100vh - 250px);">
-                                    <iframe src="https://explorer.puremoneysystems.com/" class="blockchainViewer"></iframe>
-                                </mat-card-content>
-                            </mat-card>
-
-                        </mat-expansion-panel>
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>Invest in Black Insurance</mat-panel-title>
-                            </mat-expansion-panel-header>
-                                                        
-                            <mat-card style="height:100%">
-                                <mat-card-content>
-                                    Investor survey / link here....
-                                </mat-card-content>
-                            </mat-card>
-
-                        </mat-expansion-panel>
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>Join our Dev Community</mat-panel-title>
-                            </mat-expansion-panel-header>
-                                                        
-                            <mat-card style="height:100%">
-                                <mat-card-content style="text-align: center;height:100%">
-                                    <span>Look at the code for our Platform : </span><a href="https://github.com/BlackInsurance/" target="_blank"><img src="assets/images/github-logo.png" class="githubLogo"></a>
-                                    <hr>
-                                    <span>Want to help develop our Platform?  </span><a href="https://slack.com/" target="_blank"><img src="assets/images/slack-logo.png" class="slackLogo"></a>
-                                </mat-card-content>
-                            </mat-card>
-
-                        </mat-expansion-panel>
-                    </mat-accordion>
-                          
-
-               </div>
-           </div>
-        </mat-sidenav>
-        <mat-toolbar class="main-header">
-            <div class="vertical-menu w-100">
-                <button (click)="menuToggleFunc()" mat-icon-button class="lines-btn">
-                    <mat-icon>{{collapsedClass == 'side-panel-opened' ? 'arrow_back' : 'arrow_forward'}}</mat-icon>
-                </button>
-                <span fxFlex></span>
-                <div class="shareOn">
-                    <span>Share on</span>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://black-airdrop.azurewebsites.net/" target="_blank" class="link"><img src="assets/images/24x24-facebook.png"></a>
-                    <a href="https://twitter.com/home?status=Get%20free%20cryptocurrency%20and%20test%20the%20Black%20Insurance%20platform%20with%20a%20free%20'Rainy%20Day'%20insurance%20policy." target="_blank" class="link"><img src="assets/images/24x24-twitter.png"></a>
-                    <a href="https://plus.google.com/share?url=https://black-airdrop.azurewebsites.net/" target="_blank" class="link"><img src="assets/images/24x24-google.png"></a>
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://black-airdrop.azurewebsites.net/&summary=Get%20free%20cryptocurrency%20and%20test%20the%20Black%20Insurance%20platform%20with%20a%20free%20'Rainy%20Day'%20insurance%20policy." target="_blank" class="link"><img src="assets/images/24x24-linkedin.png"></a>
-                    <a href="http://reddit.com/submit?url=Get%20free%20cryptocurrency%20and%20test%20the%20Black%20Insurance%20platform%20with%20a%20free%20'Rainy%20Day'%20insurance%20policy.&title=Black%20Insurance%20launches%20the%20%22Rainy%20Day%22%20insurance%20prototype" class="link"><img src="assets/images/24x24-reddit.png"></a>
-                </div>
-                <span fxFlex></span>
-                <mat-form-field>
-                    <mat-select placeholder="Language" class="mt-1" [(ngModel)]="currentLang" #langSelect="ngModel" (ngModelChange)="translate.use(currentLang)">
-                        <mat-option *ngFor="let lang of translate.getLangs()" [value]="lang">{{ lang }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
+<div class="fullscreen-nav">
+    <div class="topnav">
+        <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+        <div class="close-icon nav-trigger-close" (click)="closeNavMenu()">
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div class="menu-wrapper">
+        <div class="menu">
+            <div class="menu--item">
+                <a href="#">Our Blockchain</a>
             </div>
-        </mat-toolbar>
-        <perfect-scrollbar class="body-container">
-            <router-outlet></router-outlet>
-        </perfect-scrollbar>
-    </mat-sidenav-container>
+            <div class="menu--item">
+                <a href="#">Buy BLCK tokens</a>
+            </div>
+            <div class="menu--item">
+                <a href="#">Contact us</a>
+            </div>
+            <div class="menu--item social">
+                <a href="https://github.com/BlackInsurance/"><img src="./assets/images/git.png" width="70" /></a>
+                <a href="http://reddit.com/submit?url=Get%20free%20cryptocurrency%20and%20test%20the%20Black%20Insurance%20platform%20with%20a%20free%20'Rainy%20Day'%20insurance%20policy.&title=Black%20Insurance%20launches%20the%20%22Rainy%20Day%22%20insurance%20prototype" class="middle"><img src="./assets/images/icon2.png" width="70" /></a>
+                <a href="#"><img src="./assets/images/telegram.png" width="70" /></a>
+            </div>
+        </div>
+    </div>
+    <div class="nav-footer">
+        <h3>Black Fountation OÜ</h3>
+        <p>Lõõtsa 8, 11415 Tallinn, Estonia</p>
+    </div>
 </div>
+
+<router-outlet></router-outlet>

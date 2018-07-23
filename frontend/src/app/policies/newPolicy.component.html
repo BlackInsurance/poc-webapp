@@ -1,151 +1,461 @@
-<div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="center center">
-    <div fxFlex="80" fxFlex.gt-md="90" fxFlex.md="95" fxFlex.sm="100" fxFlex.xs="100" class="m-gap p-gap">
-        <mat-card>
-            <mat-card-title fxLayout="row" fxLayoutAlign="start center">
-                Welcome to the Black Insurance - BLCK Token Airdrop! &nbsp; 
-            </mat-card-title>
-            <hr>
-            <mat-card-content>
-                <form class="newPolicyForm"> 
 
 
-                    <mat-horizontal-stepper [linear]="true" #stepper>
-                        <mat-step>
-                            <ng-template matStepLabel>Intro</ng-template>
-                            <div class="introduction">
-                                <span class="title">Receive free BLCK Tokens by playing our "Rainy Day Insurance Game"</span>  
-                                <div class="listContainer">
-                                    <ul>
-                                        <li>This is our public demo of an Insurance Platform using Blockchain</li>
-                                        <li>Get a free insurance policy by completing this Wizard</li>
-                                        <li>If the city you pick gets rain, we give you BLCK Tokens</li>
-                                        <li>BLCK Tokens are awarded once every 24-hours</li>
-                                        <li><strong>You only get to create a policy once (choose wisely!)</strong></li>
-                                        <li><a href="https://www.black.insure/" target="_blank">Contact us</a> for more information</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="buttons">
-                                <button mat-raised-button matStepperNext type="button">Lets get started!</button>
-                            </div>
-                        </mat-step>
-                        <mat-step>
-                            <ng-template matStepLabel>Account</ng-template>
-
-                            <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
-                                <div fxFlex="33%">
-                                    <mat-form-field appearance="outline" class="inputControl">
-                                        <mat-label>Email Address</mat-label>
-                                        <input matInput [formControl]="emailFormControl" [errorStateMatcher]="matcher" (input)="resetLoginValidation($event)">
-                                        <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
-                                        Please enter a valid email address
-                                        </mat-error>
-                                        <mat-error *ngIf="emailFormControl.hasError('required')">
-                                        Email is <strong>required</strong>
-                                        </mat-error>
-                                    </mat-form-field>
-                                </div>
-
-                                <div fxFlex="33%">
-                                    <mat-form-field appearance="outline" class="inputControl">
-                                        <mat-label>Password</mat-label>
-                                        <input matInput [type]="hide ? 'password' : 'text'" [formControl]="passwordFormControl" (input)="resetLoginValidation($event)">
-                                        <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility' : 'visibility_off'}}</mat-icon>
-                                        <mat-error *ngIf="passwordFormControl.hasError('minlength') && !passwordFormControl.hasError('required')">
-                                        Password must contain at least 8 characters
-                                        </mat-error>
-                                        <mat-error *ngIf="passwordFormControl.hasError('required')">
-                                        Password is <strong>required</strong>
-                                        </mat-error>
-                                        <mat-error *ngIf="passwordFormControl.errors?.password_incorrect">
-                                        Found email, password does not match
-                                        </mat-error>
-                                    </mat-form-field>
-                                </div>
-
-                                <div fxFlex="33%">
-                                    <div id="recaptchaContainer">
-                                        <re-captcha size="compact" (resolved)="recaptchaResolved($event)" #recaptchaControl></re-captcha>
-                                    </div>                                                                 
-                                </div>
-
-                                <div fxFlex="grow">
-                                    <mat-divider inset="true"></mat-divider>
-                                </div>
-
-                                <div fxFlex="85" fxFlexOffset="15" style="padding-top:15px;">
-                                    <span><strong style="margin-right:20px">OR</strong> Sign-in with </span>
-                                    <a href="#" (click)="loginWithFacebook($event)" class="shared-icon mr-1 mat-blue"><i class="fa fa-facebook fa-lg mr-1"></i>Facebook</a>
-                                    <a href="#" (click)="loginWithGoogle($event)" class="shared-icon mat-red"><i class="fa fa-google fa-lg mr-1"></i>Google</a>
-                                </div>
-                            </div>
-
-                            <div class="buttons">
-                                <button mat-raised-button matStepperPrevious type="button">Back</button>
-                                <button mat-raised-button type="button" color="primary" (click)="verifyLoginInformation()" [disabled]="!(((emailFormControl.status != 'INVALID' && passwordFormControl.status != 'INVALID' && recaptchaToken != '') || newPolicy.policyHolder.policyHolderID != '') && !loginInProgress)">Next</button>
-                            </div>  
-                        </mat-step>
-                        <mat-step >
-                            <ng-template matStepLabel>Policy</ng-template>
-                            
-                            
-                            <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
-                                <div fxFlex="33%">    
-                                    <auto-complete inputPlaceholderText="Choose a City" appearance="outline" className="inputControl" (componentCallback)="this.autoCompleteCallback($event)"></auto-complete>
-                                </div>
-
-                                <div fxFlex="33%">                                         
-                                    <mat-form-field appearance="outline" class="inputControl">
-                                        <mat-label>Start Date</mat-label>
-                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="startDatePicker" [formControl]="startDateControl">
-                                        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-                                        <mat-datepicker #startDatePicker></mat-datepicker>
-                                        <mat-error *ngIf="startDateControl.hasError('required')">Start Date for your Policy is <strong>required</strong></mat-error>
-                                        <mat-error *ngIf="!validDateMinimum('start')">Date is not valid.  Must be {{minDate | date: 'shortDate'}} or later</mat-error>
-                                        <mat-error *ngIf="!validDateMaximum('start')">Date is not valid.  Must be {{currentMaxDate | date: 'shortDate'}} or earlier</mat-error>
-                                    </mat-form-field> 
-                                </div>
-
-                                <div fxFlex="33%">                                                                    
-                                    <mat-form-field appearance="outline" class="inputControl">
-                                        <mat-label>End Date</mat-label>
-                                        <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="endDatePicker" [formControl]="endDateControl">
-                                        <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-                                        <mat-datepicker #endDatePicker></mat-datepicker>
-                                        <mat-error *ngIf="endDateControl.hasError('required')">End Date for your Policy is <strong>required</strong></mat-error>
-                                        <mat-error *ngIf="!validDateMinimum('end')">Date is not valid.  Must be {{currentMinDate | date: 'shortDate'}} or later</mat-error>
-                                        <mat-error *ngIf="!validDateMaximum('end')">Date is not valid.  Must be {{maxDate | date: 'shortDate'}} or earlier</mat-error>
-                                    </mat-form-field>  
-                                </div>
-                            </div>
-
-                            <div class="buttons">
-                                <button mat-raised-button matStepperPrevious type="button" (click)="resetSecurityInfo()">Back</button>
-                                <button mat-raised-button type="button" color="primary" (click)="createPolicy()" [disabled]="!policyDetailsAreValid()">Create your Rainy Day Policy!</button>
-                            </div>
-                        </mat-step>
-                        <mat-step >
-                            <ng-template matStepLabel>Finished</ng-template>
-                                                        
-                            <div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="space-around center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
-                                <div fxFlex="100">    
-                                    Success! Your "Rainy Day" Insurance Policy is being created.
-                                </div>
-                                <br>
-                                <div fxFlex="100" [style]="(userPassLogin ? 'display:block' : 'display:none')">    
-                                    Please check your email to Confirm your new Policy.
-                                </div>
-                            </div>
-                        </mat-step>
-                    </mat-horizontal-stepper>
-
-
-                </form>
-                <script src="https://www.google.com/recaptcha/api.js?onload=recaptchaOnload&render=explicit" async defer></script>   
-            </mat-card-content>
-        </mat-card>
+    <div *ngIf="currentStep == 'step1'" class="page js-page landingpage" id="step1">
+    
+        <header class="hero">
+    
+            <div class="topnav">
+    
+                <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+                <div (click)="openNavMenu()" class="hamburger-icon nav-trigger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+    
+            <h1><span>Get your</span> Rainy Day Insurance
+                <span class="subtitle">RECEIVE <strong>FREE</strong> BLCK TOKENS</span>
+            </h1>
+    
+    
+            <div class="button-container">
+                <button (click)="changeRoute('/signup/step2')" class="primary">NEXT</button>
+            </div>
+        </header>    
+    
     </div>
-</div>
 
 
+
+    <div *ngIf="currentStep == 'step2'" class="page" id="step2">
+        <script src="https://www.google.com/recaptcha/api.js?onload=recaptchaOnload&render=explicit" async defer></script> 
+
+        <header class="hero">
+            <div class="topnav">
+                <div onclick="window.location.href='#page' + (parseInt(location.hash.substr(5,6)) -1)" class="back-icon nav-back hidden-sm-and-up">
+                    <svg width="12px" height="21px" viewBox="0 0 12 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="2-step---Mobile" transform="translate(-20.000000, -81.000000)">
+                                <g id="Back-Arrow" transform="translate(20.000000, 81.000000)">
+                                    <path d="M3.62132034,10.5 L11.5606602,2.56066017 C12.1464466,1.97487373 12.1464466,1.02512627 11.5606602,0.439339828 C10.9748737,-0.146446609 10.0251263,-0.146446609 9.43933983,0.439339828 L0.439339828,9.43933983 C-0.146446609,10.0251263 -0.146446609,10.9748737 0.439339828,11.5606602 L9.43933983,20.5606602 C10.0251263,21.1464466 10.9748737,21.1464466 11.5606602,20.5606602 C12.1464466,19.9748737 12.1464466,19.0251263 11.5606602,18.4393398 L3.62132034,10.5 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                    <rect id="Rectangle-2" x="0" y="0" width="32" height="21"></rect>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+                <div (click)="openNavMenu()" class="hamburger-icon nav-trigger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div id="triangle-holder">
+                <svg class="steps" width="90px" height="90px" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(-545.000000, -150.000000)">
+                            <g id="steps" transform="translate(545.000000, 150.000000)">
+                                <g id="Group">
+                                    <circle id="outer-oval" fill="#FFFFFF" cx="45" cy="45" r="45"></circle>
+                                    <path d="M14.2729365,63.5163809 C20.5534613,73.9162702 31.9647161,80.8695652 45,80.8695652 C58.0294229,80.8695652 69.4362767,73.9225215 75.7185887,63.530407" id="3-progress-oval" stroke="#FFF5EE" stroke-width="6"></path>
+                                    <path d="M76.4031265,62.3477009 C79.2492647,57.2065506 80.8695652,51.292496 80.8695652,45 C80.8695652,25.5033125 65.314518,9.63970093 45.9377117,9.14245354 C45.8448219,9.1400698 45.8448219,9.13636303 45.6587801,9.13636303" id="2-progress-oval" stroke="#FFF5EE" stroke-width="6"></path>
+                                    <path d="M44.3496618,9.13621196 C44.3478261,9.13621196 43.9631383,9.14462226 43.7704487,9.15111293 C24.5295331,9.79923577 9.13043478,25.6012918 9.13043478,45 C9.13043478,51.2988363 10.7540022,57.2184682 13.6054806,62.3632392" id="1-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
+                                    <text id="1" font-family="Saira-SemiBold, Saira" font-size="36" font-weight="500" line-spacing="24" fill="#84D2C8">
+                                        <tspan x="38" y="58">1</tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+
+                <svg class="curvy" viewBox="0 0 1180 72">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(0.000000, -162.000000)" fill="#FFFFFF">
+                            <path d="M0,233.963935 L1181,233.963935 L1181,162 C917.505778,190.344 720.672444,204.516 590.5,204.516 C460.327556,204.516 263.494222,190.344 0,162 L0,233.963935 Z" id="white-bg"></path>
+                        </g>
+                    </g>
+                </svg>
+
+            </div>
+
+        </header>
+
+        <div>
+            <h2 class="t-center page-title" m-if="msg">Sign up</h2>
+        </div>
+
+        <section class="sign-up-box">
+            <div class="content">
+                <div class="input-block center-xs">
+                    <label *ngIf="emailErrorMessage != ''" class="error-text small email hidden-sm-and-up" for="email">{{ emailErrorMessage }}</label>
+                    <label *ngIf="emailErrorMessage == ''" class="small email hidden-sm-and-up" for="email">Email</label>
+                    <input type="text" [ngClass]="{'error-text': emailErrorMessage != ''}" class="email" name="email" placeholder="Email" #emailControl (change)="checkSignupReady()" />
+                </div>
+                <div class="input-block center-xs">
+                    <label class="password small hidden-sm-and-up" for="password">Password</label>
+                    <input type="password" class="password" name="password" placeholder="Password" #passwordControl (change)="checkSignupReady()" (blur)="checkSignupReady()" />
+                </div>
+                <div class="input-block center-xs">
+                    <label *ngIf="passwordErrorMessage != ''" class="error-text repeat small hidden-sm-and-up" for="repeat">{{passwordErrorMessage}}</label>
+                    <label *ngIf="passwordErrorMessage == ''" class="repeat small hidden-sm-and-up" for="repeat">Repeat Password</label>
+                    <input type="password" name="repeat" [ngClass]="{'error-text': passwordErrorMessage != ''}" class="repeat" placeholder="Repeat Password" #passwordRepeatControl (change)="checkSignupReady()" (blur)="checkSignupReady()" />
+                </div>
+            </div>
+            <div class="aside hidden-xs">
+                <a href="#" (click)="loginWithFacebook($event)">
+                    <svg width="70px" height="70px" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g  stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="1-step-/-no-data---Desktop" transform="translate(-753.000000, -374.000000)">
+                                <g id="Group-3" transform="translate(753.000000, 374.000000)">
+                                    <rect id="social-button" stroke="#9A94A0" x="0.5" y="0.5" width="69" height="69" rx="34.5"></rect>
+                                    <path d="M37.625,26.25 L42,26.25 L42,21 L37.625,21 C34.2475,21 31.5,23.7475 31.5,27.125 L31.5,29.75 L28,29.75 L28,35 L31.5,35 L31.5,49 L36.75,49 L36.75,35 L41.125,35 L42,29.75 L36.75,29.75 L36.75,27.125 C36.75,26.65075 37.15075,26.25 37.625,26.25 Z" id="Shape" fill="#9A94A0" fill-rule="nonzero"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </a>
+                <a href="#" (click)="loginWithGoogle($event)">
+                    <svg width="70px" height="70px" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="1-step-/-no-data---Desktop" transform="translate(-753.000000, -454.000000)">
+                                <g id="google" transform="translate(753.000000, 454.000000)">
+                                    <rect id="social-button" stroke="#9A94A0" x="0.5" y="0.5" width="69" height="69" rx="34.5"></rect>
+                                    <path d="M34.9961708,33.1454099 L34.9961708,37.6051055 L42.3685812,37.6051055 C42.0724595,39.5196858 40.1425626,43.2135493 34.9961708,43.2135493 C30.5620029,43.2135493 26.9396171,39.5350025 26.9396171,35.0038292 C26.9396171,30.4726559 30.5620029,26.794109 34.9961708,26.794109 C37.5259696,26.794109 39.2082474,27.8713795 40.1731959,28.7954836 L43.6985763,25.3977418 C41.4317133,23.2840452 38.4985763,22 34.9961708,22 C27.8075601,22.0076583 22,27.8152185 22,35.0038292 C22,42.1924399 27.8075601,48 34.9961708,48 C42.4936672,48 47.4741286,42.7259696 47.4741286,35.2999509 C47.4741286,34.4473245 47.379676,33.7912617 47.267354,33.1454099 L34.9987236,33.1454099 L34.9961708,33.1454099 Z" id="Shape" fill="#9A94A0" fill-rule="nonzero"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+        <section class="bottom-container sign-up">
+            <div class="recaptcha">
+                <re-captcha (resolved)="recaptchaResolved($event)" #recaptchaControl></re-captcha>
+            </div>            
+            <div class="aside hidden-sm-and-up">
+                <span>Or use to sign up</span>
+                <a href="#" (click)="loginWithFacebook($event)">
+                    <svg width="70px" height="70px" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="1-step-/-no-data---Desktop" transform="translate(-753.000000, -374.000000)">
+                                <g id="Group-3" transform="translate(753.000000, 374.000000)">
+                                    <rect id="social-button" stroke="#9A94A0" x="0.5" y="0.5" width="69" height="69" rx="34.5"></rect>
+                                    <path d="M37.625,26.25 L42,26.25 L42,21 L37.625,21 C34.2475,21 31.5,23.7475 31.5,27.125 L31.5,29.75 L28,29.75 L28,35 L31.5,35 L31.5,49 L36.75,49 L36.75,35 L41.125,35 L42,29.75 L36.75,29.75 L36.75,27.125 C36.75,26.65075 37.15075,26.25 37.625,26.25 Z" id="Shape" fill="#9A94A0" fill-rule="nonzero"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </a>
+                <a href="#" (click)="loginWithGoogle($event)">
+                    <svg style="margin-left:10px;" width="70px" height="70px" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="1-step-/-no-data---Desktop" transform="translate(-753.000000, -454.000000)">
+                                <g id="google" transform="translate(753.000000, 454.000000)">
+                                    <rect id="social-button" stroke="#9A94A0" x="0.5" y="0.5" width="69" height="69" rx="34.5"></rect>
+                                    <path d="M34.9961708,33.1454099 L34.9961708,37.6051055 L42.3685812,37.6051055 C42.0724595,39.5196858 40.1425626,43.2135493 34.9961708,43.2135493 C30.5620029,43.2135493 26.9396171,39.5350025 26.9396171,35.0038292 C26.9396171,30.4726559 30.5620029,26.794109 34.9961708,26.794109 C37.5259696,26.794109 39.2082474,27.8713795 40.1731959,28.7954836 L43.6985763,25.3977418 C41.4317133,23.2840452 38.4985763,22 34.9961708,22 C27.8075601,22.0076583 22,27.8152185 22,35.0038292 C22,42.1924399 27.8075601,48 34.9961708,48 C42.4936672,48 47.4741286,42.7259696 47.4741286,35.2999509 C47.4741286,34.4473245 47.379676,33.7912617 47.267354,33.1454099 L34.9987236,33.1454099 L34.9961708,33.1454099 Z" id="Shape" fill="#9A94A0" fill-rule="nonzero"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="button-container">
+                <button (click)="verifyLoginInformation()" [ngClass]="{'disabled': userSignupReady == false, 'primary': userSignupReady == true}">NEXT</button>
+            </div>
+        </section>
+    </div>
+
+
+
+    <div *ngIf="currentStep == 'step3'" class="page" id="step3">
+        <header class="hero">
+
+            <div class="topnav">
+                <div onclick="window.location.href='#page' + (parseInt(location.hash.substr(5,6)) -1)" class="back-icon nav-back hidden-sm-and-up">
+                    <svg width="12px" height="21px" viewBox="0 0 12 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="2-step---Mobile" transform="translate(-20.000000, -81.000000)">
+                                <g id="Back-Arrow" transform="translate(20.000000, 81.000000)">
+                                    <path d="M3.62132034,10.5 L11.5606602,2.56066017 C12.1464466,1.97487373 12.1464466,1.02512627 11.5606602,0.439339828 C10.9748737,-0.146446609 10.0251263,-0.146446609 9.43933983,0.439339828 L0.439339828,9.43933983 C-0.146446609,10.0251263 -0.146446609,10.9748737 0.439339828,11.5606602 L9.43933983,20.5606602 C10.0251263,21.1464466 10.9748737,21.1464466 11.5606602,20.5606602 C12.1464466,19.9748737 12.1464466,19.0251263 11.5606602,18.4393398 L3.62132034,10.5 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                    <rect id="Rectangle-2" x="0" y="0" width="32" height="21"></rect>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+                <div (click)="openNavMenu()" class="hamburger-icon nav-trigger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div id="triangle-holder">
+                <svg class="steps" width="90px" height="90px" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(-545.000000, -150.000000)">
+                            <g id="steps" transform="translate(545.000000, 150.000000)">
+                                <g id="Group">
+                                    <circle id="outer-oval" fill="#FFFFFF" cx="45" cy="45" r="45"></circle>
+                                    <path d="M14.2729365,63.5163809 C20.5534613,73.9162702 31.9647161,80.8695652 45,80.8695652 C58.0294229,80.8695652 69.4362767,73.9225215 75.7185887,63.530407" id="3-progress-oval" stroke="#FFF5EE" stroke-width="6"></path>
+                                    <path d="M76.4031265,62.3477009 C79.2492647,57.2065506 80.8695652,51.292496 80.8695652,45 C80.8695652,25.5033125 65.314518,9.63970093 45.9377117,9.14245354 C45.8448219,9.1400698 45.8448219,9.13636303 45.6587801,9.13636303" id="2-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
+                                    <path d="M44.3496618,9.13621196 C44.3478261,9.13621196 43.9631383,9.14462226 43.7704487,9.15111293 C24.5295331,9.79923577 9.13043478,25.6012918 9.13043478,45 C9.13043478,51.2988363 10.7540022,57.2184682 13.6054806,62.3632392" id="1-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
+                                    <text id="1" font-family="Saira-SemiBold, Saira" font-size="36" font-weight="500" line-spacing="24" fill="#84D2C8">
+                                        <tspan x="35" y="58">2</tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+
+                <svg class="curvy" viewBox="0 0 1180 72">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(0.000000, -162.000000)" fill="#FFFFFF">
+                            <path d="M0,233.963935 L1181,233.963935 L1181,162 C917.505778,190.344 720.672444,204.516 590.5,204.516 C460.327556,204.516 263.494222,190.344 0,162 L0,233.963935 Z" id="white-bg"></path>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+        </header>
+
+        <div>
+            <h2 class="t-center page-title">Policy</h2>
+        </div>
+        <section class="select-container">
+            <label for="city" id="triangle-down">
+                <svg style="display:none" width="11px" height="8px" viewBox="0 0 11 8" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="2-step---Desktop" transform="translate(-713.000000, -374.000000)" fill="#9A94A0">
+                            <g id="choose-field" transform="translate(460.000000, 334.000000)">
+                                <polygon id="Triangle" transform="translate(258.500000, 43.666667) rotate(-180.000000) translate(-258.500000, -43.666667) " points="258.5 40 264 47.3333333 253 47.3333333"></polygon>
+                            </g>
+                        </g>
+                    </g>
+                </svg>    
+            </label>
+            <input ngx-google-places-autocomplete [options]='options' #placesRef="ngx-places" (onAddressChange)="handleAddressChange($event)" (blur)="handleAddressChange($event)" />
+        </section>
+
+        <section class="list-container">
+            <ul>
+                <li>If the city you pick gets rain, we give you BLCK Tokens</li>
+                <li>BLCK Tokens are awarded once every 24-hours</li>
+                <li>You only get to create a policy once so choose wisely!</li>
+            </ul>
+        </section>
+
+        <section class="bottom-container" style="margin-top:120px;">
+            <div class="button-container">
+                <button class="gray hidden-xs" (click)="changeRoute('/signup/step2')">BACK</button>
+                <button [ngClass]="{'disabled': selectedLocation == '', 'primary': selectedLocation != ''}" (click)="createPolicy()">NEXT</button>
+            </div>
+        </section>
+    </div>
+
+
+
+    <div *ngIf="currentStep == 'step4'" class="page" id="step4">
+        <header class="hero">
+
+            <div class="topnav">
+                <div onclick="window.location.href='#page' + (parseInt(location.hash.substr(5,6)) -1)" class="back-icon nav-back hidden-sm-and-up">
+                    <svg width="12px" height="21px" viewBox="0 0 12 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="2-step---Mobile" transform="translate(-20.000000, -81.000000)">
+                                <g id="Back-Arrow" transform="translate(20.000000, 81.000000)">
+                                    <path d="M3.62132034,10.5 L11.5606602,2.56066017 C12.1464466,1.97487373 12.1464466,1.02512627 11.5606602,0.439339828 C10.9748737,-0.146446609 10.0251263,-0.146446609 9.43933983,0.439339828 L0.439339828,9.43933983 C-0.146446609,10.0251263 -0.146446609,10.9748737 0.439339828,11.5606602 L9.43933983,20.5606602 C10.0251263,21.1464466 10.9748737,21.1464466 11.5606602,20.5606602 C12.1464466,19.9748737 12.1464466,19.0251263 11.5606602,18.4393398 L3.62132034,10.5 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                    <rect id="Rectangle-2" x="0" y="0" width="32" height="21"></rect>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+                <div (click)="openNavMenu()" class="hamburger-icon nav-trigger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div id="triangle-holder">
+                <svg class="steps" width="90px" height="90px" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g   stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(-545.000000, -150.000000)">
+                            <g id="steps" transform="translate(545.000000, 150.000000)">
+                                <g id="Group">
+                                    <circle id="outer-oval" fill="#FFFFFF" cx="45" cy="45" r="45"></circle>
+                                    <path d="M14.2729365,63.5163809 C20.5534613,73.9162702 31.9647161,80.8695652 45,80.8695652 C58.0294229,80.8695652 69.4362767,73.9225215 75.7185887,63.530407" id="3-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
+                                    <path d="M76.4031265,62.3477009 C79.2492647,57.2065506 80.8695652,51.292496 80.8695652,45 C80.8695652,25.5033125 65.314518,9.63970093 45.9377117,9.14245354 C45.8448219,9.1400698 45.8448219,9.13636303 45.6587801,9.13636303" id="2-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
+                                    <path d="M44.3496618,9.13621196 C44.3478261,9.13621196 43.9631383,9.14462226 43.7704487,9.15111293 C24.5295331,9.79923577 9.13043478,25.6012918 9.13043478,45 C9.13043478,51.2988363 10.7540022,57.2184682 13.6054806,62.3632392" id="1-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
+                                    <text id="1" font-family="Saira-SemiBold, Saira" font-size="36" font-weight="500" line-spacing="24" fill="#84D2C8">
+                                        <tspan x="35" y="58">3</tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <svg class="curvy" viewBox="0 0 1180 72">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(0.000000, -162.000000)" fill="#FFFFFF">
+                            <path d="M0,233.963935 L1181,233.963935 L1181,162 C917.505778,190.344 720.672444,204.516 590.5,204.516 C460.327556,204.516 263.494222,190.344 0,162 L0,233.963935 Z" id="white-bg"></path>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+        </header>
+
+        <div>
+            <h2 class="t-center page-title c--primary">Creating Policy …</h2>
+        </div>
+    </div>
+
+
+
+    <div *ngIf="currentStep == 'step5'" class="page" id="step5">
+        <header class="hero">
+
+            <div class="topnav">
+                <div onclick="window.location.href='#page' + (parseInt(location.hash.substr(5,6)) -1)" class="back-icon nav-back hidden-sm-and-up">
+                    <svg width="12px" height="21px" viewBox="0 0 12 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="2-step---Mobile" transform="translate(-20.000000, -81.000000)">
+                                <g id="Back-Arrow" transform="translate(20.000000, 81.000000)">
+                                    <path d="M3.62132034,10.5 L11.5606602,2.56066017 C12.1464466,1.97487373 12.1464466,1.02512627 11.5606602,0.439339828 C10.9748737,-0.146446609 10.0251263,-0.146446609 9.43933983,0.439339828 L0.439339828,9.43933983 C-0.146446609,10.0251263 -0.146446609,10.9748737 0.439339828,11.5606602 L9.43933983,20.5606602 C10.0251263,21.1464466 10.9748737,21.1464466 11.5606602,20.5606602 C12.1464466,19.9748737 12.1464466,19.0251263 11.5606602,18.4393398 L3.62132034,10.5 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                    <rect id="Rectangle-2" x="0" y="0" width="32" height="21"></rect>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+                <div (click)="openNavMenu()" class="hamburger-icon nav-trigger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <div id="triangle-holder">
+
+                <svg class="steps" width="90px" height="90px" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="3-step-/-success---Desktop" transform="translate(-545.000000, -150.000000)">
+                            <g id="steps" transform="translate(545.000000, 150.000000)">
+                                <circle id="outer-oval" fill="#FFFFFF" cx="45" cy="45" r="45"></circle>
+                                <g id="progress" transform="translate(9.130435, 9.130435)" fill="#84D2C8" stroke="#84D2C8" stroke-width="6">
+                                    <circle id="progress-oval" cx="35.8695652" cy="35.8695652" r="35.8695652"></circle>
+                                </g>
+                                <text id="3" font-family="Saira-SemiBold, Saira" font-size="36" font-weight="500" line-spacing="36" fill="#84D2C8">
+                                    <tspan x="34" y="68">3</tspan>
+                                </text>
+                                <g id="Checkmark" transform="translate(31.000000, 34.000000)" fill="#FFFFFF">
+                                    <polygon points="3.23076923 9.9 0 13.2 8.61538462 22 28 3.3 24.7692308 0 8.61538462 15.4"></polygon>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+
+                <svg class="curvy" viewBox="0 0 1180 72">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(0.000000, -162.000000)" fill="#FFFFFF">
+                            <path d="M0,233.963935 L1181,233.963935 L1181,162 C917.505778,190.344 720.672444,204.516 590.5,204.516 C460.327556,204.516 263.494222,190.344 0,162 L0,233.963935 Z" id="white-bg"></path>
+                        </g>
+                    </g>
+                </svg>
+
+
+            </div>
+
+        </header>
+
+        <div>
+            <h2 class="t-center page-title c--primary">Success</h2>
+        </div>
+
+        <div class="success-container">
+            <p style="font-size:20px; line-height:20px">
+                Your "Rainy Day" Insurance Policy was created. 
+                <span [style]="(userPassLogin ? 'display:block' : 'display:none')">Please check your email to Confirm your new Policy.</span>
+            </p>
+        </div>
+
+    </div>
+
+
+
+    <div *ngIf="currentStep == 'error'" class="page" id="error">
+        <header class="hero">
+
+            <div class="topnav">
+                <div onclick="window.location.href='#page' + (parseInt(location.hash.substr(5,6)) -1)" class="back-icon nav-back hidden-sm-and-up">
+                    <svg width="12px" height="21px" viewBox="0 0 12 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="2-step---Mobile" transform="translate(-20.000000, -81.000000)">
+                                <g id="Back-Arrow" transform="translate(20.000000, 81.000000)">
+                                    <path d="M3.62132034,10.5 L11.5606602,2.56066017 C12.1464466,1.97487373 12.1464466,1.02512627 11.5606602,0.439339828 C10.9748737,-0.146446609 10.0251263,-0.146446609 9.43933983,0.439339828 L0.439339828,9.43933983 C-0.146446609,10.0251263 -0.146446609,10.9748737 0.439339828,11.5606602 L9.43933983,20.5606602 C10.0251263,21.1464466 10.9748737,21.1464466 11.5606602,20.5606602 C12.1464466,19.9748737 12.1464466,19.0251263 11.5606602,18.4393398 L3.62132034,10.5 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                    <rect id="Rectangle-2" x="0" y="0" width="32" height="21"></rect>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+                <div (click)="openNavMenu()" class="hamburger-icon nav-trigger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <div id="triangle-holder">
+
+                <svg width="90" height="90" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="steps">
+                    <g id="3-step-/-success---Desktop">
+                        <g id="steps">
+                            <circle r="45" cy="45" cx="45" fill="#FFFFFF" id="outer-oval"/>
+                            <g stroke-width="6" stroke="#fc6a6a" fill="#fc6a6a" id="progress">
+                                <circle r="35.86956" cy="45" cx="45" id="progress-oval"/>
+                            </g>
+                            <g fill="#FFFFFF" id="Checkmark">
+                                <polygon points="67.12132,27.12132 62.87868,22.87868 45,42 27.12132,22.87868 22.87868,27.12132 42,45 22.87868,62.87868 27.12132,67.12132 45,48 62.87868,67.12132 67.12132,62.87868 48,45" id="svg_1"/>
+                            </g>
+                        </g>
+                    </g>                       
+                </svg>
+
+                <svg class="curvy" viewBox="0 0 1180 72">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="1-step-/-no-data---Desktop" transform="translate(0.000000, -162.000000)" fill="#FFFFFF">
+                            <path d="M0,233.963935 L1181,233.963935 L1181,162 C917.505778,190.344 720.672444,204.516 590.5,204.516 C460.327556,204.516 263.494222,190.344 0,162 L0,233.963935 Z" id="white-bg"></path>
+                        </g>
+                    </g>
+                </svg>
+
+
+            </div>
+
+        </header>
+
+        <div>
+            <h2 class="t-center page-title c--primary">ERROR</h2>
+        </div>
+
+        <div class="success-container">
+            <p style="font-size:20px; line-height:20px">
+                Your "Rainy Day" Insurance Policy was not created. We have been notified of this issue.  Please try again later
+            </p>
+        </div>
+
+    </div>
 
