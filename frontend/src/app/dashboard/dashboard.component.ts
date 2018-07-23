@@ -1,11 +1,14 @@
 
 import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
-import { Component, OnInit, ViewEncapsulation  } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ViewChild  } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { MatSnackBar } from '@angular/material';
+import { FormBuilder, FormGroup } from '@angular/forms';
+
+import { ToastrService } from 'ngx-toastr';
 
 import { Policy } from '../policies/policy';
 import { PolicyService } from '../policies/policies.service';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -30,7 +33,7 @@ export class DashboardComponent {
     }
   }
 
-  daysSinceLastClaim : String = "N/A";
+  daysSinceLastClaim : String = '0';
   computeDaysSinceLastClaim(){
       let daysSince = 0;
       let now = new Date();
@@ -43,7 +46,7 @@ export class DashboardComponent {
         daysSince = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
       }
 
-      this.daysSinceLastClaim = (daysSince==0)?'N/A':daysSince.toString();
+      this.daysSinceLastClaim = (daysSince==0)?'0':daysSince.toString();
   }
 
   daysRemainingForPolicy : number = 0;
@@ -52,16 +55,15 @@ export class DashboardComponent {
     this.daysRemainingForPolicy = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
   }
   
-  ethereumAddressControl = new FormControl('', [
-    Validators.required
-  ]);
+  @ViewChild('ethereumAddressControl') ethereumAddressControl;
 
 
   constructor(
     private policyService: PolicyService,
+    private toastr: ToastrService,
+    private fb: FormBuilder,
     private router: Router, 
-    private route: ActivatedRoute,
-    private errorBar: MatSnackBar
+    private route: ActivatedRoute
   ) {
 
     this.policy = Policy.CreateDefault();
@@ -74,7 +76,7 @@ export class DashboardComponent {
 
 
   ngOnInit() {
-    this.loadPolicy(); 
+    this.loadPolicy();
   }
   
   loadPolicy(){
@@ -104,7 +106,7 @@ export class DashboardComponent {
          }
       },
       err => {
-        this.displayNotice('Network error, try again later', '');
+        this.toastr.error('Please try again later', 'Network error');
         console.log(err);
       });
   }
@@ -113,35 +115,36 @@ export class DashboardComponent {
   savingEthereumAddress : boolean = false;
   saveEthereumAddress(){
     let global_this = this;
-    this.policyService.setPolicyEthereumAddress(this.policy.policyID, this.ethereumAddressControl.value).subscribe(
+    this.policyService.setPolicyEthereumAddress(this.policy.policyID, this.ethereumAddressControl.nativeElement.value).subscribe(
       data => {
          let updatedData = data;
          global_this.savingEthereumAddress = false;
-         global_this.ethereumAddressControl.enable();
-         global_this.ethereumAddressControl.setErrors(null);
-         this.displayNotice('Updated your Ethereum address', '');
+         this.toastr.success('Ethereum address updated', 'Success');
       },
       err => {
         console.log(err);
         global_this.savingEthereumAddress = false;
-        global_this.ethereumAddressControl.enable();
         if ( err.error.error == 'Ethereum Address does not meet formatting requirements or did not pass checksum validation' ) {
-          global_this.ethereumAddressControl.setErrors({'invalid_address':true});
+          this.toastr.error('Please verify and try again', 'Invalid Ethereum Address');
         } else {
-          this.displayNotice('Network error, try again later', '');
+          this.toastr.error('Please try again later', 'Network error');
         }
       });
         
     this.savingEthereumAddress = true;  
-    this.ethereumAddressControl.disable();  
   }
 
 
-  displayNotice(message: string, action: string) {
-    this.errorBar.open(message, action, {
-      duration: 2000,
-    });
+
+  public toggleMobileClaimDetails(evt : any){
+    let claimLabel = evt.target.parentElement.parentElement;
+    let claimInfo = claimLabel.nextElementSibling;
+    claimLabel.classList.toggle('shown');
+    claimInfo.classList.toggle('show');
+    evt.preventDefault();
+    return false;
   }
+
 
 
 

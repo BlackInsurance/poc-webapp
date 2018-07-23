@@ -3,11 +3,9 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatIconModule, MatCardModule, MatButtonModule, MatListModule, MatInputModule, MatNativeDateModule, MatDatepickerModule } from '@angular/material';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { GooglePlaceModule } from "ngx-google-places-autocomplete";
+
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { AutocompleteModule } from '../auto-complete/auto-complete.module';
 
 import {RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
 import {RecaptchaFormsModule} from 'ng-recaptcha/forms';
@@ -22,20 +20,11 @@ import { PolicyService } from './policies.service';
 
 @NgModule({
   imports: [
-    AutocompleteModule.forRoot(),
+    GooglePlaceModule,
     CommonModule,
     RouterModule.forChild(PoliciesRoutes),
     FormsModule,
     ReactiveFormsModule,
-    MatIconModule,
-    MatCardModule,
-    MatButtonModule,
-    MatListModule,
-    MatInputModule,
-    MatNativeDateModule,
-    MatDatepickerModule,
-    MatStepperModule,
-    MatSnackBarModule,
     RecaptchaModule.forRoot(),
     RecaptchaFormsModule,
     FlexLayoutModule

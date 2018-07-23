@@ -1,145 +1,186 @@
 <!doctype html>
 <html>
 
-<head>
-    <base href="/">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Black Insurance - Rainy Day Insurance Game</title>
-    <style>
-        
-        .pre-loader {
-            position: fixed;
-            height: 100%;
-            width: 100%;
-            display: flex;
-            align-content: center;
-            justify-content: center;
-            align-self: center;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
-        
-        .sk-cube-grid {
-            bottom: 0;
-            height: 40px;
-            left: 0;
-            margin: auto;
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 40px;
-        }
-        
-        .sk-cube-grid .sk-cube {
-            width: 33%;
-            height: 33%;
-            background: #000000;
-            float: left;
-            -webkit-animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
-            animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
-        }
-        
-        .sk-cube-grid .sk-cube1 {
-            -webkit-animation-delay: 0.2s;
-            animation-delay: 0.2s;
-        }
-        
-        .sk-cube-grid .sk-cube2 {
-            -webkit-animation-delay: 0.3s;
-            animation-delay: 0.3s;
-        }
-        
-        .sk-cube-grid .sk-cube3 {
-            -webkit-animation-delay: 0.4s;
-            animation-delay: 0.4s;
-        }
-        
-        .sk-cube-grid .sk-cube4 {
-            -webkit-animation-delay: 0.1s;
-            animation-delay: 0.1s;
-        }
-        
-        .sk-cube-grid .sk-cube5 {
-            -webkit-animation-delay: 0.2s;
-            animation-delay: 0.2s;
-        }
-        
-        .sk-cube-grid .sk-cube6 {
-            -webkit-animation-delay: 0.3s;
-            animation-delay: 0.3s;
-        }
-        
-        .sk-cube-grid .sk-cube7 {
-            -webkit-animation-delay: 0s;
-            animation-delay: 0s;
-        }
-        
-        .sk-cube-grid .sk-cube8 {
-            -webkit-animation-delay: 0.1s;
-            animation-delay: 0.1s;
-        }
-        
-        .sk-cube-grid .sk-cube9 {
-            -webkit-animation-delay: 0.2s;
-            animation-delay: 0.2s;
-        }
-        
-        @-webkit-keyframes sk-cubeGridScaleDelay {
-            0%,
-            70%,
-            100% {
-                -webkit-transform: scale3D(1, 1, 1);
-                transform: scale3D(1, 1, 1);
-            }
-            35% {
-                -webkit-transform: scale3D(0, 0, 1);
-                transform: scale3D(0, 0, 1);
-            }
-        }
-        
-        @keyframes sk-cubeGridScaleDelay {
-            0%,
-            70%,
-            100% {
-                -webkit-transform: scale3D(1, 1, 1);
-                transform: scale3D(1, 1, 1);
-            }
-            35% {
-                -webkit-transform: scale3D(0, 0, 1);
-                transform: scale3D(0, 0, 1);
-            }
-        }
-    </style>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="./assets/weather-icon/css/weather-icons.min.css" />
-    <!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">-->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700|Material+Icons" rel="stylesheet">
-    <script src="https://maps.google.com/maps/api/js?sensor=true&key=AIzaSyB0yW9RXhJxJ_HkMcO3Yk8arUcQYR-5LYo&libraries=places&language=en-US&types=cities"></script>
-    <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/sdk.js"></script>
-    <script src='https://www.google.com/recaptcha/api.js'></script>
-</head>
+    <head>
+        <base href="/">
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Rainy Day Game</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<body>
-    <app-root width="50%"> 
-        <div class="pre-loader">
-            <div class="sk-cube-grid">
-                <div class="sk-cube sk-cube1"></div>
-                <div class="sk-cube sk-cube2"></div>
-                <div class="sk-cube sk-cube3"></div>
-                <div class="sk-cube sk-cube4"></div>
-                <div class="sk-cube sk-cube5"></div>
-                <div class="sk-cube sk-cube6"></div>
-                <div class="sk-cube sk-cube7"></div>
-                <div class="sk-cube sk-cube8"></div>
-                <div class="sk-cube sk-cube9"></div>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="https://maps.google.com/maps/api/js?sensor=true&key=AIzaSyCaTeyRDmZ97ycUOPyhiHyCd0aLvGOyqLw&libraries=places&language=en-US&types=cities"></script>
+        <script src="https://connect.facebook.net/en_US/sdk.js" id="facebook-jssdk"></script>
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+        
+        <script src="node_modules/ng2-toastr/bundles/ng2-toastr.min.js"></script>
+        <link href="node_modules/ng2-toastr/bundles/ng2-toastr.min.css" rel="stylesheet" type="text/css"/>
+        
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Saira:200,300,400,500,600" rel="stylesheet" type="text/css">
+        
+        <style>
+            
+
+            .page {
+                display: block;
+                opacity: 1;
+                transition: opacity .5s ease-out, transform .5s ease-out;
+            }
+            
+            #page1 {
+                display: block;
+            }
+            
+            .fullscreen-nav {
+                opacity: 0;
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            .pre-loader {
+                position: fixed;
+                height: 100%;
+                width: 100%;
+                display: flex;
+                align-content: center;
+                justify-content: center;
+                align-self: center;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+            
+            .sk-cube-grid {
+                bottom: 0;
+                height: 40px;
+                left: 0;
+                margin: auto;
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: 40px;
+            }
+            
+            .sk-cube-grid .sk-cube {
+                width: 33%;
+                height: 33%;
+                background: #000000;
+                float: left;
+                -webkit-animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
+                animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
+            }
+            
+            .sk-cube-grid .sk-cube1 {
+                -webkit-animation-delay: 0.2s;
+                animation-delay: 0.2s;
+            }
+            
+            .sk-cube-grid .sk-cube2 {
+                -webkit-animation-delay: 0.3s;
+                animation-delay: 0.3s;
+            }
+            
+            .sk-cube-grid .sk-cube3 {
+                -webkit-animation-delay: 0.4s;
+                animation-delay: 0.4s;
+            }
+            
+            .sk-cube-grid .sk-cube4 {
+                -webkit-animation-delay: 0.1s;
+                animation-delay: 0.1s;
+            }
+            
+            .sk-cube-grid .sk-cube5 {
+                -webkit-animation-delay: 0.2s;
+                animation-delay: 0.2s;
+            }
+            
+            .sk-cube-grid .sk-cube6 {
+                -webkit-animation-delay: 0.3s;
+                animation-delay: 0.3s;
+            }
+            
+            .sk-cube-grid .sk-cube7 {
+                -webkit-animation-delay: 0s;
+                animation-delay: 0s;
+            }
+            
+            .sk-cube-grid .sk-cube8 {
+                -webkit-animation-delay: 0.1s;
+                animation-delay: 0.1s;
+            }
+            
+            .sk-cube-grid .sk-cube9 {
+                -webkit-animation-delay: 0.2s;
+                animation-delay: 0.2s;
+            }
+            
+            @-webkit-keyframes sk-cubeGridScaleDelay {
+                0%,
+                70%,
+                100% {
+                    -webkit-transform: scale3D(1, 1, 1);
+                    transform: scale3D(1, 1, 1);
+                }
+                35% {
+                    -webkit-transform: scale3D(0, 0, 1);
+                    transform: scale3D(0, 0, 1);
+                }
+            }
+            
+            @keyframes sk-cubeGridScaleDelay {
+                0%,
+                70%,
+                100% {
+                    -webkit-transform: scale3D(1, 1, 1);
+                    transform: scale3D(1, 1, 1);
+                }
+                35% {
+                    -webkit-transform: scale3D(0, 0, 1);
+                    transform: scale3D(0, 0, 1);
+                }
+            }
+        </style>
+
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    </head>
+
+    <body class="layout">
+        <app-root width="50%"> 
+            <div class="pre-loader">
+                <div class="sk-cube-grid">
+                    <div class="sk-cube sk-cube1"></div>
+                    <div class="sk-cube sk-cube2"></div>
+                    <div class="sk-cube sk-cube3"></div>
+                    <div class="sk-cube sk-cube4"></div>
+                    <div class="sk-cube sk-cube5"></div>
+                    <div class="sk-cube sk-cube6"></div>
+                    <div class="sk-cube sk-cube7"></div>
+                    <div class="sk-cube sk-cube8"></div>
+                    <div class="sk-cube sk-cube9"></div>
+                </div>
             </div>
-        </div>
-    </app-root>
-</body>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script> -->
+        </app-root>
+        
+    </body>
 
 </html>

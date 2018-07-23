@@ -1,107 +1,254 @@
-    <div fxLayout="row" fxLayoutWrap="wrap">
-        <div fxFlex.sm="33.33" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100" class="m-gap p-gap">
-            <mat-card>
-                <div class="card-policy grad-black">
-                    <div class="card-title">Total Claims</div>
-                    <div class="card-subtitle">BLCK Token Balance</div>
-                    <div class="weather">
-                    <div class="card-icon-and-value d-flex justify-content-between">
-                        <i class="fa fa-money fa-3x align-self-center"></i>
-                        <div class="card-value align-self-center">{{blckBalance}}</div>
-                    </div>
-                    </div>
-                </div>
-            </mat-card>
+
+<header class="hero darker">
+
+    <div class="topnav">
+        <div onclick="window.location.href='#page' + (parseInt(location.hash.substr(5,6)) -1)" class="back-icon nav-back hidden-sm-and-up">
+            <svg width="12px" height="21px" viewBox="0 0 12 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g id="2-step---Mobile" transform="translate(-20.000000, -81.000000)">
+                        <g id="Back-Arrow" transform="translate(20.000000, 81.000000)">
+                            <path d="M3.62132034,10.5 L11.5606602,2.56066017 C12.1464466,1.97487373 12.1464466,1.02512627 11.5606602,0.439339828 C10.9748737,-0.146446609 10.0251263,-0.146446609 9.43933983,0.439339828 L0.439339828,9.43933983 C-0.146446609,10.0251263 -0.146446609,10.9748737 0.439339828,11.5606602 L9.43933983,20.5606602 C10.0251263,21.1464466 10.9748737,21.1464466 11.5606602,20.5606602 C12.1464466,19.9748737 12.1464466,19.0251263 11.5606602,18.4393398 L3.62132034,10.5 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+                            <rect id="Rectangle-2" x="0" y="0" width="32" height="21"></rect>
+                        </g>
+                    </g>
+                </g>
+            </svg>
         </div>
-        <div fxFlex.sm="33.33" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100" class="m-gap p-gap">
-            <mat-card>
-                <div class="card-policy grad-black">
-                    <div class="card-title">Last Claim</div>
-                    <div class="card-subtitle">Days since</div>
-                    <div class="weather">
-                    <div class="card-icon-and-value d-flex justify-content-between">
-                        <i class="fa fa fa-calendar fa-3x align-self-center"></i>
-                        <div class="card-value align-self-center">{{daysSinceLastClaim}}</div>
-                    </div>
-                    </div>
-                </div>
-            </mat-card>
-        </div>
-        <div fxFlex.sm="33.33" fxFlex.xs="100" fxFlex.md="33.33" fxFlex.lg="33.33" fxFlex.xl="33.33" fxFlex="100" class="m-gap p-gap">
-            <mat-card>
-                <div class="card-policy grad-black">
-                    <div class="card-title">Policy Expiration</div>
-                    <div class="card-subtitle">Days remaining</div>
-                    <div class="weather">
-                    <div class="card-icon-and-value d-flex justify-content-between">
-                        <i class="fa fa-calendar-times-o fa-3x align-self-center"></i>
-                        <div class="card-value align-self-center">{{daysRemainingForPolicy}}</div>
-                    </div>
-                    </div>
-                </div>
-            </mat-card>
+        <img class="logo" src="./assets/images/blck-logo.png" width="120" />
+        <div onclick="document.body.classList.add('nav-open')" class="hamburger-icon nav-trigger">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
     </div>
-    <div fxLayout="row" fxLayoutWrap="wrap">
-        <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap">
-            <mat-card>
-                <mat-card-title fxLayout="row" fxLayoutAlign="start center">
-                    Policy Details &nbsp; 
-                    <div class="{{policy.status=='Active'?'policyStatusActive':'policyStatusInactive'}}">{{policy.status}}</div>
-                </mat-card-title>
-                <hr>
-                <mat-card-content>
-                    <div fxLayout="row" fxLayoutWrap="wrap" fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100" class="m-gap p-gap policyConfiguration">
-                        <div fxFlex="33%" class="configItem">    
-                            <label class="label" for="Start Date">Start Date</label>
-                            <div class="value">{{policy.startDate | date: 'mediumDate'}}</div>
-                        </div>
-                        <div fxFlex="33%" class="configItem">
-                            <label class="label" for="Email Address">Policy Holder</label>
-                            <div class="value">{{currentUserEmailAddress}}</div>
-                        </div>
-                        <div fxFlex="33%" class="configItem">    
-                            <label class="label" for="Covered City">Covered City</label>
-                            <div class="value">{{policy.coveredCity.name}}</div>
-                        </div>
-                        <div fxFlex="33%" class="configItem">    
-                            <label class="label" for="End Date">End Date</label>
-                            <div class="value">{{policy.endDate | date: 'mediumDate'}}</div>
-                        </div>
-                        <div fxFlex="66%" class="configItem">    
-                            <form>
-                                <mat-form-field appearance="outline" class="formField">
-                                    <mat-label>Ethereum Address</mat-label>
-                                    <input matInput type="text" [formControl]="ethereumAddressControl" value="{{policy.ethereumAddress}}">
-                                    <mat-icon matSuffix (click)="saveEthereumAddress()" style="cursor:hand;">{{savingEthereumAddress ? 'sync' : 'save'}}</mat-icon>
-                                    <mat-error *ngIf="ethereumAddressControl.hasError('required')">Ethereum Address is <strong>required</strong></mat-error>
-                                    <mat-error *ngIf="ethereumAddressControl.hasError('invalid_address')">Ethereum Address is <strong>not valid</strong></mat-error>
-                                </mat-form-field>
-                            </form>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
+
+    <div class="dashboard-header">
+        <div class="dash">
+            <div class="dash-item">
+                <svg width="34px" height="27px" viewBox="0 0 34 27" version="1.1">
+                        <g   stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="Dashboard---Desktop" transform="translate(-419.000000, -128.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                                <g id="dashboard" transform="translate(379.000000, 118.000000)">
+                                    <g id="1-data" transform="translate(0.000000, 10.000000)">
+                                        <g id="cash-dollar" transform="translate(40.000000, 0.000000)">
+                                            <path d="M33.1052632,26.9107551 L0.894736842,26.9107551 C0.400842105,26.9107551 0,26.5088879 0,26.01373 L0,8.07322654 C0,7.57806865 0.400842105,7.17620137 0.894736842,7.17620137 L33.1052632,7.17620137 C33.5991579,7.17620137 34,7.57806865 34,8.07322654 L34,26.01373 C34,26.5088879 33.5991579,26.9107551 33.1052632,26.9107551 Z M1.78947368,25.1167048 L32.2105263,25.1167048 L32.2105263,8.97025172 L1.78947368,8.97025172 L1.78947368,25.1167048 Z" id="Shape"></path>
+                                            <path d="M20.5789474,16.1464531 L14.3157895,16.1464531 L14.3157895,14.3524027 L20.5789474,14.3524027 C21.0728421,14.3524027 21.4736842,13.9505355 21.4736842,13.4553776 C21.4736842,12.9602197 21.0728421,12.5583524 20.5789474,12.5583524 L17.8947368,12.5583524 L17.8947368,11.6613272 C17.8947368,11.1661693 17.4938947,10.7643021 17,10.7643021 C16.5061053,10.7643021 16.1052632,11.1661693 16.1052632,11.6613272 L16.1052632,12.5583524 L13.4210526,12.5583524 C12.9271579,12.5583524 12.5263158,12.9602197 12.5263158,13.4553776 L12.5263158,17.0434783 C12.5263158,17.5386362 12.9271579,17.9405034 13.4210526,17.9405034 L19.6842105,17.9405034 L19.6842105,19.7345538 L13.4210526,19.7345538 C12.9271579,19.7345538 12.5263158,20.1364211 12.5263158,20.6315789 C12.5263158,21.1267368 12.9271579,21.5286041 13.4210526,21.5286041 L16.1052632,21.5286041 L16.1052632,22.4256293 C16.1052632,22.9207872 16.5061053,23.3226545 17,23.3226545 C17.4938947,23.3226545 17.8947368,22.9207872 17.8947368,22.4256293 L17.8947368,21.5286041 L20.5789474,21.5286041 C21.0728421,21.5286041 21.4736842,21.1267368 21.4736842,20.6315789 L21.4736842,17.0434783 C21.4736842,16.5483204 21.0728421,16.1464531 20.5789474,16.1464531 Z" id="Shape"></path>
+                                            <path d="M31.3157895,5.38215103 L2.68421053,5.38215103 C2.19031579,5.38215103 1.78947368,4.98028375 1.78947368,4.48512586 C1.78947368,3.98996796 2.19031579,3.58810069 2.68421053,3.58810069 L31.3157895,3.58810069 C31.8096842,3.58810069 32.2105263,3.98996796 32.2105263,4.48512586 C32.2105263,4.98028375 31.8096842,5.38215103 31.3157895,5.38215103 Z" id="Shape"></path>
+                                            <path d="M29.5263158,1.79405034 L4.47368421,1.79405034 C3.97978947,1.79405034 3.57894737,1.39218307 3.57894737,0.897025172 C3.57894737,0.401867277 3.97978947,0 4.47368421,0 L29.5263158,0 C30.0202105,0 30.4210526,0.401867277 30.4210526,0.897025172 C30.4210526,1.39218307 30.0202105,1.79405034 29.5263158,1.79405034 Z" id="Shape"></path>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                <h4>
+                    {{blckBalance}} <small>BLCK</small>
+                </h4>
+                <strong>TOTAL CLAIMS</strong>
+            </div>
+            <div class="dash-item">
+
+                <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="Dashboard---Desktop" transform="translate(-577.000000, -128.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g id="dashboard" transform="translate(379.000000, 118.000000)">
+                                <g id="2-data" transform="translate(133.000000, 0.000000)">
+                                    <g id="calendar-full" transform="translate(64.000000, 10.000000)">
+                                        <path d="M29.9186508,1.55555556 L26.0396825,1.55555556 L26.0396825,0.777777778 C26.0396825,0.348444444 25.692127,0 25.2638889,0 C24.8356508,0 24.4880952,0.348444444 24.4880952,0.777777778 L24.4880952,1.55555556 L8.97222222,1.55555556 L8.97222222,0.777777778 C8.97222222,0.348444444 8.62466667,0 8.19642857,0 C7.76819048,0 7.42063492,0.348444444 7.42063492,0.777777778 L7.42063492,1.55555556 L3.54166667,1.55555556 C2.25850397,1.55555556 1.21428571,2.60244444 1.21428571,3.88888889 L1.21428571,25.6666667 C1.21428571,26.9531111 2.25850397,28 3.54166667,28 L29.9186508,28 C31.2018135,28 32.2460317,26.9531111 32.2460317,25.6666667 L32.2460317,3.88888889 C32.2460317,2.60244444 31.2018135,1.55555556 29.9186508,1.55555556 Z M3.54166667,3.11111111 L7.42063492,3.11111111 L7.42063492,5.44444444 C7.42063492,5.87377778 7.76819048,6.22222222 8.19642857,6.22222222 C8.62466667,6.22222222 8.97222222,5.87377778 8.97222222,5.44444444 L8.97222222,3.11111111 L24.4880952,3.11111111 L24.4880952,5.44444444 C24.4880952,5.87377778 24.8356508,6.22222222 25.2638889,6.22222222 C25.692127,6.22222222 26.0396825,5.87377778 26.0396825,5.44444444 L26.0396825,3.11111111 L29.9186508,3.11111111 C30.3461131,3.11111111 30.6944444,3.46033333 30.6944444,3.88888889 L30.6944444,7.77777778 L2.76587302,7.77777778 L2.76587302,3.88888889 C2.76587302,3.46033333 3.11420437,3.11111111 3.54166667,3.11111111 Z M29.9186508,26.4444444 L3.54166667,26.4444444 C3.11420437,26.4444444 2.76587302,26.0952222 2.76587302,25.6666667 L2.76587302,9.33333333 L30.6944444,9.33333333 L30.6944444,25.6666667 C30.6944444,26.0952222 30.3461131,26.4444444 29.9186508,26.4444444 Z" id="Shape"></path>
+                                        <path d="M12.8511905,14 L11.2996032,14 C10.8713651,14 10.5238095,13.6515556 10.5238095,13.2222222 C10.5238095,12.7928889 10.8713651,12.4444444 11.2996032,12.4444444 L12.8511905,12.4444444 C13.2794286,12.4444444 13.6269841,12.7928889 13.6269841,13.2222222 C13.6269841,13.6515556 13.2794286,14 12.8511905,14 Z" id="Shape"></path>
+                                        <path d="M17.5059524,14 L15.9543651,14 C15.526127,14 15.1785714,13.6515556 15.1785714,13.2222222 C15.1785714,12.7928889 15.526127,12.4444444 15.9543651,12.4444444 L17.5059524,12.4444444 C17.9341905,12.4444444 18.281746,12.7928889 18.281746,13.2222222 C18.281746,13.6515556 17.9341905,14 17.5059524,14 Z" id="Shape"></path>
+                                        <path d="M22.1607143,14 L20.609127,14 C20.1808889,14 19.8333333,13.6515556 19.8333333,13.2222222 C19.8333333,12.7928889 20.1808889,12.4444444 20.609127,12.4444444 L22.1607143,12.4444444 C22.5889524,12.4444444 22.9365079,12.7928889 22.9365079,13.2222222 C22.9365079,13.6515556 22.5889524,14 22.1607143,14 Z" id="Shape"></path>
+                                        <path d="M26.8154762,14 L25.2638889,14 C24.8356508,14 24.4880952,13.6515556 24.4880952,13.2222222 C24.4880952,12.7928889 24.8356508,12.4444444 25.2638889,12.4444444 L26.8154762,12.4444444 C27.2437143,12.4444444 27.5912698,12.7928889 27.5912698,13.2222222 C27.5912698,13.6515556 27.2437143,14 26.8154762,14 Z" id="Shape"></path>
+                                        <path d="M8.19642857,17.1111111 L6.64484127,17.1111111 C6.21660317,17.1111111 5.86904762,16.7626667 5.86904762,16.3333333 C5.86904762,15.904 6.21660317,15.5555556 6.64484127,15.5555556 L8.19642857,15.5555556 C8.62466667,15.5555556 8.97222222,15.904 8.97222222,16.3333333 C8.97222222,16.7626667 8.62466667,17.1111111 8.19642857,17.1111111 Z" id="Shape"></path>
+                                        <path d="M12.8511905,17.1111111 L11.2996032,17.1111111 C10.8713651,17.1111111 10.5238095,16.7626667 10.5238095,16.3333333 C10.5238095,15.904 10.8713651,15.5555556 11.2996032,15.5555556 L12.8511905,15.5555556 C13.2794286,15.5555556 13.6269841,15.904 13.6269841,16.3333333 C13.6269841,16.7626667 13.2794286,17.1111111 12.8511905,17.1111111 Z" id="Shape"></path>
+                                        <path d="M17.5059524,17.1111111 L15.9543651,17.1111111 C15.526127,17.1111111 15.1785714,16.7626667 15.1785714,16.3333333 C15.1785714,15.904 15.526127,15.5555556 15.9543651,15.5555556 L17.5059524,15.5555556 C17.9341905,15.5555556 18.281746,15.904 18.281746,16.3333333 C18.281746,16.7626667 17.9341905,17.1111111 17.5059524,17.1111111 Z" id="Shape"></path>
+                                        <path d="M22.1607143,17.1111111 L20.609127,17.1111111 C20.1808889,17.1111111 19.8333333,16.7626667 19.8333333,16.3333333 C19.8333333,15.904 20.1808889,15.5555556 20.609127,15.5555556 L22.1607143,15.5555556 C22.5889524,15.5555556 22.9365079,15.904 22.9365079,16.3333333 C22.9365079,16.7626667 22.5889524,17.1111111 22.1607143,17.1111111 Z" id="Shape"></path>
+                                        <path d="M26.8154762,17.1111111 L25.2638889,17.1111111 C24.8356508,17.1111111 24.4880952,16.7626667 24.4880952,16.3333333 C24.4880952,15.904 24.8356508,15.5555556 25.2638889,15.5555556 L26.8154762,15.5555556 C27.2437143,15.5555556 27.5912698,15.904 27.5912698,16.3333333 C27.5912698,16.7626667 27.2437143,17.1111111 26.8154762,17.1111111 Z" id="Shape"></path>
+                                        <path d="M8.19642857,20.2222222 L6.64484127,20.2222222 C6.21660317,20.2222222 5.86904762,19.8737778 5.86904762,19.4444444 C5.86904762,19.0151111 6.21660317,18.6666667 6.64484127,18.6666667 L8.19642857,18.6666667 C8.62466667,18.6666667 8.97222222,19.0151111 8.97222222,19.4444444 C8.97222222,19.8737778 8.62466667,20.2222222 8.19642857,20.2222222 Z" id="Shape"></path>
+                                        <path d="M12.8511905,20.2222222 L11.2996032,20.2222222 C10.8713651,20.2222222 10.5238095,19.8737778 10.5238095,19.4444444 C10.5238095,19.0151111 10.8713651,18.6666667 11.2996032,18.6666667 L12.8511905,18.6666667 C13.2794286,18.6666667 13.6269841,19.0151111 13.6269841,19.4444444 C13.6269841,19.8737778 13.2794286,20.2222222 12.8511905,20.2222222 Z" id="Shape"></path>
+                                        <path d="M17.5059524,20.2222222 L15.9543651,20.2222222 C15.526127,20.2222222 15.1785714,19.8737778 15.1785714,19.4444444 C15.1785714,19.0151111 15.526127,18.6666667 15.9543651,18.6666667 L17.5059524,18.6666667 C17.9341905,18.6666667 18.281746,19.0151111 18.281746,19.4444444 C18.281746,19.8737778 17.9341905,20.2222222 17.5059524,20.2222222 Z" id="Shape"></path>
+                                        <path d="M22.1607143,20.2222222 L20.609127,20.2222222 C20.1808889,20.2222222 19.8333333,19.8737778 19.8333333,19.4444444 C19.8333333,19.0151111 20.1808889,18.6666667 20.609127,18.6666667 L22.1607143,18.6666667 C22.5889524,18.6666667 22.9365079,19.0151111 22.9365079,19.4444444 C22.9365079,19.8737778 22.5889524,20.2222222 22.1607143,20.2222222 Z" id="Shape"></path>
+                                        <path d="M26.8154762,20.2222222 L25.2638889,20.2222222 C24.8356508,20.2222222 24.4880952,19.8737778 24.4880952,19.4444444 C24.4880952,19.0151111 24.8356508,18.6666667 25.2638889,18.6666667 L26.8154762,18.6666667 C27.2437143,18.6666667 27.5912698,19.0151111 27.5912698,19.4444444 C27.5912698,19.8737778 27.2437143,20.2222222 26.8154762,20.2222222 Z" id="Shape"></path>
+                                        <path d="M8.19642857,23.3333333 L6.64484127,23.3333333 C6.21660317,23.3333333 5.86904762,22.9848889 5.86904762,22.5555556 C5.86904762,22.1262222 6.21660317,21.7777778 6.64484127,21.7777778 L8.19642857,21.7777778 C8.62466667,21.7777778 8.97222222,22.1262222 8.97222222,22.5555556 C8.97222222,22.9848889 8.62466667,23.3333333 8.19642857,23.3333333 Z" id="Shape"></path>
+                                        <path d="M12.8511905,23.3333333 L11.2996032,23.3333333 C10.8713651,23.3333333 10.5238095,22.9848889 10.5238095,22.5555556 C10.5238095,22.1262222 10.8713651,21.7777778 11.2996032,21.7777778 L12.8511905,21.7777778 C13.2794286,21.7777778 13.6269841,22.1262222 13.6269841,22.5555556 C13.6269841,22.9848889 13.2794286,23.3333333 12.8511905,23.3333333 Z" id="Shape"></path>
+                                        <path d="M17.5059524,23.3333333 L15.9543651,23.3333333 C15.526127,23.3333333 15.1785714,22.9848889 15.1785714,22.5555556 C15.1785714,22.1262222 15.526127,21.7777778 15.9543651,21.7777778 L17.5059524,21.7777778 C17.9341905,21.7777778 18.281746,22.1262222 18.281746,22.5555556 C18.281746,22.9848889 17.9341905,23.3333333 17.5059524,23.3333333 Z" id="Shape"></path>
+                                        <path d="M22.1607143,23.3333333 L20.609127,23.3333333 C20.1808889,23.3333333 19.8333333,22.9848889 19.8333333,22.5555556 C19.8333333,22.1262222 20.1808889,21.7777778 20.609127,21.7777778 L22.1607143,21.7777778 C22.5889524,21.7777778 22.9365079,22.1262222 22.9365079,22.5555556 C22.9365079,22.9848889 22.5889524,23.3333333 22.1607143,23.3333333 Z" id="Shape"></path>
+                                        <path d="M26.8154762,23.3333333 L25.2638889,23.3333333 C24.8356508,23.3333333 24.4880952,22.9848889 24.4880952,22.5555556 C24.4880952,22.1262222 24.8356508,21.7777778 25.2638889,21.7777778 L26.8154762,21.7777778 C27.2437143,21.7777778 27.5912698,22.1262222 27.5912698,22.5555556 C27.5912698,22.9848889 27.2437143,23.3333333 26.8154762,23.3333333 Z" id="Shape"></path>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+
+                <h4>
+                    {{daysSinceLastClaim}} <small>DAYS</small>
+                </h4>
+                <strong>LAST CLAIM</strong>
+            </div>
+            <div class="dash-item">
+
+                <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="Dashboard---Desktop" transform="translate(-734.000000, -128.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g id="dashboard" transform="translate(379.000000, 118.000000)">
+                                <g id="3-data" transform="translate(320.000000, 10.000000)">
+                                    <g id="calendar-cross" transform="translate(34.000000, 0.000000)">
+                                        <path d="M29.9186508,1.55555556 L26.0396825,1.55555556 L26.0396825,0.777777778 C26.0396825,0.348444444 25.692127,0 25.2638889,0 C24.8356508,0 24.4880952,0.348444444 24.4880952,0.777777778 L24.4880952,1.55555556 L8.97222222,1.55555556 L8.97222222,0.777777778 C8.97222222,0.348444444 8.62466667,0 8.19642857,0 C7.76819048,0 7.42063492,0.348444444 7.42063492,0.777777778 L7.42063492,1.55555556 L3.54166667,1.55555556 C2.25850397,1.55555556 1.21428571,2.60244444 1.21428571,3.88888889 L1.21428571,25.6666667 C1.21428571,26.9531111 2.25850397,28 3.54166667,28 L29.9186508,28 C31.2018135,28 32.2460317,26.9531111 32.2460317,25.6666667 L32.2460317,3.88888889 C32.2460317,2.60244444 31.2018135,1.55555556 29.9186508,1.55555556 Z M3.54166667,3.11111111 L7.42063492,3.11111111 L7.42063492,5.44444444 C7.42063492,5.87377778 7.76819048,6.22222222 8.19642857,6.22222222 C8.62466667,6.22222222 8.97222222,5.87377778 8.97222222,5.44444444 L8.97222222,3.11111111 L24.4880952,3.11111111 L24.4880952,5.44444444 C24.4880952,5.87377778 24.8356508,6.22222222 25.2638889,6.22222222 C25.692127,6.22222222 26.0396825,5.87377778 26.0396825,5.44444444 L26.0396825,3.11111111 L29.9186508,3.11111111 C30.3461131,3.11111111 30.6944444,3.46033333 30.6944444,3.88888889 L30.6944444,7.77777778 L2.76587302,7.77777778 L2.76587302,3.88888889 C2.76587302,3.46033333 3.11420437,3.11111111 3.54166667,3.11111111 Z M29.9186508,26.4444444 L3.54166667,26.4444444 C3.11420437,26.4444444 2.76587302,26.0952222 2.76587302,25.6666667 L2.76587302,9.33333333 L30.6944444,9.33333333 L30.6944444,25.6666667 C30.6944444,26.0952222 30.3461131,26.4444444 29.9186508,26.4444444 Z" id="Shape"></path>
+                                        <path d="M17.827131,17.8888889 L21.9334067,13.7721111 C22.2367421,13.468 22.2367421,12.9756667 21.9334067,12.6723333 C21.6300714,12.369 21.138994,12.3682222 20.8364345,12.6723333 L16.7301587,16.7891111 L12.6238829,12.6723333 C12.3205476,12.3682222 11.8294702,12.3682222 11.5269107,12.6723333 C11.2243512,12.9764444 11.2235754,13.4687778 11.5269107,13.7721111 L15.6331865,17.8888889 L11.5269107,22.0056667 C11.2235754,22.3097778 11.2235754,22.8021111 11.5269107,23.1054444 C11.6781905,23.2571111 11.8767937,23.3333333 12.0753968,23.3333333 C12.274,23.3333333 12.4726032,23.2571111 12.6238829,23.1054444 L16.7301587,18.9886667 L20.8364345,23.1054444 C20.9877143,23.2571111 21.1863175,23.3333333 21.3849206,23.3333333 C21.5835238,23.3333333 21.782127,23.2571111 21.9334067,23.1054444 C22.2367421,22.8013333 22.2367421,22.309 21.9334067,22.0056667 L17.827131,17.8888889 Z" id="Shape"></path>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+
+                <h4>
+                    {{daysRemainingForPolicy}} <small>DAYS</small>
+                </h4>
+                <strong>POLICY ENDS</strong>
+
+            </div>
         </div>
     </div>
-    <div fxLayout="row.row-eq-height" fxLayoutWrap="wrap">
-       <div fxFlex.sm="100" fxFlex.xs="100" fxFlex.md="100" fxFlex.lg="100" fxFlex.xl="100" class="m-gap p-gap">
-            <ngx-datatable class="material" [rows]="policy.claims" [columnMode]="'force'" [headerHeight]="50" [footerHeight]="0" [rowHeight]="'auto'">
-                <ngx-datatable-column name="Claim Transaction ID">
-                    <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-                        {{row['claimID']}}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Claim Payment Date">
-                    <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-                        {{row['claimDate'] | date: 'MMMM dd'}}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Amount of Rain (mm)">
-                    <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-                        {{row['rainLast24Hours']}}
-                    </ng-template>
-                </ngx-datatable-column>
-            </ngx-datatable>
-       </div>
+
+    <div id="triangle-holder">
+        <svg class="curvy" viewBox="0 0 1180 72">
+            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <g id="1-step-/-no-data---Desktop" transform="translate(0.000000, -162.000000)" fill="#FFFFFF">
+                    <path d="M0,233.963935 L1181,233.963935 L1181,162 C917.505778,190.344 720.672444,204.516 590.5,204.516 C460.327556,204.516 263.494222,190.344 0,162 L0,233.963935 Z" id="white-bg"></path>
+                </g>
+            </g>
+        </svg>
     </div>
+
+</header>
+
+<div class="dash-container">
+    <h2 class="page-title m-center">Policy Details</h2>
+    <div class="summary">
+        <div class="summary-item">
+            <label>Policy Status</label>
+            <strong  [ngClass]="{'': policy.status=='Active', 'error': policy.status!='Active'}" >{{policy.status}}</strong>
+        </div>
+        <div class="summary-item">
+            <label>End Date</label>
+            <strong>{{policy.endDate | date: 'mediumDate'}}</strong>
+        </div>
+        <div class="summary-item">
+            <label>Policy Holder</label>
+            <strong>{{currentUserEmailAddress}}</strong>
+        </div>
+        <div class="summary-item">
+            <label>Covered City</label>
+            <strong>{{policy.coveredCity.name}}</strong>
+        </div>
+        <div class="summary-item">
+            <label class="attention">
+                Your Ethereum address (for BLCK token deposits)
+            </label>
+            <div class="input-block">
+                <input name="ethereumAddressControl" placeholder="Ethereum Address" type="text" value="{{policy.ethereumAddress}}" #ethereumAddressControl />
+            </div>
+            <div class="button-container button-block">
+                <button (click)="saveEthereumAddress()" [ngClass]="{'disabled': savingEthereumAddress, 'primary': !savingEthereumAddress}" [disabled]="savingEthereumAddress">Save Ethereum Address</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="history-container">
+    <h2 class="page-title m-center">Claim History</h2>
+
+    <div *ngIf="policy.claims.length===0">
+        <table class="mobile hidden-sm-and-up">
+            <tr>
+                <td colspan="3">No claims for this policy</td>
+            </tr>
+        </table>
+    </div>
+    <div *ngIf="policy.claims.length > 0">
+        <table class="mobile hidden-sm-and-up">
+            <tbody *ngFor="let claim of policy.claims">
+                <tr class="labels">
+                    <td colspan="1">
+
+                        <svg class="plus" width="19px" height="19px" viewBox="0 0 19 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="Dashboard---Mobile" transform="translate(-20.000000, -1036.000000)">
+                                    <g id="table" transform="translate(20.000000, 863.000000)">
+                                        <g id="table-row-2" transform="translate(0.000000, 162.000000)">
+                                            <g id="small-plus" transform="translate(0.000000, 11.000000)">
+                                                <circle id="Circle" fill="#84D2C8" fill-rule="evenodd" cx="9.5" cy="9.5" r="9.5"></circle>
+                                                <path d="M16.0454545,9.13636364 L9.86363636,9.13636364 L9.86363636,2.95454545 C9.86363636,2.75381818 9.70072727,2.59090909 9.5,2.59090909 C9.29927273,2.59090909 9.13636364,2.75381818 9.13636364,2.95454545 L9.13636364,9.13636364 L2.95454545,9.13636364 C2.75381818,9.13636364 2.59090909,9.29927273 2.59090909,9.5 C2.59090909,9.70072727 2.75381818,9.86363636 2.95454545,9.86363636 L9.13636364,9.86363636 L9.13636364,16.0454545 C9.13636364,16.2461818 9.29927273,16.4090909 9.5,16.4090909 C9.70072727,16.4090909 9.86363636,16.2461818 9.86363636,16.0454545 L9.86363636,9.86363636 L16.0454545,9.86363636 C16.2461818,9.86363636 16.4090909,9.70072727 16.4090909,9.5 C16.4090909,9.29927273 16.2461818,9.13636364 16.0454545,9.13636364 Z" id="Shape" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+
+                        <svg class="minus" width="19px" height="19px" viewBox="0 0 19 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="Dashboard---Mobile" transform="translate(-20.000000, -874.000000)">
+                                    <g id="table" transform="translate(20.000000, 863.000000)">
+                                        <g id="table-row-1">
+                                            <g id="small-minus" transform="translate(0.000000, 11.000000)">
+                                                <circle id="Circle" fill="#84D2C8" fill-rule="evenodd" cx="9.5" cy="9.5" r="9.5"></circle>
+                                                <path d="M16.0454545,9.13636364 L2.95454545,9.13636364 C2.75381818,9.13636364 2.59090909,9.29927273 2.59090909,9.5 C2.59090909,9.70072727 2.75381818,9.86363636 2.95454545,9.86363636 L16.0454545,9.86363636 C16.2461818,9.86363636 16.4090909,9.70072727 16.4090909,9.5 C16.4090909,9.29927273 16.2461818,9.13636364 16.0454545,9.13636364 Z" id="Shape" fill="#FFFFFF" fill-rule="nonzero"></path>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+
+                        <label for="toggle1">&nbsp;</label>
+                        <input type="checkbox" name="toggle1" id="toggle1" data-toggle="toggle" (click)="toggleMobileClaimDetails($event)" />
+
+                        <strong>ID</strong>
+                        <span>{{claim.claimID}}</span>
+                    </td>
+                </tr>
+                <tr class="info">
+                    <td>
+                        <table>
+                            <tr>
+                                <td>Claim Payment Date</td>
+                                <td>{{claim.claimDate | date: 'MMMM dd'}}</td>
+
+                            </tr>
+                            <tr>
+                                <td>Amount of Rain (mm)</td>
+                                <td>{{claim.rainLast24Hours}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <table class="desktop hidden-xs">
+        <thead>
+            <tr>
+                <th>Claim Transaction ID</th>
+                <th>Claim Payment Date</th>
+                <th>Amount of Rain (mm)</th>
+            </tr>
+        </thead>
+        <tbody *ngIf="policy.claims.length===0">
+            <tr>
+                <td colspan="3">No claims for this policy</td>
+            </tr>
+        </tbody>
+        <tbody *ngIf="policy.claims.length > 0">
+            <tr *ngFor="let claim of policy.claims">
+                <td>{{claim.claimID}}</td>
+                <td>{{claim.claimDate | date: 'MMMM dd'}}</td>
+                <td>{{claim.rainLast24Hours}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
