@@ -173,12 +173,6 @@ export class Server {
     // Add the public routes to the router and tell Express to use them
     console.log("Creating all public routes.");
 
-    // DELETE THIS IMMEDIATELY - HUGE SECURITY HOLE
-    this.app.get('/policies', (req: Request, res: Response, next: NextFunction) => {
-        new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).getPolicyList(req, res, next);
-      });
-    // DELETE THIS IMMEDIATELY - HUGE SECURITY HOLE
-  
     //add home page route
     this.app.get("/", (req: Request, res: Response, next: NextFunction) => {
       new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
@@ -188,6 +182,9 @@ export class Server {
     });
     this.app.get("/signup", (req: Request, res: Response, next: NextFunction) => {
       new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).index(this.PUBLIC_WEBROOT, req, res, next);
+    });
+    this.app.get("/signup/:currentStep", (req: Request, res: Response, next: NextFunction) => {
+      res.redirect('/signup');
     });
     this.app.get("/confirm/:confirmationID", (req: Request, res: Response, next: NextFunction) => {
       new PublicRoute(this.dataModel, this.policyModel, this.policyHolderModel).confirmPolicyHolder(this.PUBLIC_WEBROOT, req, res, next);
@@ -205,12 +202,6 @@ export class Server {
 
     // Add the secure routes to the router and tell Express to use them, and expect a valid JWT
     console.log("Creating all JWT-requiring routes.");
-
-    // DELETE THIS IMMEDIATELY - FOR TESTING ONLY
-    this.app.get('/secured', passport.authenticate('jwt', {session:false}), (req: any, res: Response, next: NextFunction) => {
-        res.json({"message":"logged in securely","user":req.user.sub});
-    });
-    // DELETE THIS IMMEDIATELY - FOR TESTING ONLY
 
     // Get a specific Policy.  
     // Using POST instead of GET, so policyID is not included in the URL/Querystring
@@ -262,6 +253,8 @@ export class Server {
           }
         });      
     });
+
+
 
   }
 }
