@@ -15,9 +15,14 @@ cp -r dist/* ../prod/public/
 echo "####################################"
 cat dist/index.html
 echo "####################################"
-TXT=$(cat dist/1.*.js)
-BIGTEST=$(cat dist/1.*.js | grep -b -o "6L" | awk 'BEGIN {FS=":"}{print $1}')
-echo ${TXT:BIGTEST:40}
+PROD_FILE_COUNT=$(find . -maxdepth 1 -type f -name '*.js' | wc -l)
+if [ "$PROD_FILE_COUNT" -eq 0 ]; then
+    TXT=$(cat dist/1.*.js)
+    BIGTEST=$(cat dist/1.*.js | grep -b -o "6L" | awk 'BEGIN {FS=":"}{print $1}')
+    echo ${TXT:BIGTEST:40}
+else
+    echo "NOT PROD"
+fi
 echo "####################################"
 
 
