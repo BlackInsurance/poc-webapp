@@ -57,7 +57,7 @@ export class NewPolicyComponent implements OnInit {
 
   minDate : Date = new Date();
   currentMinDate : Date = this.minDate;
-  maxDate : Date = new Date(2018, 9, 1);
+  maxDate : Date = new Date(2018, 10, 1);
   currentMaxDate : Date = this.maxDate;
 
 
