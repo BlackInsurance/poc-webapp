@@ -187,8 +187,14 @@ export class PublicRoute extends BaseRoute {
                 newPolicy.coveredCity.name = req.body.coveredCity.name;
                 newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
                 newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
-                newPolicy.startDateISOString = req.body.startDateISOString;
-                newPolicy.endDateISOString = req.body.endDateISOString;
+
+                let startDate : Date = new Date();
+                let endDate : Date = new Date(2018, 10, 1);
+                let startDateISOString : string = (new Date(Date.UTC(startDate.getFullYear(), startDate.getUTCMonth(), startDate.getUTCDate(), 0, 0, 0))).toISOString();
+                let endDateISOString : string = (new Date(Date.UTC(endDate.getFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), 0, 0, 0))).toISOString();
+
+                newPolicy.startDateISOString = startDateISOString;
+                newPolicy.endDateISOString = endDateISOString;
                 newPolicy.status = 'Confirmed';
                 newPolicy.policyHolder.policyHolderID = req.body.policyHolder.policyHolderID;
 
@@ -242,8 +248,14 @@ export class PublicRoute extends BaseRoute {
                     newPolicy.coveredCity.name = req.body.coveredCity.name;
                     newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
                     newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
-                    newPolicy.startDateISOString = req.body.startDateISOString;
-                    newPolicy.endDateISOString = req.body.endDateISOString;
+
+                    let startDate : Date = new Date();
+                    let endDate : Date = new Date(2018, 10, 1);
+                    let startDateISOString : string = (new Date(Date.UTC(startDate.getFullYear(), startDate.getUTCMonth(), startDate.getUTCDate(), 0, 0, 0))).toISOString();
+                    let endDateISOString : string = (new Date(Date.UTC(endDate.getFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), 0, 0, 0))).toISOString();
+    
+                    newPolicy.startDateISOString = startDateISOString;
+                    newPolicy.endDateISOString = endDateISOString;
                     newPolicy.policyHolder.policyHolderID = newPolicyHolder.policyHolderID;
 
                     return new Policy(newPolicy).save(function(policyErr) {
@@ -269,28 +281,31 @@ export class PublicRoute extends BaseRoute {
   public validateNewPolicy(req: Request, res: Response, next: NextFunction) : Promise<boolean> {
 
     return new Promise((resolve,reject)=>{
-        // Validate the values provided are in the accepted range        
-        var today = new Date();
-        var minimumStartDate = new Date(Date.UTC(today.getFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0));
-        var maximumEndDate = new Date(Date.UTC(2018, 9, 1, 0, 0, 0));
 
         try{
+            /*
+            // Validate the values provided are in the accepted range        
+            var today = new Date();
+            var minimumStartDate = new Date(Date.UTC(today.getFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0));
+            var maximumEndDate = new Date(Date.UTC(2018, 10, 1, 0, 0, 0));
+
             var providedStartDate = new Date(Date.parse(req.body.startDateISOString));
             var providedEndDate = new Date(Date.parse(req.body.endDateISOString));
 
             if ( providedStartDate.getTime() < minimumStartDate.getTime() || providedStartDate.getTime() > maximumEndDate.getTime()) {
                 console.log("Error: bad start date");
-                res.status(400).send({error: 'Start date is not in acceptable range of TODAY ===> OCT-01-2018.  PROVIDED:'+req.body.startDateISOString+' PROVIDED_NUMERIC:'+providedStartDate.getTime()+' MINIMUM_NUMERIC:'+minimumStartDate.getTime()+' MAXIMUM_NUMERIC:'+maximumEndDate.getTime()});
+                res.status(400).send({error: 'Start date is not in acceptable range of TODAY ===> NOV-01-2018.  PROVIDED:'+req.body.startDateISOString+' PROVIDED_NUMERIC:'+providedStartDate.getTime()+' MINIMUM_NUMERIC:'+minimumStartDate.getTime()+' MAXIMUM_NUMERIC:'+maximumEndDate.getTime()});
                 resolve(false);
                 return;
             }
 
             if ( providedEndDate.getTime() < minimumStartDate.getTime() || providedEndDate.getTime() > maximumEndDate.getTime() ) {
                 console.log("Error: bad end date");
-                res.status(400).send({error: 'End date is not in acceptable range of TODAY ===> OCT-01-2018.  PROVIDED:'+req.body.endDateISOString+' PROVIDED_NUMERIC:'+providedEndDate.getTime()+' MINIMUM_NUMERIC:'+minimumStartDate.getTime()+' MAXIMUM_NUMERIC:'+maximumEndDate.getTime()});
+                res.status(400).send({error: 'End date is not in acceptable range of TODAY ===> NOV-01-2018.  PROVIDED:'+req.body.endDateISOString+' PROVIDED_NUMERIC:'+providedEndDate.getTime()+' MINIMUM_NUMERIC:'+minimumStartDate.getTime()+' MAXIMUM_NUMERIC:'+maximumEndDate.getTime()});
                 resolve(false);
                 return;
             }
+            */
 
             if ( !req.body.coveredCity.name ||  req.body.coveredCity.name.trim() == "" ||  !req.body.coveredCity.latitude || !req.body.coveredCity.longitude ) {
                 console.log("Error: bad covered city");
@@ -488,5 +503,10 @@ export class PublicRoute extends BaseRoute {
         console.log('sent a confirmation email');
     }
 
+
+
+  private getUTCDateISOString(date : Date) : string {
+    return (new Date(Date.UTC(date.getFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0))).toISOString();
+  }
 
 }
