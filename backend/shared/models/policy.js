@@ -78,7 +78,7 @@ exports.policySchema = new mongoose_1.Schema({
     endDateISOString: {
         type: String,
         required: true,
-        default: new Date(Date.parse('10-01-2018')).toISOString()
+        default: new Date(Date.parse('11-01-2018')).toISOString()
     },
     lastClaimDateISOString: {
         type: String,
