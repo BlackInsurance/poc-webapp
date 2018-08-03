@@ -100,8 +100,8 @@ exports.policySchema = new mongoose_1.Schema({
     },
     ethereumAddress: {
         type: String,
-        required: true,
-        default: '0x3A539F08E864C721383b78C7c61A728422c7cbb0'
+        required: false,
+        default: ''
     },
     claims: {
         type: [claim_1.claimSchema],
