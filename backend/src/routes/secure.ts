@@ -134,6 +134,7 @@ export class SecuredRoute extends BaseRoute {
         const _facebookID = req.user.facebook.id;
         const _policyHolderID = req.user.policyHolderID;
         const _policyHolderName = req.user.facebook.name;
+        const _policyHolderEmail = req.user.facebook.email;
         const jwt = this.createJWT(_policyHolderName, _policyHolderID);
 
         this.policyModel.find({})                
@@ -141,7 +142,7 @@ export class SecuredRoute extends BaseRoute {
             .exec(function(err, policy){
                 if (err || policy == null || policy.length == 0) {
                     console.log('No policy for this facebook user');
-                    res.send({ hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName });
+                    res.send({ hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail });
                     return;
                 } else {
                     console.log('Facebook user already has a policy');

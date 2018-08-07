@@ -8,7 +8,8 @@ export class Policy {
     public facebook: any = {
         id: '',
         token: '',
-        name: ''
+        name: '',
+        email: ''
     }
     public google: any = {
         id: '',

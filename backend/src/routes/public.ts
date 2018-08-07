@@ -129,35 +129,6 @@ export class PublicRoute extends BaseRoute {
     }
 
 
-    /**
-     * The Policy List route....DELETE THIS IMMEDIATELY - HUGE SECURITY HOLE
-     *
-     * @class PublicRoute
-     * @method getPolicyList
-     * @param req {Request} The express Request object.
-     * @param res {Response} The express Response object.
-     * @next {NextFunction} Execute the next method.
-     */
-    public getPolicyList(req: Request, res: Response, next: NextFunction) {
-        this.policyModel.find({}, function(err, policies){
-            if (err) {
-                console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
-                res.status(400);
-                res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + err.message});
-                return;
-            }
-
-            if (policies.length == null){
-                console.log('Error: Failed to locate the requested Policy.');
-                res.status(404);
-                res.send({error: 'Failed to locate the requested Policy'});
-                return;
-            }
-
-            console.log("returning all policies.");
-            res.send(policies);
-        });
-    }
 
 
   /**
@@ -470,7 +441,8 @@ export class PublicRoute extends BaseRoute {
                             }
 
                             console.log('new policy confirmed');
-                            const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);                
+                            const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);   
+                            res.cookie('jwt', signedToken);             
                             res.setHeader('Authorization', signedToken);
                             res.sendFile(`index.html`, { root: publicweb })
                         });
