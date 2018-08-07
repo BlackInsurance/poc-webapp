@@ -249,6 +249,7 @@ export class NewPolicyComponent implements OnInit {
                 global_this.newPolicy.policyHolder.policyHolderID = response.policyHolderID;
                 global_this.newPolicy.facebook.id = response.accountID;
                 global_this.newPolicy.facebook.name = response.policyHolderName;
+                global_this.newPolicy.facebook.email = response.email;
                 
                 global_this.router.navigate(['/signup/step3']);
               }
@@ -315,6 +316,7 @@ export class NewPolicyComponent implements OnInit {
     this.newPolicy.policyHolder.policyHolderID = '';
     this.newPolicy.facebook.id = '';
     this.newPolicy.facebook.name = '';
+    this.newPolicy.facebook.email = '';
     this.newPolicy.google.id = '';
     this.newPolicy.google.name = '';
     this.newPolicy.google.email = '';

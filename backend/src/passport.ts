@@ -78,15 +78,17 @@ export class PassportLoader {
                     if (policyHolder) {
                         return done(null, policyHolder);
                     } else {
+                        console.log(profile);
                         // No user found with that facebook id, create them
                         let newPolicyHolder: IPolicyHolder = CORE_DATA_MODEL.getDefaultPolicyHolder();
                         newPolicyHolder.policyHolderID = uuidBase62.v4();
                         newPolicyHolder.email = '';
-                        newPolicyHolder.password = '';
+                        newPolicyHolder.password = '';0
                         newPolicyHolder.confirmationID = '';
                         newPolicyHolder.facebook.id = profile.id;
                         newPolicyHolder.facebook.token = token;
                         newPolicyHolder.facebook.name = profile.displayName;
+                        newPolicyHolder.facebook.email = profile.email;
 
                         return new _policyHolderModel(newPolicyHolder).save(function(policyHolderError){
                             if (policyHolderError) {

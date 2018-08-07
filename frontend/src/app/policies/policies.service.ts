@@ -138,6 +138,20 @@ export class PolicyService {
             }),); 
     }
 
+    confirmPolicyHolder(_confirmationID:string): Observable<Policy> {
+        let confirmData = { confirmationID: _confirmationID };
+        return this.http.post<Policy>(this.backendBaseURL+"confirm", confirmData, { observe: 'response' }).pipe(
+            map((res:HttpResponse<Policy>) => {
+                var token = res.headers.get('Authorization');
+                localStorage.setItem('token', token);
+                return res.body;
+            }),
+            catchError((error:any) => {
+                console.log(error);
+                return observableThrowError(error.json ? error.json().error : error || 'Server error')
+            }),); 
+    }
+
     /** Log a message with the MessageService */
     private log(message: string) {
         console.log('PolicyService: ' + message);
