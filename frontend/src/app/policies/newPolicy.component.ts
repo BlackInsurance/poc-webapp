@@ -385,6 +385,12 @@ export class NewPolicyComponent implements OnInit {
     return (new Date(Date.UTC(date.getFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0))).toISOString();
   }
 
+  firstClaimDate() : Date {
+    let claimDate = (new Date());
+    claimDate.setDate(claimDate.getDate() + 3);
+    return claimDate;
+  }
+
 
 
 
