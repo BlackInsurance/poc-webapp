@@ -17,8 +17,7 @@
             <h1><span>Get your</span> Rainy Day Insurance
                 <span class="subtitle">RECEIVE <strong>FREE</strong> BLCK TOKENS</span>
             </h1>
-    
-    
+        
             <div class="button-container">
                 <button (click)="changeRoute('/signup/step2')" class="primary">NEXT</button>
             </div>
@@ -247,18 +246,17 @@
 
         <section class="list-container">
             <ul>
-                <li>If the city you pick gets rain, we give you BLCK Tokens</li>
+                <li>Anyday your city gets 10mm of rain, we give you 1 BLCK Token</li>
                 <li>We check for rain once every 24-hours</li>
-                <li>You only get to create a policy once so choose wisely!</li>
+                <li>You only get to create a policy once, so choose wisely!</li>
             </ul>
         </section>
 
-        <section class="bottom-container" style="margin-top:120px;">
-            <div class="button-container">
-                <button class="gray hidden-xs" (click)="changeRoute('/signup/step2')">BACK</button>
-                <button [ngClass]="{'disabled': selectedLocation == '', 'primary': selectedLocation != ''}" (click)="createPolicy()">NEXT</button>
-            </div>
-        </section>
+        <div class="button-container">
+            <button class="gray hidden-xs" (click)="changeRoute('/signup/step2')">BACK</button>
+            <button [ngClass]="{'disabled': selectedLocation == '', 'primary': selectedLocation != ''}" (click)="createPolicy()">NEXT</button>
+        </div>
+        
     </div>
 
 
@@ -289,14 +287,24 @@
 
             <div id="triangle-holder">
                 <svg class="steps" width="90px" height="90px" viewBox="0 0 90 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <g   stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                         <g id="1-step-/-no-data---Desktop" transform="translate(-545.000000, -150.000000)">
                             <g id="steps" transform="translate(545.000000, 150.000000)">
                                 <g id="Group">
                                     <circle id="outer-oval" fill="#FFFFFF" cx="45" cy="45" r="45"></circle>
-                                    <path d="M14.2729365,63.5163809 C20.5534613,73.9162702 31.9647161,80.8695652 45,80.8695652 C58.0294229,80.8695652 69.4362767,73.9225215 75.7185887,63.530407" id="3-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
-                                    <path d="M76.4031265,62.3477009 C79.2492647,57.2065506 80.8695652,51.292496 80.8695652,45 C80.8695652,25.5033125 65.314518,9.63970093 45.9377117,9.14245354 C45.8448219,9.1400698 45.8448219,9.13636303 45.6587801,9.13636303" id="2-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
-                                    <path d="M44.3496618,9.13621196 C44.3478261,9.13621196 43.9631383,9.14462226 43.7704487,9.15111293 C24.5295331,9.79923577 9.13043478,25.6012918 9.13043478,45 C9.13043478,51.2988363 10.7540022,57.2184682 13.6054806,62.3632392" id="1-progress-oval" stroke="#84D2C8" stroke-width="6"></path>
+                                    <path d="M14.2729365,63.5163809 C20.5534613,73.9162702 31.9647161,80.8695652 45,80.8695652 C58.0294229,80.8695652 69.4362767,73.9225215 75.7185887,63.530407" id="3-progress-oval" stroke="#84D2C8" stroke-width="6">
+                                        <animateTransform
+                                            attributeType=”xml” 
+                                            attributeName=”transform” 
+                                            type=”rotate” 
+                                            from=”0 5 5" 
+                                            to=”360 5 5" 
+                                            dur=”0.8s” 
+                                            repeatCount=”indefinite” 
+                                        />
+                                    </path>
+                                    <!--path d="M76.4031265,62.3477009 C79.2492647,57.2065506 80.8695652,51.292496 80.8695652,45 C80.8695652,25.5033125 65.314518,9.63970093 45.9377117,9.14245354 C45.8448219,9.1400698 45.8448219,9.13636303 45.6587801,9.13636303" id="2-progress-oval" stroke="#84D2C8" stroke-width="6"></path-->
+                                    <!--path d="M44.3496618,9.13621196 C44.3478261,9.13621196 43.9631383,9.14462226 43.7704487,9.15111293 C24.5295331,9.79923577 9.13043478,25.6012918 9.13043478,45 C9.13043478,51.2988363 10.7540022,57.2184682 13.6054806,62.3632392" id="1-progress-oval" stroke="#84D2C8" stroke-width="6"></path-->
                                     <text id="1" font-family="Saira-SemiBold, Saira" font-size="36" font-weight="500" line-spacing="24" fill="#84D2C8">
                                         <tspan x="35" y="58">3</tspan>
                                     </text>

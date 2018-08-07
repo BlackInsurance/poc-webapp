@@ -53,5 +53,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     return bool;
   }
 
+  loggedIn() : boolean {
+    return (localStorage.getItem('token') != null);
+  }
+
+  logout(evt:Event) {
+    evt.preventDefault();
+    localStorage.removeItem('token');
+    this.closeNavMenu();
+    this.router.navigate(['/signup']);
+  }
+
   
 }

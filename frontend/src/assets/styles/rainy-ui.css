@@ -38,6 +38,17 @@ body {
   padding-bottom: 180px;
   padding-top: 17px;
 }
+
+@media screen and (max-height: 750px) {
+  .hero {
+    background: url("../images/bg.jpg") no-repeat;
+    background-position: center center;
+    background-size: cover;
+    position: relative;
+    padding-bottom: 70px;
+    padding-top: 17px;
+  }
+}
 .hero:after {
   content: "";
   position: absolute;
@@ -243,6 +254,7 @@ input {
 @media screen and (max-width: 400px) {
   .select-container {
     width: 100%;
+    margin: 20px auto 0;
   }
 }
 .select-container #triangle-down {
@@ -577,6 +589,16 @@ table td a {
   width: 364px;
   text-align: center;
 }
+
+
+@media screen and (max-height: 670px) {
+  .fullscreen-nav .menu-wrapper .menu > .menu--item {
+    padding: 10px 0;
+    width: 364px;
+    text-align: center;
+  }
+}
+
 .fullscreen-nav .menu-wrapper .menu > .menu--item:not(:first-child) {
   border-top: 1px solid var(--blue);
 }
@@ -591,6 +613,19 @@ table td a {
   text-align: center;
   color: var(--gray);
 }
+
+@media screen and (max-height: 670px) {
+  .fullscreen-nav .nav-footer {
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    color: var(--gray);
+  }
+}
+
+
 .fullscreen-nav .nav-footer h3 {
   font-size: 20px;
   line-height: 24px;
@@ -617,10 +652,11 @@ table td a {
   margin-top: 60px;
   display: flex;
 }
-@media screen and (max-width: 500) {
+@media screen and (max-width: 500px) {
   .sign-up-box {
     max-width: none;
     width: 100%;
+    margin-top: 10px;
   }
 }
 .sign-up-box > div {
@@ -686,6 +722,15 @@ table td a {
   margin: 40px auto 35px;
   padding-top: 20px;
 }
+@media screen and (max-height: 670px) {
+  .bottom-container.sign-up .aside {
+    position: relative;
+    border-top: 1px solid var(--md-gray);
+    width: 250px;
+    margin: 30px auto 10px;
+    padding-top: 20px;
+  }
+}
 .bottom-container.sign-up .aside > span {
   position: absolute;
   top: 0;
@@ -748,7 +793,7 @@ table td a {
   cursor: not-allowed;
 }
 .button-container button + button {
-  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .list-container {
@@ -765,9 +810,10 @@ table td a {
     font-size: 16px;
   }
 }
-@media screen and (max-width: 570px) {
+@media screen and (max-width: 500px) {
   .list-container {
     max-width: 250px;
+    margin: 20px auto 0;
   }
 }
 .list-container ul li {
@@ -780,8 +826,14 @@ table td a {
   position: absolute;
   left: -10px;
 }
-.list-container ul li:not(:last-child) {
+.list-container ul li {
   margin-bottom: 15px;
+}
+
+@media screen and (max-width: 570px) {
+  .list-container ul li {
+    margin-bottom: 10px;
+  }
 }
 
 .success-container p {
@@ -1103,6 +1155,23 @@ table.desktop td {
   top: 50%;
   transform: translateX(-50%) translateY(-50%);
 }
+
+@media screen and (max-width: 320px) {
+  .page.landingpage .hero h1 {
+    margin: 0;
+    position: absolute;
+    width: 100vw;
+    color: white;
+    font-size: 64px;
+    line-height: 64px;
+    text-align: center;
+    max-width: 436px;
+    left: 50%;
+    top: 40%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+}
+
 .page.landingpage .hero h1 span {
   font-weight: 200;
   display: block;
@@ -1112,12 +1181,19 @@ table.desktop td {
   font-size: 24px;
   line-height: 16px;
 }
+@media screen and (max-width: 320px) {
+  .page.landingpage .hero h1 span.subtitle {
+    margin-top: 60px;
+    font-size: 20px;
+    line-height: 16px;
+  }
+}
 .page.landingpage .hero h1 span.subtitle strong {
   font-weight: 600;
 }
 .page.landingpage .hero > .button-container {
   position: absolute;
-  bottom: 30px;
+  bottom: 70px;
   text-align: center;
   width: 100%;
 }

@@ -121,7 +121,7 @@ export class Server {
     this.app.use(bodyParser.urlencoded({extended: true}));
   
     //use cookie parser middleware
-    this.app.use(cookieParser(process.env.COOKIE_SECRET_KEY || 'secret'));
+    this.app.use(cookieParser());
   
     //use override middlware
     this.app.use(methodOverride());
@@ -221,7 +221,7 @@ export class Server {
 
 
 
-    this.app.get('/auth/facebook', passport.authenticate('facebook-token', { session: false }), (req: any, res: Response, next: NextFunction) => { 
+    this.app.get('/auth/facebook', passport.authenticate('facebook-token', { session: false, scope: ['email'] }), (req: any, res: Response, next: NextFunction) => { 
       new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel).loginFacebookUser(req, res, next);
     });
     
