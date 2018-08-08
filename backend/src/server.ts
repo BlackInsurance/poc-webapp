@@ -41,7 +41,6 @@ export class Server {
 
   private dataModel: CORE_DATA_MODEL;
   private PUBLIC_WEBROOT: string = process.env.PUBLIC_WEBROOT || './';
-  private FEDERATED_LOGIN_RESPONSE_ORIGIN = process.env.FEDERATED_LOGIN_RESPONSE_ORIGIN || 'https://localhost:8000';
   //private passport: any;
 
 
@@ -238,7 +237,7 @@ export class Server {
       const _policyHolderID = req.user.policyHolderID;
       const _policyHolderName = req.user.google.name;
       const _policyHolderEmail = req.user.google.email;
-      const _sourceURL = this.FEDERATED_LOGIN_RESPONSE_ORIGIN;
+      const _sourceURL = 'https://' + (req.hostname == 'localhost' ? 'localhost:8000' : req.headers.host);
       const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
       const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
 
