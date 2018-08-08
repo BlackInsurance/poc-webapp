@@ -125,6 +125,9 @@ export class Server {
     //use override middlware
     this.app.use(methodOverride());
 
+    //use proxy address as hostname
+    this.app.enable("trust proxy");
+
     //make sure the Authorization header is allowed in all browser contexts
     this.app.use((req, res, next) => {
       res.header('Access-Control-Expose-Headers', 'Authorization');
