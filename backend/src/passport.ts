@@ -111,7 +111,7 @@ export class PassportLoader {
         _passport.use(new GoogleStrategy({
             clientID        : process.env.GOOGLE_APP_ID,
             clientSecret    : process.env.GOOGLE_APP_SECRET,
-            callbackURL     : process.env.GOOGLE_CALLBACK_URL
+            callbackURL     : '/auth/google/callback'
         },
         (token, refreshToken, profile, done) => {
             // asynchronous
