@@ -152,50 +152,52 @@ export class PublicRoute extends BaseRoute {
             let PolicyHolder = this.policyHolderModel;
 
             if ( req.body.policyHolder.policyHolderID && req.body.policyHolder.policyHolderID.trim() != '' ) {
-                // Create the new Policy
-                let newPolicy: IPolicy = CORE_DATA_MODEL.getDefaultPolicy();
-                newPolicy.policyID = uuidBase62.v4();
-                newPolicy.coveredCity.name = req.body.coveredCity.name;
-                newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
-                newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
+                // Get the existing policyHolder
+                PolicyHolder.find({})
+                    .where('policyHolderID').equals(req.body.policyHolder.policyHolderID)
+                    .exec(function(err, policyHolders){
+                        if (err) { 
+                            console.log('Error: Could not search for existing PolicyHolders.  PolicyHolderID=' + req.body.policyHolder.policyHolderID + ', ErrorMessage=' + err.message);
+                            res.status(400).send({error: 'Could not search for existing PolicyHolders'}); 
+                            return;  
+                        }
 
-                let startDate : Date = new Date();
-                let endDate : Date = new Date(2018, 10, 1);
-                let startDateISOString : string = (new Date(Date.UTC(startDate.getFullYear(), startDate.getUTCMonth(), startDate.getUTCDate(), 0, 0, 0))).toISOString();
-                let endDateISOString : string = (new Date(Date.UTC(endDate.getFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), 0, 0, 0))).toISOString();
+                        // Create the new Policy
+                        let newPolicy: IPolicy = CORE_DATA_MODEL.getDefaultPolicy();
+                        newPolicy.policyID = uuidBase62.v4();
+                        newPolicy.coveredCity.name = req.body.coveredCity.name;
+                        newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
+                        newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
 
-                newPolicy.startDateISOString = startDateISOString;
-                newPolicy.endDateISOString = endDateISOString;
-                newPolicy.status = 'Confirmed';
-                newPolicy.policyHolder.policyHolderID = req.body.policyHolder.policyHolderID;
+                        let startDate : Date = new Date();
+                        let endDate : Date = new Date(2018, 10, 1);
+                        let startDateISOString : string = (new Date(Date.UTC(startDate.getFullYear(), startDate.getUTCMonth(), startDate.getUTCDate(), 0, 0, 0))).toISOString();
+                        let endDateISOString : string = (new Date(Date.UTC(endDate.getFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), 0, 0, 0))).toISOString();
 
-                return new Policy(newPolicy).save(function(policyErr) {
-                    if (policyErr) {
-                        console.log("policy not saved!");
-                        res.status(400).send("policy not saved!");
-                        return;
-                    }
+                        newPolicy.startDateISOString = startDateISOString;
+                        newPolicy.endDateISOString = endDateISOString;
 
-                    console.log("policy saved!");
+                        const currentPolicyHolder = policyHolders[0];
+                        newPolicy.policyHolder = currentPolicyHolder._id;
 
-                    // Get the existing policyHolder
-                    PolicyHolder.find({})
-                        .where('policyHolderID').equals(newPolicy.policyHolder.policyHolderID)
-                        .exec(function(err, policyHolders){
-                            if (err) { 
-                                console.log('Error: Could not search for existing PolicyHolders.  PolicyHolderID=' + newPolicy.policyHolder.policyHolderID + ', ErrorMessage=' + err.message);
-                                res.status(400).send({error: 'Could not search for existing PolicyHolders'}); 
-                                return;  
+                        return new Policy(newPolicy).save(function(policyErr) {
+                            if (policyErr) {
+                                console.log("policy not saved!");
+                                res.status(400).send("policy not saved!");
+                                return;
                             }
 
-                            const currentPolicyHolder = policyHolders[0];
+                            console.log("policy saved!");
+
                             const currentPolicyHolderName = ( currentPolicyHolder.facebook.name && currentPolicyHolder.facebook.name.trim() != '' ) ? currentPolicyHolder.facebook.name : currentPolicyHolder.google.name;
+                            const currentPolicyHolderEmail = ( currentPolicyHolder.facebook.email && currentPolicyHolder.facebook.email.trim() != '' ) ? currentPolicyHolder.facebook.email : currentPolicyHolder.google.email;
+                            __this.sendConfirmationEmail(req, currentPolicyHolder.confirmationID, currentPolicyHolderEmail);
+                            
                             let signedToken = __this.createJWT(currentPolicyHolderName, currentPolicyHolder.policyHolderID);                 
                             res.setHeader('Authorization', signedToken);
                             res.send(newPolicy);
                         });
-
-                });
+                    });
             } else {
                 // Create a new PolicyHolder
                 let newPolicyHolder: IPolicyHolder = CORE_DATA_MODEL.getDefaultPolicyHolder();
@@ -213,35 +215,48 @@ export class PublicRoute extends BaseRoute {
 
                     console.log("policyHolder saved!");
 
-                    // Create the new Policy
-                    let newPolicy: IPolicy = CORE_DATA_MODEL.getDefaultPolicy();
-                    newPolicy.policyID = uuidBase62.v4();
-                    newPolicy.coveredCity.name = req.body.coveredCity.name;
-                    newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
-                    newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
+                    // FIX THIS: Need the ObjectID for the newly created policyHolder
+                    PolicyHolder.find({})
+                        .where('policyHolderID').equals(newPolicyHolder.policyHolderID)
+                        .exec(function(err, policyHolders){
+                            if (err) { 
+                                console.log('Error: Could not search for existing PolicyHolders.  PolicyHolderID=' + newPolicyHolder.policyHolderID + ', ErrorMessage=' + err.message);
+                                res.status(400).send({error: 'Could not search for existing PolicyHolders'}); 
+                                return;  
+                            }
 
-                    let startDate : Date = new Date();
-                    let endDate : Date = new Date(2018, 10, 1);
-                    let startDateISOString : string = (new Date(Date.UTC(startDate.getFullYear(), startDate.getUTCMonth(), startDate.getUTCDate(), 0, 0, 0))).toISOString();
-                    let endDateISOString : string = (new Date(Date.UTC(endDate.getFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), 0, 0, 0))).toISOString();
-    
-                    newPolicy.startDateISOString = startDateISOString;
-                    newPolicy.endDateISOString = endDateISOString;
-                    newPolicy.policyHolder.policyHolderID = newPolicyHolder.policyHolderID;
+                            let createdPolicyHolder : any = policyHolders[0];
 
-                    return new Policy(newPolicy).save(function(policyErr) {
-                        if (policyErr) {
-                            console.log("policy not saved!");
-                            res.status(400).send("policy not saved!");
-                            return;
-                        }
+                            // Create the new Policy
+                            let newPolicy: IPolicy = CORE_DATA_MODEL.getDefaultPolicy();
+                            newPolicy.policyID = uuidBase62.v4();
+                            newPolicy.coveredCity.name = req.body.coveredCity.name;
+                            newPolicy.coveredCity.latitude = req.body.coveredCity.latitude;
+                            newPolicy.coveredCity.longitude = req.body.coveredCity.longitude;
 
-                        console.log("policy saved!");
-                        __this.sendConfirmationEmail(req, newPolicyHolder.confirmationID, newPolicyHolder.email);
+                            let startDate : Date = new Date();
+                            let endDate : Date = new Date(2018, 10, 1);
+                            let startDateISOString : string = (new Date(Date.UTC(startDate.getFullYear(), startDate.getUTCMonth(), startDate.getUTCDate(), 0, 0, 0))).toISOString();
+                            let endDateISOString : string = (new Date(Date.UTC(endDate.getFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), 0, 0, 0))).toISOString();
+            
+                            newPolicy.startDateISOString = startDateISOString;
+                            newPolicy.endDateISOString = endDateISOString;
+                            newPolicy.policyHolder = createdPolicyHolder._id;
 
-                        const signedToken = __this.createJWT(newPolicyHolder.email, newPolicyHolder.policyHolderID);                 
-                        res.setHeader('Authorization', signedToken);
-                        res.send(newPolicy);
+                            return new Policy(newPolicy).save(function(policyErr) {
+                                if (policyErr) {
+                                    console.log("policy not saved!");
+                                    res.status(400).send("policy not saved!");
+                                    return;
+                                }
+
+                                console.log("policy saved!");
+                                __this.sendConfirmationEmail(req, newPolicyHolder.confirmationID, newPolicyHolder.email);
+
+                                const signedToken = __this.createJWT(newPolicyHolder.email, newPolicyHolder.policyHolderID);                 
+                                res.setHeader('Authorization', signedToken);
+                                res.send(newPolicy);
+                            });
                     });
                 });
             }
@@ -310,6 +325,7 @@ export class PublicRoute extends BaseRoute {
                 // Check if the existing policyHolder has an existing policy
                 let Policy = this.policyModel;
                 return Policy.find({})
+                    .populate('policyHolder')
                     .where('policyHolder.policyHolderID').equals(req.body.policyHolder.policyHolderID)
                     .exec(function(err, policies){
                         if (err) { 
@@ -413,10 +429,10 @@ export class PublicRoute extends BaseRoute {
 
             if ( ! policyHolder) { res.status(400).send({error:'Failed to find the requested Policy by Confirmation ID.'}); return; }
 
-            let policyHolderID = policyHolder.policyHolderID;
+            let policyHolder_objectID = policyHolder._id;
 
             Policy.find({})
-                .where('policyHolder.policyHolderID').equals(policyHolderID)
+                .where('policyHolder').equals(policyHolder_objectID)
                 .exec((policyErr, policies:any[])=>{
                     if ( ! policies || policies.length == 0 ) { res.status(400).send({error:'Failed to find the requested Policy by Confirmation ID.'}); return; }
 
@@ -441,7 +457,12 @@ export class PublicRoute extends BaseRoute {
                             }
 
                             console.log('new policy confirmed');
-                            const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);   
+
+                            const currentPolicyHolder = ( policyHolder.facebook.name && policyHolder.facebook.name.trim() != '' ) ? policyHolder.facebook.name : 
+                                                        ( policyHolder.google.name && policyHolder.google.name.trim() != '' ) ? policyHolder.google.name : 
+                                                          policyHolder.email;
+                            
+                            const signedToken = __this.createJWT(currentPolicyHolder, policyHolder.policyHolderID);   
                             res.cookie('jwt', signedToken);             
                             res.setHeader('Authorization', signedToken);
                             res.sendFile(`index.html`, { root: publicweb })

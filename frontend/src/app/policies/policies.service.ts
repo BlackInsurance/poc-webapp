@@ -93,8 +93,8 @@ export class PolicyService {
             headers: new HttpHeaders({ 'Authorization': 'Bearer '+localStorage.getItem('token') }),
         };
 
-        return this.http.post<Policy[]>(this.backendBaseURL+"policySecureRead/", policyRequest, requestOptions).pipe(
-            map((res:Policy[]) => { return res[0]; }),
+        return this.http.post<Policy>(this.backendBaseURL+"policySecureRead/", policyRequest, requestOptions).pipe(
+            map((res:Policy) => { return res; }),
             catchError((error:any) => {
                 console.log(error);
                 return observableThrowError(error.json ? error.json().error : error || 'Server error')

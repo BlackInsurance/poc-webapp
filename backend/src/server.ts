@@ -236,25 +236,46 @@ export class Server {
     });
     
     this.app.get('/auth/google/callback', passport.authenticate('google', { session: false }), (req: any, res: Response, next: NextFunction) => {
-      const _googleID = req.user.google.id;
-      const _policyHolderID = req.user.policyHolderID;
-      const _policyHolderName = req.user.google.name;
-      const _policyHolderEmail = req.user.google.email;
-      const _sourceURL = 'https://' + (req.hostname == 'localhost' ? 'localhost:8000' : req.headers.host);
-      const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
-      const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
+        const _googleID = req.user.google.id;
+        const _policyHolderID = req.user.policyHolderID;
+        const _policyHolderName = req.user.google.name;
+        const _policyHolderEmail = req.user.google.email;
+        const _sourceURL = 'https://' + (req.hostname == 'localhost' ? 'localhost:8000' : req.headers.host);
+        const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
+        const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
 
-      this.policyModel.find({})                
-        .where('policyHolder.policyHolderID').equals(req.user.policyHolderID)
-        .exec(function(err, policy){
+        let global_this = this;
+        // Get the ObjectID for the PolicyHolder
+        this.policyHolderModel.findOne({policyHolderID: req.user.policyHolderID})
+            .exec(function(phError, policyHolder){
+                if (phError) {
+                    console.log('Error: Failed to communicate with the DB. ErrorMessage=' + phError.message);
+                    res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail, sourceURL: _sourceURL });
+                    return;
+                }
 
-          if (err || policy == null || policy.length == 0) {
-            res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail, sourceURL: _sourceURL });
-          } else {
-            res.render('authenticated', { hasPolicy: true, token: jwt, sourceURL: _sourceURL });
-          }
-        });      
-    });
+                if (policyHolder == null){
+                    console.log('Error: Failed to locate the requested PolicyHolder. PolicyHolderID=' + req.user.policyHolderID);
+                    res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail, sourceURL: _sourceURL });
+                    return;
+                }
+                
+                global_this.policyModel.findOne({ policyHolder: policyHolder._id })  
+                    .exec(function(err, policy){
+                        if (err) {
+                            console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
+                            res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail, sourceURL: _sourceURL });
+                            return;
+                        }
+
+                        if (policy == null){
+                            res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail, sourceURL: _sourceURL });
+                        } else {
+                            res.render('authenticated', { hasPolicy: true, token: jwt, sourceURL: _sourceURL });
+                        }
+                    });
+            });
+      });
 
 
 
