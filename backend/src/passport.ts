@@ -83,12 +83,12 @@ export class PassportLoader {
                         let newPolicyHolder: IPolicyHolder = CORE_DATA_MODEL.getDefaultPolicyHolder();
                         newPolicyHolder.policyHolderID = uuidBase62.v4();
                         newPolicyHolder.email = '';
-                        newPolicyHolder.password = '';0
-                        newPolicyHolder.confirmationID = '';
+                        newPolicyHolder.password = '';
+                        newPolicyHolder.confirmationID = uuidBase62.v4();
                         newPolicyHolder.facebook.id = profile.id;
                         newPolicyHolder.facebook.token = token;
                         newPolicyHolder.facebook.name = profile.displayName;
-                        newPolicyHolder.facebook.email = profile.email;
+                        newPolicyHolder.facebook.email = profile.emails[0].value;
 
                         return new _policyHolderModel(newPolicyHolder).save(function(policyHolderError){
                             if (policyHolderError) {
@@ -129,11 +129,11 @@ export class PassportLoader {
                         newPolicyHolder.policyHolderID = uuidBase62.v4();
                         newPolicyHolder.email = '';
                         newPolicyHolder.password = '';
-                        newPolicyHolder.confirmationID = '';
+                        newPolicyHolder.confirmationID = uuidBase62.v4();
                         newPolicyHolder.google.id = profile.id;
                         newPolicyHolder.google.token = token;
                         newPolicyHolder.google.name = profile.displayName;
-                        newPolicyHolder.google.email = profile.emails[0].name;
+                        newPolicyHolder.google.email = profile.emails[0].value;
 
                         return new _policyHolderModel(newPolicyHolder).save(function(policyHolderError){
                             if (policyHolderError) {
