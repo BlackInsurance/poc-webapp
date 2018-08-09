@@ -322,31 +322,41 @@ export class PublicRoute extends BaseRoute {
                     return;
                 }
 
+
+                let global_this = this;
                 // Check if the existing policyHolder has an existing policy
-                let Policy = this.policyModel;
-                return Policy.find({})
-                    .populate('policyHolder')
-                    .where('policyHolder.policyHolderID').equals(req.body.policyHolder.policyHolderID)
-                    .exec(function(err, policies){
-                        if (err) { 
-                            console.log('Error: Could not search for existing Policies.  PolicyHolderID=' + req.body.policyHolder.policyHolderID + ', ErrorMessage=' + err.message);
+                this.policyHolderModel.findOne({policyHolderID: req.body.policyHolder.policyHolderID})
+                    .exec(function(phError, policyHolder){
+                        if (phError || policyHolder == null) {
+                            console.log('Error: Could not search for existing Policies.  PolicyHolderID=' + req.body.policyHolder.policyHolderID + ', ErrorMessage=' + phError.message);
                             res.status(400);
                             res.send({error: 'Could not search for existing Policies'}); 
                             resolve(false);
                             return;
                         }
                         
-                        if ( policies.length > 0 ) {
-                            console.log("Error: PolicyHolderID already associated with a Policy");
-                            res.status(400).send({error: 'PolicyHolderID already associated with a Policy'});
-                            resolve(false);
-                            return;
-                        } else {
-                            resolve(true);
-                            return;
-                        }
+                        let Policy = global_this.policyModel;
+                        Policy.findOne({ policyHolder: policyHolder._id })  
+                            .exec(function(err, policy){
+                                if (err) { 
+                                    console.log('Error: Could not search for existing Policies.  PolicyHolderID=' + req.body.policyHolder.policyHolderID + ', ErrorMessage=' + err.message);
+                                    res.status(400);
+                                    res.send({error: 'Could not search for existing Policies'}); 
+                                    resolve(false);
+                                    return;
+                                }
+                                
+                                if ( policy != null ) {
+                                    console.log("Error: PolicyHolderID already associated with a Policy");
+                                    res.status(400).send({error: 'PolicyHolderID already associated with a Policy'});
+                                    resolve(false);
+                                    return;
+                                } else {
+                                    resolve(true);
+                                    return;
+                                }
+                            });
                     });
-
             } else {
                 if ( !req.body.emailAddress ||  req.body.emailAddress.trim() == "" ) {
                     console.log("Error: email address is blank");
