@@ -43,24 +43,42 @@ export class SecuredRoute extends BaseRoute {
      * @next {NextFunction} Execute the next method.
      */
     public getPolicy(req: Request, res: Response, next: NextFunction) {
-        this.policyModel.find({})                
-            .where('policyHolder.policyHolderID').equals(req.body.policyHolderID)
-            .exec(function(err, policy){
-                if (err) {
-                    console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
+        let global_this = this;
+        // Get the ObjectID for the PolicyHolder
+        this.policyHolderModel.findOne({policyHolderID: req.body.policyHolderID})
+            .exec(function(phError, policyHolder){
+                if (phError) {
+                    console.log('Error: Failed to communicate with the DB. ErrorMessage=' + phError.message);
                     res.status(400);
-                    res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + err.message});
+                    res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + phError.message});
                     return;
                 }
 
-                if (policy == null){
-                    console.log('Error: Failed to locate the requested Policy. PolicyID=' + req.body.policyID);
+                if (policyHolder == null){
+                    console.log('Error: Failed to locate the requested PolicyHolder. PolicyHolderID=' + req.body.policyHolderID);
                     res.status(404);
-                    res.send({error: 'Failed to locate the requested Policy'});
+                    res.send({error: 'Failed to locate the requested PolicyHolder'});
                     return;
                 }
+                
+                global_this.policyModel.findOne({ policyHolder: policyHolder._id })  
+                    .exec(function(err, policy){
+                        if (err) {
+                            console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
+                            res.status(400);
+                            res.send({error: 'Failed to communicate with the DB. ErrorMessage=' + err.message});
+                            return;
+                        }
 
-                res.send(policy);
+                        if (policy == null){
+                            console.log('Error: Failed to locate the requested Policy. PolicyHolderID=' + req.body.policyHolderID);
+                            res.status(404);
+                            res.send({error: 'Failed to locate the requested Policy'});
+                            return;
+                        }
+
+                        res.send(policy);
+                    });
             });
     }
   
@@ -137,20 +155,30 @@ export class SecuredRoute extends BaseRoute {
         const _policyHolderEmail = req.user.facebook.email;
         const jwt = this.createJWT(_policyHolderName, _policyHolderID);
 
-        this.policyModel.find({})                
-            .where('policyHolder.policyHolderID').equals(req.user.policyHolderID)
-            .exec(function(err, policy){
-                if (err || policy == null || policy.length == 0) {
+        let global_this = this;
+        // Get the ObjectID for the PolicyHolder
+        this.policyHolderModel.findOne({policyHolderID: req.user.policyHolderID})
+            .exec(function(phError, policyHolder){
+                if (phError || policyHolder == null) {
                     console.log('No policy for this facebook user');
                     res.send({ hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail });
                     return;
-                } else {
-                    console.log('Facebook user already has a policy');
-                    res.setHeader('Authorization', jwt);
-                    res.send({ hasPolicy: true });
-                    return;
                 }
-            });      
+                
+                global_this.policyModel.findOne({ policyHolder: policyHolder._id })  
+                    .exec(function(err, policy){
+                        if (err || policy == null || policy.length == 0) {
+                            console.log('No policy for this facebook user');
+                            res.send({ hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail });
+                            return;
+                        } else {
+                            console.log('Facebook user already has a policy');
+                            res.setHeader('Authorization', jwt);
+                            res.send({ hasPolicy: true });
+                            return;
+                        }
+                    });
+            });
     }
 
 
