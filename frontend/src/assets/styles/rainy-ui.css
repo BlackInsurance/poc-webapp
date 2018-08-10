@@ -218,7 +218,7 @@ input {
 }
 
 .input-block {
-  margin-bottom: 26px;
+  margin-top: 23px;
   border-bottom: 1px solid var(--md-gray);
   padding-left: 15px;
 }
@@ -694,21 +694,22 @@ table td a {
   line-height: 16px;
   padding: 4px;
 }
-@media screen and (max-width: 768px) {
-  .sign-up-box .input-block {
-    margin-bottom: 0;
-  }
-}
 .sign-up-box .input-block label.small {
   font-size: 10px;
   line-height: 10px;
+}
+.input-block .password-viewer {
+  float: right;
+  margin-right: 10px;
+  margin-top: -25px;
+  position: relative;
 }
 
 .bottom-container {
   text-align: center;
 }
 .bottom-container.sign-up {
-  margin-top: 60px;
+  margin-top: 40px;
 }
 @media screen and (max-width: 768px) {
   .bottom-container.sign-up {
@@ -740,7 +741,7 @@ table td a {
   line-height: 16px;
   color: var(--gray2);
   background: white;
-  width: 140px;
+  width: 40px;
 }
 .bottom-container.sign-up .aside svg {
   width: 50px;

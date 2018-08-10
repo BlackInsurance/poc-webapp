@@ -31,8 +31,7 @@ export var recaptchaOnload = function(){
 
 @Component({
   selector: 'newPolicy',
-  templateUrl: './newPolicy.component.html',
-  styleUrls: [ './newPolicy.component.scss' ]
+  templateUrl: './newPolicy.component.html'
 })
 export class NewPolicyComponent implements OnInit {
 
@@ -45,7 +44,6 @@ export class NewPolicyComponent implements OnInit {
 
   @ViewChild('emailControl') emailControl;
   @ViewChild('passwordControl') passwordControl;
-  @ViewChild('passwordRepeatControl') passwordRepeatControl;
   emailErrorMessage : string = '';
   passwordErrorMessage : string = '';
 
@@ -85,7 +83,7 @@ export class NewPolicyComponent implements OnInit {
 
     // Prepare the Facebook SDK
     FB.init({
-        appId      : '160878728100422',
+        appId      : '987695181407829',
         status     : false,
         cookie     : false,
         xfbml      : false,
@@ -159,18 +157,25 @@ export class NewPolicyComponent implements OnInit {
     }
   }
 
+  public togglePassword(evt) {
+    let passwordViewController = evt.target;
+    if (evt.type == 'mousedown') {
+        passwordViewController.classList.replace('glyphicon-eye-close', 'glyphicon-eye-open');
+        this.passwordControl.nativeElement.type = 'input';
+    } else if (evt.type == 'mouseup') {
+        passwordViewController.classList.replace('glyphicon-eye-open', 'glyphicon-eye-close');
+        this.passwordControl.nativeElement.type = 'password'; 
+    }
+  }
+
   private checkPass() {
-      let repeat = this.passwordRepeatControl.nativeElement.value;
       let pass = this.passwordControl.nativeElement.value;
 
-      if (repeat === '' || pass === '') { return false; }
-
-      if (repeat === pass) {
+      if (pass === '') { 
+        return false; 
+      } else {
         this.passwordErrorMessage = '';
         return true;
-      } else {
-        this.passwordErrorMessage = 'Passwords do not match';
-        return false;
       }
   }
 
@@ -307,7 +312,6 @@ export class NewPolicyComponent implements OnInit {
     if (this.emailControl != undefined){
       this.emailControl.nativeElement.setValue('');
       this.passwordControl.nativeElement.setValue('');
-      this.passwordRepeatControl.nativeElement.setValue('');
       this.recaptchaControl.reset();
     }
   }
