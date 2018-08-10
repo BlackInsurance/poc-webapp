@@ -91,17 +91,11 @@
             <div class="content">
                 <div class="input-block center-xs">
                     <label *ngIf="emailErrorMessage != ''" class="error-text small email hidden-sm-and-up" for="email">{{ emailErrorMessage }}</label>
-                    <label *ngIf="emailErrorMessage == ''" class="small email hidden-sm-and-up" for="email">Email</label>
                     <input type="text" [ngClass]="{'error-text': emailErrorMessage != ''}" class="email" name="email" placeholder="Email" #emailControl (change)="checkSignupReady()" />
                 </div>
                 <div class="input-block center-xs">
-                    <label class="password small hidden-sm-and-up" for="password">Password</label>
                     <input type="password" class="password" name="password" placeholder="Password" #passwordControl (change)="checkSignupReady()" (blur)="checkSignupReady()" />
-                </div>
-                <div class="input-block center-xs">
-                    <label *ngIf="passwordErrorMessage != ''" class="error-text repeat small hidden-sm-and-up" for="repeat">{{passwordErrorMessage}}</label>
-                    <label *ngIf="passwordErrorMessage == ''" class="repeat small hidden-sm-and-up" for="repeat">Repeat Password</label>
-                    <input type="password" name="repeat" [ngClass]="{'error-text': passwordErrorMessage != ''}" class="repeat" placeholder="Repeat Password" #passwordRepeatControl (change)="checkSignupReady()" (blur)="checkSignupReady()" />
+                    <span class="password-viewer glyphicon glyphicon-eye-close" (mousedown)="togglePassword($event)" (mouseup)="togglePassword($event)"></span>
                 </div>
             </div>
             <div class="aside hidden-xs">
@@ -137,7 +131,7 @@
                 <re-captcha (resolved)="recaptchaResolved($event)" #recaptchaControl></re-captcha>
             </div>            
             <div class="aside hidden-sm-and-up">
-                <span>Or use to sign up</span>
+                <span>Or</span>
                 <a href="#" (click)="loginWithFacebook($event)">
                     <svg width="70px" height="70px" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
