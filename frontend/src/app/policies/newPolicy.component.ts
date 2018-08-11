@@ -159,10 +159,14 @@ export class NewPolicyComponent implements OnInit {
 
   public togglePassword(evt) {
     let passwordViewController = evt.target;
-    if (evt.type == 'mousedown') {
+    if (evt.type == 'touchstart'  || evt.type == 'touchend') {
+        evt.preventDefault();
+    }
+
+    if (evt.type == 'mousedown' || evt.type == 'touchstart' ) {
         passwordViewController.classList.replace('glyphicon-eye-close', 'glyphicon-eye-open');
         this.passwordControl.nativeElement.type = 'input';
-    } else if (evt.type == 'mouseup') {
+    } else if (evt.type == 'mouseup' || evt.type == 'touchend') {
         passwordViewController.classList.replace('glyphicon-eye-open', 'glyphicon-eye-close');
         this.passwordControl.nativeElement.type = 'password'; 
     }
