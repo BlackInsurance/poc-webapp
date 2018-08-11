@@ -95,7 +95,7 @@
                 </div>
                 <div class="input-block center-xs">
                     <input type="password" class="password" name="password" placeholder="Password" #passwordControl (change)="checkSignupReady()" (blur)="checkSignupReady()" />
-                    <span class="password-viewer glyphicon glyphicon-eye-close" (mousedown)="togglePassword($event)" (mouseup)="togglePassword($event)"></span>
+                    <span class="password-viewer glyphicon glyphicon-eye-close" (mousedown)="togglePassword($event)" (mouseup)="togglePassword($event)" (touchstart)="togglePassword($event)" (touchend)="togglePassword($event)"></span>
                 </div>
             </div>
             <div class="aside hidden-xs">
