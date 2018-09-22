@@ -141,11 +141,7 @@ export class PublicRoute extends BaseRoute {
                                 error: null,
                                 message: 'logged in'
                             });
-                            res.send(policy);
                         });
-
-
-
                 })
                 (req, res);
             }
