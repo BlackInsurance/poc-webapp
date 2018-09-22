@@ -74,13 +74,14 @@ export class BaseRoute {
 
 
 
-  public createJWT(_policyHolderDisplayName:string, _policyHolderID:string) : string {
+  public createJWT(_policyHolderDisplayName:string, _policyHolderID:string, _policyHolderLocation:string) : string {
     let endOfYear = (new Date( (new Date()).getFullYear(), 11, 31));
     const rawToken = { 
         "sub" : _policyHolderDisplayName,
         "exp" : endOfYear.getTime(),
         "iat" : (new Date()).getTime(),
-        "jti" : _policyHolderID
+        "jti" : _policyHolderID,
+        "loc" : _policyHolderLocation
     };
 
     const jwtSigningKey = (process.env.JWT_SIGNING_KEY || 'secret');
