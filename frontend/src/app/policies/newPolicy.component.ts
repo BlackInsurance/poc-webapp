@@ -15,6 +15,8 @@ import { Address } from 'ngx-google-places-autocomplete/objects/address';
 
 import { ToastrService } from 'ngx-toastr';
 
+import * as jwtDecode from 'jwt-decode';
+
 
 let global_this : any;
 declare var FB: any;
@@ -221,6 +223,12 @@ export class NewPolicyComponent implements OnInit {
               this.toastr.error('Please verify again', 'reCAPTCHA failed');
               this.recaptchaControl.reset();
               this.recaptchaToken = '';
+            } else if ( err.message == 'Invalid Token') {
+              // The server attempted to login the user, but the token is incomplete.  Take them to step3
+              this.newPolicy.emailAddress = this.emailControl.nativeElement.value;
+              this.newPolicy.password = this.passwordControl.nativeElement.value;
+              this.userPassLogin = true;
+              this.router.navigate(['/signup/step3']);             
             } else {
               // Systemic Error.  Display a dialog
               console.log(err);
@@ -264,8 +272,20 @@ export class NewPolicyComponent implements OnInit {
               }
             },
             err => {
-              console.log(err);
-              global_this.toastr.warning('Please try another login method', 'Facebook error');
+              if ( err.message == 'Invalid Token' ){
+                // Login was successful, but the policy is incomplete.  Send them to step3                
+                global_this.newPolicy.emailAddress = '';
+                global_this.newPolicy.password = '';
+                global_this.newPolicy.policyHolder.policyHolderID = err.response.policyHolderID;
+                global_this.newPolicy.facebook.id = err.response.accountID;
+                global_this.newPolicy.facebook.name = err.response.policyHolderName;
+                global_this.newPolicy.facebook.email = err.response.email;
+                
+                global_this.router.navigate(['/signup/step3']);
+              } else {
+                console.log(err);
+                global_this.toastr.warning('Please try another login method', 'Facebook error');
+              }
             });
 
       } else {
@@ -287,8 +307,16 @@ export class NewPolicyComponent implements OnInit {
     if (origin !== global_this.federatedLoginBaseURL) { return }
     
     if (event.data.type == 'success'){
+      var loginSuccessful = false;
       if (event.data.hasPolicy){
-        localStorage.setItem('token', event.data.token);
+        var decodedJWT = jwtDecode(event.data.token);
+        if (decodedJWT.sub != '' && decodedJWT.loc != '') {
+          localStorage.setItem('token', event.data.token);
+          loginSuccessful = true;
+        }
+      }
+
+      if ( loginSuccessful ){
         global_this.router.navigate(['/home']);
       } else {
         global_this.newPolicy.emailAddress = '';

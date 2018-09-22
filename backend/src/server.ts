@@ -242,7 +242,6 @@ export class Server {
         const _policyHolderEmail = req.user.google.email;
         const _sourceURL = 'https://' + (req.hostname == 'localhost' ? 'localhost:8000' : req.headers.host);
         const secureRouter = new SecuredRoute(this.dataModel, this.policyModel, this.policyHolderModel);
-        const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID);
 
         let global_this = this;
         // Get the ObjectID for the PolicyHolder
@@ -271,6 +270,7 @@ export class Server {
                         if (policy == null){
                             res.render('authenticated', { hasPolicy: false, accountID: _googleID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail, sourceURL: _sourceURL });
                         } else {
+                            const jwt = secureRouter.createJWT(_policyHolderName, _policyHolderID, policy.coveredCity.name);   
                             res.render('authenticated', { hasPolicy: true, token: jwt, sourceURL: _sourceURL });
                         }
                     });

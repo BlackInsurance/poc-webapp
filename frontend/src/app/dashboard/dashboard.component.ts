@@ -18,6 +18,7 @@ import { PolicyService } from '../policies/policies.service';
 export class DashboardComponent {
 
   public currentUserEmailAddress : string = '';
+  public currentUserPolicyLocation : string = '';
   public policy: Policy;
 
   blckBalance : number = 0;
@@ -68,6 +69,7 @@ export class DashboardComponent {
 
     this.policy = Policy.CreateDefault();
     this.currentUserEmailAddress = policyService.getCurrentUserEmail();
+    this.currentUserPolicyLocation = policyService.getCurrentPolicyLocation();
 
     this.computeBLCKBalance();
     this.computeDaysSinceLastClaim();
@@ -106,8 +108,9 @@ export class DashboardComponent {
          }
       },
       err => {
-        this.toastr.error('Please try again later', 'Network error');
+        this.toastr.error('Please login again', 'Session timeout');
         console.log(err);
+        this.router.navigate(['/signup/step2']); 
       });
   }
 

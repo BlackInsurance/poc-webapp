@@ -115,13 +115,37 @@ export class PublicRoute extends BaseRoute {
                         });
                     }
 
-                    const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID);                 
-                    res.setHeader('Authorization', signedToken);
-                    return res.json( {
-                        existingAccount: true,
-                        error: null,
-                        message: 'logged in'
-                    });
+                    // Check if the policyHolder has a Policy
+                    __this.policyModel.findOne({ policyHolder: policyHolder._id })  
+                        .exec(function(err, policy){
+                            if (err) {
+                                console.log('Error: Failed to communicate with the DB. ErrorMessage=' + err.message);
+                                return res.status(500).json( {
+                                    existingAccount : true,
+                                    error: err,
+                                    message: err.message ? err.message : 'Login failed'
+                                });
+                            }
+
+                            if (policy == null){
+                                console.log('Error: Failed to locate the requested Policy. PolicyHolderID=' + req.body.policyHolderID);
+                                res.status(404);
+                                res.send({error: 'Failed to locate the requested Policy'});
+                                return;
+                            }
+
+                            const signedToken = __this.createJWT(policyHolder.email, policyHolder.policyHolderID, policy.coveredCity.name);                 
+                            res.setHeader('Authorization', signedToken);
+                            return res.json( {
+                                existingAccount: true,
+                                error: null,
+                                message: 'logged in'
+                            });
+                            res.send(policy);
+                        });
+
+
+
                 })
                 (req, res);
             }
@@ -193,7 +217,7 @@ export class PublicRoute extends BaseRoute {
                             const currentPolicyHolderEmail = ( currentPolicyHolder.facebook.email && currentPolicyHolder.facebook.email.trim() != '' ) ? currentPolicyHolder.facebook.email : currentPolicyHolder.google.email;
                             __this.sendConfirmationEmail(req, currentPolicyHolder.confirmationID, currentPolicyHolderEmail);
                             
-                            let signedToken = __this.createJWT(currentPolicyHolderName, currentPolicyHolder.policyHolderID);                 
+                            let signedToken = __this.createJWT(currentPolicyHolderName, currentPolicyHolder.policyHolderID, newPolicy.coveredCity.name);                 
                             res.setHeader('Authorization', signedToken);
                             res.send(newPolicy);
                         });
@@ -253,7 +277,7 @@ export class PublicRoute extends BaseRoute {
                                 console.log("policy saved!");
                                 __this.sendConfirmationEmail(req, newPolicyHolder.confirmationID, newPolicyHolder.email);
 
-                                const signedToken = __this.createJWT(newPolicyHolder.email, newPolicyHolder.policyHolderID);                 
+                                const signedToken = __this.createJWT(newPolicyHolder.email, newPolicyHolder.policyHolderID, newPolicy.coveredCity.name);                 
                                 res.setHeader('Authorization', signedToken);
                                 res.send(newPolicy);
                             });
@@ -472,7 +496,7 @@ export class PublicRoute extends BaseRoute {
                                                         ( policyHolder.google.name && policyHolder.google.name.trim() != '' ) ? policyHolder.google.name : 
                                                           policyHolder.email;
                             
-                            const signedToken = __this.createJWT(currentPolicyHolder, policyHolder.policyHolderID);   
+                            const signedToken = __this.createJWT(currentPolicyHolder, policyHolder.policyHolderID, policy.coveredCity.name);   
                             res.cookie('jwt', signedToken);             
                             res.setHeader('Authorization', signedToken);
                             res.sendFile(`index.html`, { root: publicweb })
