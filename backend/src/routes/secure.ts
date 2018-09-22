@@ -153,7 +153,6 @@ export class SecuredRoute extends BaseRoute {
         const _policyHolderID = req.user.policyHolderID;
         const _policyHolderName = req.user.facebook.name;
         const _policyHolderEmail = req.user.facebook.email;
-        const jwt = this.createJWT(_policyHolderName, _policyHolderID);
 
         let global_this = this;
         // Get the ObjectID for the PolicyHolder
@@ -172,6 +171,7 @@ export class SecuredRoute extends BaseRoute {
                             res.send({ hasPolicy: false, accountID: _facebookID, policyHolderID: _policyHolderID, policyHolderName: _policyHolderName, email: _policyHolderEmail });
                             return;
                         } else {
+                            const jwt = global_this.createJWT(_policyHolderName, _policyHolderID, policy.coveredCity.name);
                             console.log('Facebook user already has a policy');
                             res.setHeader('Authorization', jwt);
                             res.send({ hasPolicy: true });

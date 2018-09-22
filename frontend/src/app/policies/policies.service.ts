@@ -40,6 +40,17 @@ export class PolicyService {
     }
 
 
+    getCurrentPolicyLocation() : string {
+        if ( localStorage.getItem('token') == null ){
+            return '';
+        } else {
+            let encodedJWT = localStorage.getItem('token');
+            let decodedJWT = jwtDecode(encodedJWT);
+            return decodedJWT.loc;
+        }
+    }
+
+
     checkLoginCredentials(_emailAddress:string,_password:string, _recaptchaToken:string) : Observable<any>{
         var hashedPassword = shajs('sha256').update(_password).digest('hex');
         var loginRequest = { type: 'credentials', email: _emailAddress, password: hashedPassword, recaptchaToken: _recaptchaToken };
@@ -48,7 +59,17 @@ export class PolicyService {
             map((res:HttpResponse<any>) => { 
                 if (res.body.message == 'logged in'){
                     var token = res.headers.get('Authorization');
-                    localStorage.setItem('token', token);
+
+                    // Check to make sure the JWT contains the email AND policyLocation
+                    var decodedJWT = jwtDecode(token);
+                    if (decodedJWT.sub != '' && decodedJWT.loc != '') {
+                        localStorage.setItem('token', token);
+                    }else{
+                        return observableThrowError({
+                            message: 'Invalid Token',
+                            response: res
+                        });
+                    }
                 }
 
                 return res.body; 
@@ -68,7 +89,17 @@ export class PolicyService {
             map((res:HttpResponse<any>) => { 
                 if (res.body.hasPolicy){
                     var token = res.headers.get('Authorization');
-                    localStorage.setItem('token', token);
+
+                    // Check to make sure the JWT contains the email AND policyLocation
+                    var decodedJWT = jwtDecode(token);
+                    if (decodedJWT.sub != '' && decodedJWT.loc != '') {
+                        localStorage.setItem('token', token);
+                    }else{
+                        return observableThrowError({
+                            message: 'Invalid Token',
+                            response: res
+                        });
+                    }
                 }            
                 return res.body; 
             }),
